@@ -14,33 +14,34 @@ import {
   CustomTextInput,
   Button,
 } from '../../components';
-import { ScrollView } from 'react-native-gesture-handler';
-import { RoutNames } from '../../navigation/routeNames';
-import { useNavigation } from '@react-navigation/native';
-
+import {ScrollView} from 'react-native-gesture-handler';
+import {RoutNames} from '../../navigation/routeNames';
+import {useNavigation} from '@react-navigation/native';
+import LeftShape from '../../assets/svg//leftShape.svg';
 export const ForgetPassword = () => {
-    const navigate=useNavigation()
+  const navigate = useNavigation();
 
   return (
-    <ScrollView style={[style.container, globalStyles.fillAll]}>
+    <View style={[style.container, globalStyles.fillAll]}>
       <Login_signup_Component
         title={'Forget Password'}
         description={'Enter your email to reset your password'}
-        uersImg={require('../../assets/images/bigEmail.png')}
+        icon={'email'}
       />
       <View style={style.Allinputfeild_view}>
         <View style={style.input_view}>
           <CustomTextInput icon={'email'} />
-          <TextInput style={style.input} placeholder="Email" />
+          <TextInput  placeholderTextColor={color.palette.lightgray} style={style.input} placeholder="Email" />
         </View>
       </View>
       <View style={style.btn_view}>
-        <Image
-          style={style.left_shape}
-          source={require('../../assets/images/leftshape.png')}
-        />
+        <View style={style.left_shape}>
+        <LeftShape width={40} />
+        </View>
         <View style={style.btn_option}>
-          <TouchableOpacity style={style.btn} onPress={()=>navigate.navigate(RoutNames.OtpScreen)}>
+          <TouchableOpacity
+            style={style.btn}
+            onPress={() => navigate.navigate(RoutNames.OtpScreen)}>
             <Button title={'Send Mail'} />
           </TouchableOpacity>
           <View
@@ -49,17 +50,24 @@ export const ForgetPassword = () => {
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-            <Text style={{color:color.palette.black}}>If you do not have account?</Text>
+            <Text style={{color: color.palette.black}}>
+              If you do not have account?
+            </Text>
             <TouchableOpacity
               onPress={() => navigate.navigate(RoutNames.LoginScreen)}>
-              <Text style={{color: color.palette.darkblue, fontWeight: 'bold'}}>
+              <Text
+                style={{
+                  color: color.palette.darkblue,
+                  fontWeight: 'bold',
+                  paddingLeft: 5,
+                }}>
                 Sign In
               </Text>
             </TouchableOpacity>
           </View>
         </View>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 const style = StyleSheet.create({
@@ -81,25 +89,25 @@ const style = StyleSheet.create({
     position: 'absolute',
     width: '73%',
     fontSize: 18,
-    color:color.palette.black
+    color: color.palette.black,
   },
- 
- 
+
   btn_view: {
     flex: 0.35,
     flexDirection: 'row',
-    paddingTop: 10,
+    top:-30
   },
   left_shape: {
-    width: 40,
-    height: 300,
+    width:40,
+    bottom:'10%'
   },
   btn_option: {
     width: '80%',
-    justifyContent: 'space-around',
-    paddingBottom: 50,
+    justifyContent: 'space-between',
+    paddingBottom: 30,
   },
   btn: {
     width: '100%',
+    top:20
   },
 });

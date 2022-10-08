@@ -17,66 +17,57 @@ import {
   Button,
   SmallButton,
 } from '../../components';
-import {ScrollView} from 'react-native-gesture-handler';
 import {RoutNames} from '../../navigation/routeNames';
 import {useNavigation} from '@react-navigation/native';
-
+import Eye from '../../assets/svg/eye.svg';
+import LeftShape from '../../assets/svg/leftShape.svg';
+import Cross from '../../assets/svg/cross.svg';
+import Tick from '../../assets/svg/tick.svg'
 export const NewPassword = () => {
   const navigate = useNavigation();
   const [saved, setsaved] = useState(false);
-
+  
   return (
-    <ScrollView style={[style.container, globalStyles.fillAll]}>
+    <View style={[style.container, globalStyles.fillAll]}>
       <Login_signup_Component
         title={'New Password'}
         description={'Enter password with following instructions'}
-        uersImg={require('../../assets/images/bigLock.png')}
+        icon={'lock'}
       />
       <View style={style.Allinputfeild_view}>
         <View style={style.input_view}>
           <View style={style.fix}>
             <CustomTextInput icon={'lock'} />
-            <TextInput style={style.input} placeholder="New Password" />
+            <TextInput  placeholderTextColor={color.palette.lightgray} style={style.input} placeholder="New Password" />
           </View>
-          <Image
-            style={style.eye}
-            source={require('../../assets/images/eye.png')}
-          />
+          <TouchableOpacity style={style.eye}>
+            <Eye width={22} height={25} />
+          </TouchableOpacity>
         </View>
         <View style={style.input_view}>
           <View style={style.fix}>
             <CustomTextInput icon={'lock'} />
-            <TextInput style={style.input} placeholder="Confirm Password" />
+            <TextInput  placeholderTextColor={color.palette.lightgray} style={style.input} placeholder="Confirm Password" />
           </View>
-          <Image
-            style={style.eye}
-            source={require('../../assets/images/eye.png')}
-          />
+          <TouchableOpacity style={style.eye}>
+            <Eye width={22} height={25} />
+          </TouchableOpacity>
         </View>
       </View>
 
       <View style={style.condition_view}>
         <View style={style.condition}>
-          <Image
-            style={style.cross}
-            source={require('../../assets/images/cross.png')}
-          />
+          <Cross style={style.cross} width={13} height={13} />
           <Text style={style.condition_text}>Atleast 8 characters</Text>
         </View>
         <View style={style.condition}>
-          <Image
-            style={style.cross}
-            source={require('../../assets/images/cross.png')}
-          />
+          <Cross style={style.cross} width={13} height={13} />
           <Text style={style.condition_text}>
             Both upper and lowercase letters (optional)
           </Text>
         </View>
         <View style={style.condition}>
-          <Image
-            style={style.cross}
-            source={require('../../assets/images/cross.png')}
-          />
+          <Cross style={style.cross} width={13} height={13} />
           <Text style={style.condition_text}>
             Atleast one number or symbol (optional)
           </Text>
@@ -84,10 +75,9 @@ export const NewPassword = () => {
       </View>
 
       <View style={style.btn_view}>
-        <Image
-          style={style.left_shape}
-          source={require('../../assets/images/leftshape.png')}
-        />
+        <View style={style.left_shape}>
+        <LeftShape   width={"100%"}/>
+        </View>
         <View style={style.btn_option}>
           <TouchableOpacity
             style={style.btn}
@@ -102,7 +92,9 @@ export const NewPassword = () => {
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-            <Text style={{color:color.palette.black}}>If you do not have account?</Text>
+            <Text style={{color: color.palette.black}}>
+              If you do not have account?
+            </Text>
             <TouchableOpacity
               onPress={() => navigate.navigate(RoutNames.LoginScreen)}>
               <Text style={{color: color.palette.darkblue, fontWeight: 'bold'}}>
@@ -112,7 +104,7 @@ export const NewPassword = () => {
           </View>
         </View>
       </View>
-      <Modal visible={saved} transparent={true} animationType="slide">
+      <Modal visible={saved} transparent={true} animationType="fade">
         <View style={style.modal_view}>
           <View style={style.view}>
             <View
@@ -123,34 +115,31 @@ export const NewPassword = () => {
                 padding: 20,
               }}>
               <View style={style.tick_view}>
-                <Image
-                  style={style.tick}
-                  source={require('../../assets/images/tick.png')}
-                />
+                <Tick width={25} height={25}/>
               </View>
               <View style={style.modal_text_view}>
                 <Text style={style.modal_text}>
                   Your Password has been Changed
                 </Text>
               </View>
-              <TouchableOpacity style={style.modal_btn_view} onPress={()=>navigate.navigate(RoutNames.LoginScreen)}>
-                <SmallButton title={'Login'} />
+              <TouchableOpacity
+                style={style.modal_btn_view}
+                onPress={() =>{setsaved(!saved),navigate.navigate(RoutNames.LoginScreen)}}>
+                <SmallButton  title={'Login'} />
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
-    </ScrollView>
+    </View>
   );
 };
 const style = StyleSheet.create({
   container: {
-    
     backgroundColor: color.palette.white,
   },
   Allinputfeild_view: {
-    marginTop: -20,
-    flex: 0.25,
+    flex: 0.15,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -158,13 +147,14 @@ const style = StyleSheet.create({
     width: '80%',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 15,
+  
   },
   input: {
     position: 'absolute',
     width: '73%',
     fontSize: 18,
-    color:color.palette.black
+    color: color.palette.black,
   },
   fix: {
     width: '100%',
@@ -172,8 +162,6 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   eye: {
-    width: 19,
-    height: 15,
     position: 'absolute',
     right: '5%',
   },
@@ -185,6 +173,7 @@ const style = StyleSheet.create({
   condition_view: {
     flex: 0.1,
     alignItems: 'center',
+    top:"2%"
   },
   condition: {
     alignItems: 'center',
@@ -194,50 +183,52 @@ const style = StyleSheet.create({
   condition_text: {
     marginLeft: 15,
     fontSize: fontSizes.xxsmall,
-    color:color.palette.black
+    color: color.palette.black,
   },
   cross: {
     width: 10,
     height: 10,
   },
   btn_view: {
+  
     flex: 0.35,
     flexDirection: 'row',
-    paddingTop: 10,
+    
   },
   left_shape: {
-    width: 40,
-    height: 300,
+    width:40,
+    bottom:'10%'
   },
   btn_option: {
     width: '80%',
-    justifyContent: 'space-around',
-    paddingBottom: 50,
+    justifyContent: 'space-between',
+    paddingBottom:40
   },
   btn: {
     width: '100%',
+    top:20
   },
   modal_view: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor:'rgba(0,0,0,0.6)'
+    
   },
   view: {
     width: '80%',
     backgroundColor: 'white',
-    borderWidth: 1,
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
-
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2
+      height: 2,
     },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 5
+    elevation: 5,
   },
   tick_view: {
     borderWidth: 2,
@@ -256,7 +247,7 @@ const style = StyleSheet.create({
   modal_text: {
     fontSize: 20,
     textAlign: 'center',
-    color:color.palette.black
+    color: color.palette.black,
   },
   modal_btn_view: {
     width: 100,

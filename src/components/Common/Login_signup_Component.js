@@ -2,32 +2,50 @@ import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import React from 'react';
 import {fontSizes, fontWeights, globalStyles} from '../../theme/styles';
 import {color, typography} from '../../theme';
-import { useNavigation } from '@react-navigation/native';
-export const Login_signup_Component = ({uersImg, title, description}) => {
-  const navigate=useNavigation()
+import {useNavigation} from '@react-navigation/native';
+import Back from '../../assets/svg/back.svg';
+import SemiCircle from '../../assets/svg/semiCircle.svg';
+import User from '../../assets/svg/user.svg';
+import Email from '../../assets/svg/largeEmail.svg';
+import Lock from '../../assets/svg/largeLock.svg';
+import LockDot from '../../assets/svg/lockDot.svg';
+export const Login_signup_Component = ({icon, title, description}) => {
+  const selecticon = () => {
+    if (icon === 'user') {
+      return <User style={style.user} />;
+    } else if (icon === 'email') {
+      return <Email height={33} width={33} />;
+    } else {
+      return (
+        <View>
+          <Lock />
+          <LockDot style={style.lock_dot} width={15} height={17} />
+        </View>
+      );
+    }
+  };
+  const navigate = useNavigation();
   return (
     <View style={style.title_view}>
-      <TouchableOpacity style={style.back_icon_view} onPress={()=>{navigate.goBack()}}>
-        <Image
-          style={style.back_icon}
-          source={require('../../assets/images/backIcon.png')}
-        />
+      <TouchableOpacity
+        style={style.back_icon_view}
+        onPress={() => {
+          navigate.goBack();
+        }}>
+        <Back style={style.back_icon} />
       </TouchableOpacity>
       <View style={style.semi_circle_View}>
-        <Image
-          style={style.semi_cricle}
-          source={require('../../assets/images/semiCircle.png')}
-        />
+        <SemiCircle style={style.semi_cricle} />
       </View>
       <View style={style.user_title_view}>
-        <View style={style.user_view}>
-          <Image style={style.user} source={uersImg} />
-        </View>
+        <View style={style.user_view}>{selecticon()}</View>
         <View style={style.page_title_view}>
           <Text style={style.page_title}>{title}</Text>
         </View>
         <View style={style.descr_view}>
-          <Text numberOfLines={2} style={style.descr}>{description}</Text>
+          <Text numberOfLines={2} style={style.descr}>
+            {description}
+          </Text>
         </View>
       </View>
     </View>
@@ -40,11 +58,11 @@ const style = StyleSheet.create({
     justifyContent: 'space-between',
     flexDirection: 'row',
   },
-  back_icon_view: {},
-  back_icon: {
-    
-    margin: 20,
+  back_icon_view: {
+    padding: 25,
+    alignSelf: 'flex-start',
   },
+  back_icon: {},
   user_title_view: {
     width: '100%',
     height: '100%',
@@ -65,17 +83,18 @@ const style = StyleSheet.create({
   page_title: {
     fontSize: fontSizes.biggest,
     color: color.palette.black,
-    fontStyle:typography.Avenir_Bold,
-    fontWeight:fontWeights.extraBold
-    
+    fontStyle: typography.Avenir_Bold,
+    fontWeight: fontWeights.extraBold,
+    fontSize: 30,
   },
   descr_view: {
-    width:'70%'
+    width: '70%',
   },
   descr: {
-    color: color.palette.black,
+    color: color.palette.lightgray,
     fontWeight: '300',
-    textAlign:'center'
+    textAlign: 'center',
+    fontSize: 16,
   },
   semi_circle_View: {
     flex: 1,
@@ -84,5 +103,11 @@ const style = StyleSheet.create({
   },
   semi_cricle: {
     width: 80,
+  },
+  lock_dot: {
+    position: 'absolute',
+    alignSelf: 'flex-end',
+    top: 19.5,
+    right: 5,
   },
 });

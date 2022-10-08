@@ -6,24 +6,25 @@ import {Button} from '../components';
 import {ScrollView} from 'react-native-gesture-handler';
 import {useNavigation} from '@react-navigation/native';
 import {RoutNames} from '../navigation/routeNames';
+import Shape from '../assets/svg/shape.svg';
+import Logo from '../assets/svg/logo.svg';
+import { useSelector,useDispatch } from 'react-redux';
+import { ADD,REMOVE } from '../Reduxs/Reducers';
 export const MainScreen = () => {
+  const {data,email,password}=useSelector((state)=>state.UserReducer)
+  const dispatch=useDispatch()
   const navigate = useNavigation();
+  console.log("object",data)
   return (
     <View style={style.container}>
       <View style={style.shape_container}>
         <View style={style.fix}>
-          <Image
-            style={style.shape}
-            source={require('../assets/images/shape.png')}
-          />
-          <Text style={style.title}>Funeral Service Fund</Text>
+          <Shape style={style.shape} width={"100%"} />
+          <Text style={style.title}>Funeral Services Fund</Text>
         </View>
       </View>
       <View style={style.logo_view}>
-        <Image
-          style={style.logo}
-          source={require('../assets/images/logo.png')}
-        />
+        <Logo style={style.logo} width={'100%'} />
       </View>
       <View style={style.btn_view}>
         <TouchableOpacity
@@ -31,8 +32,10 @@ export const MainScreen = () => {
           onPress={() => navigate.navigate(RoutNames.LoginScreen)}>
           <Button title={'Sign In'} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigate.navigate(RoutNames.SignUpScreen)} style={style.btn}>
-          <Button title={'Create Account'} />
+        <TouchableOpacity
+          onPress={() =>dispatch(ADD(1))}
+          style={style.btn}>
+          <Button button2={true} title={'Create Account'} />
         </TouchableOpacity>
       </View>
     </View>
@@ -41,7 +44,7 @@ export const MainScreen = () => {
 const style = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor:color.palette.white
+    backgroundColor: color.palette.white,
   },
   shape_container: {
     flex: 0.4,
@@ -51,24 +54,20 @@ const style = StyleSheet.create({
   },
   shape: {
     alignSelf: 'flex-end',
-    width: 383,
-    height: 420,
-    marginTop: 20,
+    marginTop: 140,
   },
   title: {
+    paddingTop: 140,
     fontSize: 45,
     color: colors.white,
     position: 'absolute',
     fontWeight: fontWeights.extraBold,
     width: '60%',
     paddingLeft: 20,
-    
   },
   fix: {
     flex: 1,
     width: 363,
-    height: 400,
-    marginTop: 20,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -78,8 +77,7 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   logo: {
-    width: 280,
-    height: 280,
+    
   },
   btn_view: {
     marginTop: 15,
@@ -89,6 +87,6 @@ const style = StyleSheet.create({
   },
   btn: {
     paddingBottom: 20,
-    width: '70%',
+    width: '80%',
   },
 });

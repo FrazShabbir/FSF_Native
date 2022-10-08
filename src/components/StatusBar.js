@@ -6,9 +6,10 @@ export const StatusBar = () => {
   return (
     <View style={styles.statusBarheight}>
       <TopStatusBar
-        translucent
+        
         barStyle="light-content"
         backgroundColor={colors.theme.statusBarBgDark}
+        showHideTransition
       />
     </View>
   );

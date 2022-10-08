@@ -9,14 +9,14 @@ import {
 import React from 'react';
 import {color, typography} from '../theme';
 import {fontWeights, globalStyles} from '../theme/styles';
-
-export const Button = ({title, onPress, titleStyle}) => {
+import Button1 from '../assets/svg/button1.svg'
+import Button2 from '../assets/svg/button2.svg'
+export const Button = ({title, onPress,button2, titleStyle}) => {
   return (
     <View style={style.container}>
-      <Image
-        style={style.btn}
-        source={require('../assets/images/button1.png')}
-      />
+      {button2?(<Button2 style={style.btn} width={"100%"} />):(
+       <Button1 style={style.btn} width={"100%"}/>
+      )}
       <Text style={style.title}>{title}</Text>
     </View>
   );
@@ -33,7 +33,6 @@ const style = StyleSheet.create({
     fontWeight: fontWeights.extraBold,
   },
   btn: {
-    width: '100%',
     borderRadius: 50,
   },
 });

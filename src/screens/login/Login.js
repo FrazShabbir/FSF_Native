@@ -14,33 +14,35 @@ import {
   CustomTextInput,
   Button,
 } from '../../components';
-import { ScrollView } from 'react-native-gesture-handler';
-import { useNavigation } from '@react-navigation/native';
-import { RoutNames } from '../../navigation/routeNames';
-
+import {ScrollView} from 'react-native-gesture-handler';
+import {useNavigation} from '@react-navigation/native';
+import {RoutNames} from '../../navigation/routeNames';
+import Eye from '../../assets/svg/eye.svg';
+import Tick from '../../assets/svg/tickSquare.svg';
+import LeftShape from '../../assets/svg/leftShape.svg';
 export const Login = () => {
-  const navigate=useNavigation()
+  const navigate = useNavigation();
   return (
-    <ScrollView style={[globalStyles.fillAll, style.container]}>
+    <View style={[globalStyles.fillAll, style.container]}>
       <Login_signup_Component
         title={'Login to FSF'}
         description={'Welcome back, please enter your details'}
-        uersImg={require('../../assets/images/user.png')}
+        icon={'user'}
       />
       <View style={style.Allinputfeild_view}>
         <View style={style.input_view}>
           <CustomTextInput icon={'email'} />
-          <TextInput style={style.input} placeholder="Email" />
+          <TextInput 
+          placeholderTextColor={color.palette.lightgray} style={style.input} placeholder="Email" />
         </View>
         <View style={style.input_view}>
           <View style={style.fix}>
             <CustomTextInput icon={'user'} />
-            <TextInput style={style.input} placeholder="Password" />
+            <TextInput  placeholderTextColor={color.palette.lightgray} style={style.input} placeholder="Password" />
           </View>
-          <Image
-            style={style.eye}
-            source={require('../../assets/images/eye.png')}
-          />
+          <TouchableOpacity style={style.eye}>
+            <Eye width={22} height={25} />
+          </TouchableOpacity>
         </View>
         <View style={style.option_view}>
           <View
@@ -49,22 +51,20 @@ export const Login = () => {
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-            <Image
-              style={style.tick}
-              source={require('../../assets/images/tickSquare.png')}
-            />
+            <Tick style={style.tick} width={20} height={20} />
+
             <Text style={style.text_logged}>Keep me logged in</Text>
           </View>
-          <TouchableOpacity onPress={()=>navigate.navigate(RoutNames.ForgetPassword)}>
-          <Text style={style.text_forgot}>Forgot Password?</Text>
+          <TouchableOpacity
+            onPress={() => navigate.navigate(RoutNames.ForgetPassword)}>
+            <Text style={style.text_forgot}>Forgot Password?</Text>
           </TouchableOpacity>
         </View>
       </View>
       <View style={style.btn_view}>
-         <Image
-          style={style.left_shape}
-          source={require('../../assets/images/leftshape.png')}
-        /> 
+        <View style={style.left_shape}>
+        <LeftShape  width={40} />
+        </View>
         <View style={style.btn_option}>
           <TouchableOpacity style={style.btn}>
             <Button title={'Sign In'} />
@@ -75,14 +75,19 @@ export const Login = () => {
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-            <Text style={{color:color.palette.black}}>If you do not have account?</Text>
-            <TouchableOpacity onPress={()=>navigate.navigate(RoutNames.SignUpScreen)} >
-              <Text style={{color:color.palette.darkblue,fontWeight:'bold'}}>Sign Up</Text>
+            <Text style={{color: color.palette.black}}>
+              If you do not have account?
+            </Text>
+            <TouchableOpacity
+              onPress={() => navigate.navigate(RoutNames.SignUpScreen)}>
+              <Text style={{color: color.palette.darkblue, fontWeight: 'bold'}}>
+                Sign Up
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 const style = StyleSheet.create({
@@ -104,7 +109,7 @@ const style = StyleSheet.create({
     position: 'absolute',
     width: '73%',
     fontSize: 18,
-    color:color.palette.black
+    color: color.palette.black,
   },
   fix: {
     width: '100%',
@@ -112,45 +117,40 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   eye: {
-    width: 19,
-    height: 15,
     position: 'absolute',
     right: '5%',
   },
   option_view: {
-    width:'80%',
+    width: '80%',
     flexDirection: 'row',
-    justifyContent:"space-between"
+    justifyContent: 'space-between',
   },
   text_forgot: {
     color: color.palette.darkblue,
-    fontWeight:'bold'
+    fontWeight: 'bold',
   },
   text_logged: {
     fontSize: 15,
     paddingLeft: 5,
-    color:color.palette.black
+    color: color.palette.black,
   },
-  tick: {
-    width: 20,
-    height: 20,
-  },
+  tick: {},
   btn_view: {
     flex: 0.35,
     flexDirection: 'row',
     paddingTop: 10,
   },
-   left_shape: {
-    width: 40,
-    height: 300,
-  }, 
+  left_shape: {
+    width:40,
+    bottom:'10%'
+  },
   btn_option: {
-    width: "80%",
-    justifyContent:'space-around',
-    paddingBottom:50
-
+    width: '80%',
+    justifyContent: 'space-between',
+    paddingBottom: 50,
   },
   btn: {
     width: '100%',
+    top:20
   },
 });

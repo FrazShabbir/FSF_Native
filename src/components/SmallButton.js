@@ -9,21 +9,16 @@ import {
 import React from 'react';
 import {color, typography} from '../theme';
 import {fontWeights, globalStyles} from '../theme/styles';
-
+import RightArrow from '../assets/svg/rightArrow.svg'
+import SmButton from '../assets/svg/smallButton.svg'
 export const SmallButton = ({title}) => {
   return (
     <View style={style.container}>
-      <Image
-        style={style.btn}
-        source={require('../assets/images/button1.png')}
-      />
+      <SmButton width={150} height={38}/>
       <View style={style.title_view}>
         <Text style={style.title}>{title}</Text>
-        <Image
-          style={style.arrow}
-          source={require('../assets/images/rightArrow.png')}
-        />
-      </View>
+       <RightArrow style={style.arrow} width={22} height={13} />
+       </View>
     </View>
   );
 };
@@ -31,8 +26,11 @@ const style = StyleSheet.create({
   container: {
     justifyContent: 'center',
     alignItems: 'center',
+
   },
   title_view: {
+    paddingLeft:10,
+    paddingRight:10,
     position: 'absolute',
     flexDirection: 'row',
     justifyContent: 'center',
@@ -50,8 +48,7 @@ const style = StyleSheet.create({
   },
   arrow: {
     alignSelf: 'center',
-    width: 18,
-    height: 13,
+   
     marginLeft: 5,
   },
 });

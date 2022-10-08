@@ -1,24 +1,18 @@
 import {View, Text, TextInput, StyleSheet, Image} from 'react-native';
 import React from 'react';
 import {color} from '../theme';
+import Email from '../assets/svg/email.svg'
+import User from '../assets/svg/smallUser.svg'
+import Lock from '../assets/svg/lock.svg'
 export const CustomTextInput = ({icon}) => {
   const getImage=()=> {
     if (icon === 'email') {
-        return <Image
-        style={style.email}
-        source={require('../assets/images/email.png')}
-      />
+        return <Email style={style.user} height={20} width={22} />
     }
     if (icon === 'user') {
-        return <Image
-            style={style.user}
-            source={require('../assets/images/smallUser.png')}
-          />
+        return <User width={20} height={24} />
     }
-    return <Image
-    style={style.lock}
-    source={require('../assets/images/lock.png')}
-  />
+    return <Lock width={20} height={24} />
 }
   return (
     <View style={style.input_view}>

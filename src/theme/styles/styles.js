@@ -1,7 +1,7 @@
 import {StyleSheet} from 'react-native';
 import colors from './colors';
 import dimensions from './dimensions';
-import {STATUSBAR_HEIGHT} from '../../constants';
+//import {STATUSBAR_HEIGHT} from '../../constants';
 
 const styles = StyleSheet.create({
   statusBarBgLight: {
@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.theme.bgDark,
   },
   statusBarheight: {
-    height: STATUSBAR_HEIGHT,
+   // height: STATUSBAR_HEIGHT,
   },
   
 

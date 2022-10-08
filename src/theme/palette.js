@@ -13,5 +13,6 @@ export const palette = {
   lightwhite2:"#E3E7EA",
   darkblue:"#7447E5",
   lightgreen:'#4BB543',
-  lightblack:'#6b706c'
+  lightblack:'#6b706c',
+  lightgray:'#9899A0'
 };
