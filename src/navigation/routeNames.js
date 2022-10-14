@@ -4,5 +4,11 @@ export const RoutNames={
     SignUpScreen:'SignUp',
     ForgetPassword:'ForgetScreen',
     OtpScreen:'OtpScreen',
-    NewPasswordScreen:'NewPassword'
+    NewPasswordScreen:'NewPassword',
+    HomeScreen:'HomeScreen',
+    AboutScreen:'AboutScreen',
+    PrivacyScreen:'PrivacyScreen',
+    SettingScreen:'SettingScreen',
+    AnnouncementScreen:"AnnouncementScreen",
+    EnrollmentScreen:"EnrollmentScreen"
 }

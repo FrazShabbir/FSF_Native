@@ -1,10 +1,9 @@
 import {createSlice} from '@reduxjs/toolkit';
 const initialState = {
-  data: false,
+  data:false,
   email: 'aa',
   password: 'pp',
 };
-
 
 
 const UserReducer=createSlice({
