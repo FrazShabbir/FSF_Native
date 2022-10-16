@@ -19,7 +19,7 @@ export const EnrollmentScreen = () => {
     <View style={style.container}>
       <HomeComponent title={'Enroll Yourself'} backIcon={true} />
       <View style={style.bottom_container}>
-      <FormHeader />
+    
       <Form />
       </View>
       <View style={style.bottom_tab_container}>
@@ -80,5 +80,6 @@ const style = StyleSheet.create({
     borderWidth:1,
     width:"80%",
     alignSelf:'center'
-  }
+  },
+ 
 });

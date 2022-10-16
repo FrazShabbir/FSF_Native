@@ -4,7 +4,9 @@ import LinearGradient from 'react-native-linear-gradient';
 import {color} from '../../theme';
 import { fontWeights } from '../../theme/styles';
 
-export const FormHeader = () => {
+export const FormHeader = ({
+  formNo
+}) => {
   return (
     <View style={style.container}>
       <LinearGradient
@@ -22,7 +24,7 @@ export const FormHeader = () => {
               justifyContent:"center",
             alignItems:"center"
             }}>
-            <Text style={style.title}>1.</Text>
+            <Text style={style.title}>{formNo}</Text>
           </View>
         </LinearGradient>
       </View>

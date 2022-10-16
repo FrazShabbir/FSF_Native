@@ -3,8 +3,10 @@ import React from 'react';
 import BlueDot from '../../assets/HomeAssets/Svgs/blueDot.svg';
 import {fontWeights} from '../../theme/styles';
 import GreenDot from '../../assets/HomeAssets/Svgs/greenDot.svg'
+import RedDot from '../../assets/HomeAssets/Svgs/redDot.svg'
+
 import {color} from '../../theme';
-import BackIcon from '../../assets/HomeAssets/Svgs/backDown.svg'
+import BackIcon from '../../assets/HomeAssets/Svgs/rightBack.svg'
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import { RoutNames } from '../../navigation/routeNames';
@@ -16,8 +18,8 @@ export const HomeStatus = ({status}) => {
       return (
         <TouchableOpacity style={style.status_view} onPress={()=>navigate.navigate(RoutNames.EnrollmentScreen)} >
           <Text style={style.status_text}>Register Now</Text>
-          <View style={style.dot_view}>
-            <BackIcon />
+          <View style={style.back_view}>
+            <BackIcon width={"100%"} />
           </View>
         </TouchableOpacity>
       );
@@ -30,7 +32,7 @@ export const HomeStatus = ({status}) => {
           <Text style={style.status_text}>Pendding</Text>
         </View>
       );
-    } else if (status == 'approved') {
+    } else if (status == 'accepted') {
       return (
         <View style={style.status_view}>
           <View style={style.dot_view}>
@@ -43,7 +45,7 @@ export const HomeStatus = ({status}) => {
       return (
         <View style={style.status_view}>
           <View style={style.dot_view}>
-            <GreenDot />
+            <RedDot />
           </View>
           <Text style={style.status_text}>Rejected</Text>
         </View>
@@ -81,7 +83,13 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   dot_view: {
+    
     right: 3,
+  },
+  back_view:{
+    width:12,
+    height:14,
+    left:2
   },
   status_text: {
     color: color.palette.black,
