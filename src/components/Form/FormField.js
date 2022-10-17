@@ -31,7 +31,10 @@ import RelativeInfoNative from '../../assets/EnrolmentAssets/relativeInfoNativeL
 import CompleteAddress2 from '../../assets/EnrolmentAssets/completeAddress2.svg'
 import RepresentiveInfo from '../../assets/EnrolmentAssets/representiveInfo.svg'
 import Agreement from '../../assets/EnrolmentAssets/agreement.svg'
-
+import Buried from '../../assets/EnrolmentAssets/buried.svg'
+import RelativeInvolve from '../../assets/EnrolmentAssets/anyRelativeInvolve.svg'
+import PayFund from '../../assets/EnrolmentAssets/payFund.svg'
+import NotPay from '../../assets/EnrolmentAssets/notPay.svg'
 export const FormField = ({urdu, english}) => {
   const select = () => {
     if (urdu == 'name') {
@@ -183,6 +186,34 @@ export const FormField = ({urdu, english}) => {
           </View>
         );
       }
+      else if (urdu == 'buried') {
+        return (
+          <View style={style.urdu24}>
+            <Buried width={'100%'} height={'100%'} />
+          </View>
+        );
+      }
+      else if (urdu == 'relativeInvolve') {
+        return (
+          <View style={style.urdu25}>
+            <RelativeInvolve width={'100%'} height={'100%'} />
+          </View>
+        );
+      }
+      else if (urdu == 'payFund') {
+        return (
+          <View style={style.urdu26}>
+            <PayFund width={'100%'} height={'100%'} />
+          </View>
+        );
+      }
+      else if (urdu == 'notPay') {
+        return (
+          <View style={style.urdu27}>
+            <NotPay width={'100%'} height={'100%'} />
+          </View>
+        );
+      }
   };
 
   return (
@@ -303,6 +334,22 @@ const style = StyleSheet.create({
   },
   urdu23: {
     width: "100%",
+    height: 40,
+  },
+  urdu24: {
+    width:180,
+    height: 40,
+  },
+  urdu25: {
+    width:280,
+    height: 40,
+  },
+  urdu26: {
+    width:250,
+    height: 40,
+  },
+  urdu27: {
+    width:200,
     height: 40,
   },
   input_container: {

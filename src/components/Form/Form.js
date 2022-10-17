@@ -4,8 +4,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   Pressable,
+  Image,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {Formik} from 'formik';
 import {ScrollView, TextInput} from 'react-native-gesture-handler';
 import {FormField} from './FormField';
@@ -20,17 +21,74 @@ import RightArrow from '../../assets/svg/rightArrow.svg';
 import LeftArrow from '../../assets/EnrolmentAssets/leftArrow.svg';
 import {FormHeader} from './FormHeader';
 import TickSquare from '../../assets/EnrolmentAssets/tickSquare.svg';
+import ImagePicker from 'react-native-image-crop-picker';
+import RBSheet from 'react-native-raw-bottom-sheet';
+import RadioGroup, {RadioButton} from 'react-native-radio-buttons-group';
+import RupeeSign from '../../assets/EnrolmentAssets/rupeeSign.svg';
+import SignatureCapture from 'react-native-signature-capture';
 
 export const Form = () => {
   const [date, setDate] = useState(new Date());
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(5);
+  const [imgPath, setimgPath] = useState('');
+  const [img, setimg] = useState(false);
+  const [filename, setfilename] = useState('');
+  const [select, setSelect] = useState(false);
+  const refRBSheet = useRef();
+  const [buried, setburied] = useState(false);
+  const [other, setOther] = useState(true);
+  const [relativeInvolve, setRelativeInvolve] = useState(true);
+  const [data, setData] = useState(true);
+  const [sign,setSign]=useState();
+  const singRef=useRef()
+  const Dragged=()=>{
+    console.log("daraged");
+    /* singRef.current.onSaveEvent() */
+  }
+ 
   const selectDate = () => {
     const day = date.getDate();
     const mon = date.getMonth();
     const year = date.getFullYear().toString();
     return day + '/' + (mon + 1) + '/' + year;
   };
+  console.log("object",sign)
+  const pickFromGallary = () => {
+    ImagePicker.clean()
+      .then(() => {})
+      .catch(e => {
+        alert(e);
+      });
+    ImagePicker.openPicker({
+      width: 400,
+      height: 400,
+      cropping: true,
+    }).then(image => {
+      setfilename(image.filename);
+      setimgPath(image.path);
+      setimg(true);
+      refRBSheet.current.close();
+    });
+  };
+
+  const pickFromCamer = () => {
+    ImagePicker.clean()
+      .then(() => {})
+      .catch(e => {
+        alert(e);
+      });
+    ImagePicker.openCamera({
+      width: 400,
+      height: 400,
+      cropping: true,
+    }).then(image => {
+      setimgPath(image.path);
+      setimg(true);
+      refRBSheet.current.close();
+    });
+  };
+
   return (
     <View style={{flex: 1}}>
       {step == 1 ? (
@@ -70,6 +128,14 @@ export const Form = () => {
           </View>
         </>
       ) : null}
+      {step == 5 ? (
+        <>
+          <FormHeader formNo={5} />
+          <View style={style.form_title_view}>
+            <Text style={style.form_title}>Supplementary Information</Text>
+          </View>
+        </>
+      ) : null}
 
       <Formik>
         {() => (
@@ -78,7 +144,9 @@ export const Form = () => {
               <ScrollView
                 showsVerticalScrollIndicator={false}
                 style={style.form_container}>
-                <FormImage />
+                <TouchableOpacity onPress={() => refRBSheet.current.open()}>
+                  <FormImage fileName={filename} path={imgPath} img={img} />
+                </TouchableOpacity>
                 <FormField english={'Full Name:'} urdu={'name'} />
                 <TextInput
                   style={style.input}
@@ -239,6 +307,56 @@ export const Form = () => {
                       setOpen(false);
                     }}
                   />
+                  <>
+                    <RBSheet
+                      ref={refRBSheet}
+                      closeOnDragDown={true}
+                      openDuration={500}
+                      closeOnPressMask={true}
+                      animationType={'fade'}
+                      customStyles={{
+                        wrapper: {
+                          backgroundColor: 'rgba(0,0,0,0.6)',
+                        },
+                        draggableIcon: {
+                          backgroundColor: 'white',
+                        },
+                        container: {
+                          borderTopRightRadius: 50,
+                          borderTopLeftRadius: 50,
+                          height: '30%',
+                        },
+                      }}>
+                      <View style={style.sheet_container}>
+                        <TouchableOpacity onPress={() => pickFromGallary()}>
+                          <LinearGradient
+                            useAngle={true}
+                            colors={[
+                              color.palette.darkblue,
+                              color.palette.lightBlue,
+                            ]}
+                            style={style.pick_camera_view}>
+                            <Text style={style.camera_text}>
+                              Pick Image From Gallary
+                            </Text>
+                          </LinearGradient>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => pickFromCamer()}>
+                          <LinearGradient
+                            useAngle={true}
+                            colors={[
+                              color.palette.darkblue,
+                              color.palette.lightBlue,
+                            ]}
+                            style={style.pick_gallery_view}>
+                            <Text style={style.gallary_text}>
+                              Pick Image from Camera
+                            </Text>
+                          </LinearGradient>
+                        </TouchableOpacity>
+                      </View>
+                    </RBSheet>
+                  </>
                 </>
               </ScrollView>
             ) : null}
@@ -502,6 +620,273 @@ export const Form = () => {
                 </View>
               </ScrollView>
             ) : null}
+            {step == 5 ? (
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                style={style.form_container}>
+                <FormField english={'Where do you want to buried?'} />
+                <FormField urdu={'buried'} />
+                <View style={style.radio_container}>
+                  <View style={style.radio_view}>
+                    <RadioButton
+                      color={color.palette.darkblue}
+                      onPress={() => setburied(!buried)}
+                      selected={buried}
+                      size={20}
+                      value={'Native Country'}
+                    />
+                    <Text style={style.radio_text}>Native Country</Text>
+                  </View>
+
+                  <View style={style.radio_view}>
+                    <RadioButton
+                      color={color.palette.darkblue}
+                      onPress={() => setburied(!buried)}
+                      selected={!buried}
+                      size={20}
+                      value={'Residential Country'}
+                    />
+                    <Text style={style.radio_text}>Residential Country</Text>
+                  </View>
+                </View>
+                <FormField
+                  english={'Do you have any relative registered in this fund?'}
+                />
+                <FormField urdu={'relativeInvolve'} />
+                <View style={style.radio_container}>
+                  <View style={style.radio_view}>
+                    <RadioButton
+                      color={color.palette.darkblue}
+                      onPress={() => setSelect(!select)}
+                      selected={select}
+                      size={20}
+                      value={'Yes'}
+                    />
+                    <Text style={style.radio_text}>Yes</Text>
+                  </View>
+
+                  <View style={style.radio_view}>
+                    <RadioButton
+                      color={color.palette.darkblue}
+                      onPress={() => setSelect(!select)}
+                      selected={!select}
+                      size={20}
+                      value={'No'}
+                    />
+                    <Text style={style.radio_text}>No</Text>
+                  </View>
+                </View>
+                {relativeInvolve ? (
+                  <View>
+                    <FormField english={'Passport No:'} urdu={'passport'} />
+                    <TextInput
+                      style={style.input}
+                      placeholder={'000515552'}
+                      placeholderTextColor={color.palette.lightgray}
+                    />
+                    <TouchableOpacity
+                      style={{alignSelf: 'flex-end'}}
+                      onPress={() => setData(!data)}>
+                      <LinearGradient
+                        useAngle={true}
+                        colors={[
+                          color.palette.darkblue,
+                          color.palette.lightBlue,
+                        ]}
+                        style={[
+                          style.power_container,
+                          {justifyContent: 'center', alignContent: 'center'},
+                        ]}>
+                        <Text style={style.text}>Submit</Text>
+                        <View style={[style.powerIcon_view, {padding: 1}]}>
+                          <RightArrow width={'100%'} height={'100%'} />
+                        </View>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                    {data ? (
+                      <View style={style.data_conianer}>
+                        <View style={style.data_view}>
+                          <Text style={style.data_text}>Name:</Text>
+                          <Text style={style.data_text}>Muhammad Akbar</Text>
+                        </View>
+                        <View style={style.data_view}>
+                          <Text style={style.data_text}>Father Name:</Text>
+                          <Text style={style.data_text}>M. Junaid</Text>
+                        </View>
+                        <View style={style.data_view}>
+                          <Text style={style.data_text}>Registration No:</Text>
+                          <Text style={style.data_text}>000031564</Text>
+                        </View>
+                        <View
+                          style={[style.data_view, {flexDirection: 'column'}]}>
+                          <Text style={style.data_text}>Address:</Text>
+                          <View style={style.data_address_view}>
+                            <Text style={style.data_address_text}>
+                              Street No.
+                            </Text>
+                            <Text style={style.data_address_text}>
+                              Dummy Area
+                            </Text>
+                            <Text style={style.data_address_text}>
+                              Barcelona Spain
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                    ) : null}
+                  </View>
+                ) : null}
+                <FormField
+                  english={'How much will you pay annaully in this fund?'}
+                />
+                <FormField urdu={'payFund'} />
+                <View style={style.radio_container}>
+                  <View style={style.radio_view}>
+                    <RadioButton
+                      color={color.palette.darkblue}
+                      onPress={() => setSelect(!select)}
+                      selected={select}
+                      size={20}
+                      value={'Yes'}
+                    />
+                    <Text style={style.radio_text}>
+                      I will not give any ammount annually
+                    </Text>
+                  </View>
+                </View>
+                <FormField urdu={'notPay'} />
+                <View
+                  style={[
+                    style.radio_container,
+                    {flexDirection: 'column', alignItems: 'flex-start'},
+                  ]}>
+                  <View style={style.radio_view}>
+                    <RadioButton
+                      color={color.palette.darkblue}
+                      onPress={() => setSelect(!select)}
+                      selected={select}
+                      size={20}
+                      value={'Yes'}
+                    />
+                    <Text style={style.radio_text}>30$</Text>
+                  </View>
+                  <View style={style.radio_view}>
+                    <RadioButton
+                      color={color.palette.darkblue}
+                      onPress={() => setSelect(!select)}
+                      selected={select}
+                      size={20}
+                      value={'Yes'}
+                    />
+                    <Text style={style.radio_text}>50$</Text>
+                  </View>
+                  <View style={style.radio_view}>
+                    <RadioButton
+                      color={color.palette.darkblue}
+                      onPress={() => setSelect(!select)}
+                      selected={select}
+                      size={20}
+                      value={'Yes'}
+                    />
+                    <Text style={style.radio_text}>70$</Text>
+                  </View>
+                  <View style={style.radio_view}>
+                    <RadioButton
+                      color={color.palette.darkblue}
+                      onPress={() => setSelect(!select)}
+                      selected={select}
+                      size={20}
+                      value={'Yes'}
+                    />
+                    <Text style={style.radio_text}>90$</Text>
+                  </View>
+                  <View style={style.radio_view}>
+                    <RadioButton
+                      color={color.palette.darkblue}
+                      onPress={() => setSelect(!select)}
+                      selected={select}
+                      size={20}
+                      value={'Yes'}
+                    />
+                    <Text style={style.radio_text}>100$</Text>
+                  </View>
+                  <View style={style.radio_view}>
+                    <RadioButton
+                      color={color.palette.darkblue}
+                      onPress={() => setSelect(!select)}
+                      selected={select}
+                      size={20}
+                      value={'Yes'}
+                    />
+                    <Text style={style.radio_text}>Other</Text>
+                  </View>
+                  {other ? (
+                    <View style={style.ammount_container}>
+                      <View style={style.rupee_view}>
+                        <RupeeSign width={'100%'} height={'100%'} />
+                      </View>
+                      <TextInput
+                        keyboardType="numeric"
+                        style={style.rupee_input}
+                      />
+                    </View>
+                  ) : null}
+                </View>
+                <Text style={style.sing_text}>Your Signature:</Text>
+                <View style={style.sign_view}>
+                  <SignatureCapture
+                  ref={singRef}
+                    style={style.sign}
+                    onDragEvent={()=>Dragged()}
+                    saveImageFileInExtStorage={true}
+                    showNativeButtons={true}
+                    showTitleLabel={true}
+                    onSaveEvent={(img)=>setSign(img)}
+                    backgroundColor={color.palette.white}
+                    strokeColor="black"
+                    minStrokeWidth={4}
+                    maxStrokeWidth={4}
+                    viewMode={'portrait'}
+                  />
+                </View>
+                <Image style={{width: 100, height: 50, resizeMode:'center', borderWidth: 1, borderColor: 'red'}} source={{uri:sign}} />
+                <View style={[style.agree_conatiner,{paddingBottom:30}]}>
+                  <View style={style.tick_square}>
+                    <TickSquare width={'100%'} height={'100%'} />
+                  </View>
+                  <View style={style.agree_text_view}>
+                    <Text style={style.agree_text}>
+                      Have you read carefully to all the conditions and
+                      regulations on this funeral service fund?
+                    </Text>
+                  </View>
+                </View>
+                <View style={style.log_btn_view2}>
+                  <TouchableOpacity onPress={() => setStep(step - 1)}>
+                    <LinearGradient
+                      useAngle={true}
+                      colors={[color.palette.darkblue, color.palette.lightBlue]}
+                      style={style.power_container}>
+                      <View style={style.powerIcon_view}>
+                        <LeftArrow width={'100%'} height={'100%'} />
+                      </View>
+                      <Text style={style.text}>Back</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => setStep(step + 1)}>
+                    <LinearGradient
+                      useAngle={true}
+                      colors={[color.palette.darkblue, color.palette.lightBlue]}
+                      style={style.power_container}>
+                      <Text style={style.text}>Enroll</Text>
+                      <View style={style.powerIcon_view}>
+                        <RightArrow width={'100%'} height={'100%'} />
+                      </View>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            ) : null}
           </>
         )}
       </Formik>
@@ -591,5 +976,116 @@ const style = StyleSheet.create({
   agree_text: {
     color: color.palette.lightgray,
     fontSize: 14,
+  },
+  sheet_container: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  pick_gallery_view: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '70%',
+    alignSelf: 'center',
+    height: 50,
+    borderRadius: 20,
+  },
+  gallary_text: {
+    color: color.palette.white,
+    fontSize: 18,
+    fontWeight: fontWeights.bold,
+  },
+  pick_camera_view: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '70%',
+    alignSelf: 'center',
+    height: 50,
+    borderRadius: 20,
+    marginBottom: 20,
+  },
+  camera_text: {
+    color: color.palette.white,
+    fontSize: 18,
+    fontWeight: fontWeights.bold,
+  },
+  radio_container: {
+    flexDirection: 'row',
+  },
+  radio_view: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  radio_text: {
+    textAlignVertical: 'center',
+    color: color.palette.black,
+    marginLeft: -5,
+  },
+  ammount_container: {
+    borderWidth: 1,
+    flexDirection: 'row',
+    width: '100%',
+    borderRadius: 10,
+    borderColor: color.palette.lightwhite,
+    marginTop: 8,
+  },
+  rupee_view: {
+    height: 25,
+    width: '20%',
+    alignSelf: 'center',
+  },
+  rupee_input: {
+    width: '80%',
+    backgroundColor: color.palette.lightwhite,
+    borderTopLeftRadius: 0,
+    borderBottomLeftRadius: 0,
+    borderTopRightRadius: 10,
+    borderBottomRightRadius: 10,
+    fontSize: 16,
+    height: 50,
+    paddingLeft: '8%',
+    paddingRight: '8%',
+    color: color.palette.black,
+  },
+  data_conianer: {
+    borderRadius: 10,
+    padding: 15,
+    borderWidth: 1,
+    borderColor: color.palette.lightwhite,
+    marginTop: 10,
+  },
+  data_view: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingBottom: 8,
+  },
+  data_text: {
+    color: color.palette.black,
+    fontSize: 15,
+  },
+  data_address_view: {
+    width: '80%',
+    alignSelf: 'center',
+    paddingTop: 10,
+  },
+  data_address_text: {
+    color: color.palette.black,
+  },
+  sing_text: {
+    color: color.palette.black,
+    paddingBottom: 8,
+    paddingTop: 12,
+  },
+  sign_view: {
+    borderWidth: 1,
+    height: 150,
+    borderStyle: 'dashed',
+    borderRadius: 20,
+    padding: 10,
+    marginBottom: 15,
+  },
+  sign: {
+    flex: 1,
+    borderColor: 'black',
   },
 });
