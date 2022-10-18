@@ -37,23 +37,31 @@ export const Form = () => {
   const [select, setSelect] = useState(false);
   const refRBSheet = useRef();
   const [buried, setburied] = useState(false);
-  const [other, setOther] = useState(true);
+  const [other, setOther] = useState(false);
   const [relativeInvolve, setRelativeInvolve] = useState(true);
-  const [data, setData] = useState(true);
-  const [sign,setSign]=useState();
-  const singRef=useRef()
-  const Dragged=()=>{
-    console.log("daraged");
-    /* singRef.current.onSaveEvent() */
-  }
- 
+  const [data, setData] = useState(false);
+  const [sign, setSign] = useState();
+  const singRef = useRef();
+
+  const [radioButtons, setRadioButtons] = useState([
+    {
+      id: '1', // acts as primary key, should be unique and non-empty string
+      label: 'Option 1',
+      value: 'option1',
+    },
+    {
+      id: '2',
+      label: 'Option 2',
+      value: 'option2',
+    },
+  ]);
+
   const selectDate = () => {
     const day = date.getDate();
     const mon = date.getMonth();
     const year = date.getFullYear().toString();
     return day + '/' + (mon + 1) + '/' + year;
   };
-  console.log("object",sign)
   const pickFromGallary = () => {
     ImagePicker.clean()
       .then(() => {})
@@ -657,7 +665,7 @@ export const Form = () => {
                   <View style={style.radio_view}>
                     <RadioButton
                       color={color.palette.darkblue}
-                      onPress={() => setSelect(!select)}
+                      onPress={() => setSelect(true)}
                       selected={select}
                       size={20}
                       value={'Yes'}
@@ -668,7 +676,7 @@ export const Form = () => {
                   <View style={style.radio_view}>
                     <RadioButton
                       color={color.palette.darkblue}
-                      onPress={() => setSelect(!select)}
+                      onPress={() => setSelect(false)}
                       selected={!select}
                       size={20}
                       value={'No'}
@@ -676,7 +684,7 @@ export const Form = () => {
                     <Text style={style.radio_text}>No</Text>
                   </View>
                 </View>
-                {relativeInvolve ? (
+                {select ? (
                   <View>
                     <FormField english={'Passport No:'} urdu={'passport'} />
                     <TextInput
@@ -686,7 +694,7 @@ export const Form = () => {
                     />
                     <TouchableOpacity
                       style={{alignSelf: 'flex-end'}}
-                      onPress={() => setData(!data)}>
+                      onPress={() => setData(true)}>
                       <LinearGradient
                         useAngle={true}
                         colors={[
@@ -760,7 +768,12 @@ export const Form = () => {
                     style.radio_container,
                     {flexDirection: 'column', alignItems: 'flex-start'},
                   ]}>
-                  <View style={style.radio_view}>
+                  <RadioGroup
+                    onPress={e => {
+                      console.log(e);
+                    }}
+                    radioButtons={radioButtons}></RadioGroup>
+                  {/* <View style={style.radio_view}>
                     <RadioButton
                       color={color.palette.darkblue}
                       onPress={() => setSelect(!select)}
@@ -779,47 +792,8 @@ export const Form = () => {
                       value={'Yes'}
                     />
                     <Text style={style.radio_text}>50$</Text>
-                  </View>
-                  <View style={style.radio_view}>
-                    <RadioButton
-                      color={color.palette.darkblue}
-                      onPress={() => setSelect(!select)}
-                      selected={select}
-                      size={20}
-                      value={'Yes'}
-                    />
-                    <Text style={style.radio_text}>70$</Text>
-                  </View>
-                  <View style={style.radio_view}>
-                    <RadioButton
-                      color={color.palette.darkblue}
-                      onPress={() => setSelect(!select)}
-                      selected={select}
-                      size={20}
-                      value={'Yes'}
-                    />
-                    <Text style={style.radio_text}>90$</Text>
-                  </View>
-                  <View style={style.radio_view}>
-                    <RadioButton
-                      color={color.palette.darkblue}
-                      onPress={() => setSelect(!select)}
-                      selected={select}
-                      size={20}
-                      value={'Yes'}
-                    />
-                    <Text style={style.radio_text}>100$</Text>
-                  </View>
-                  <View style={style.radio_view}>
-                    <RadioButton
-                      color={color.palette.darkblue}
-                      onPress={() => setSelect(!select)}
-                      selected={select}
-                      size={20}
-                      value={'Yes'}
-                    />
-                    <Text style={style.radio_text}>Other</Text>
-                  </View>
+                  </View> */}
+
                   {other ? (
                     <View style={style.ammount_container}>
                       <View style={style.rupee_view}>
@@ -835,13 +809,13 @@ export const Form = () => {
                 <Text style={style.sing_text}>Your Signature:</Text>
                 <View style={style.sign_view}>
                   <SignatureCapture
-                  ref={singRef}
+                    ref={singRef}
+                    onTouchEnd={() => singRef.current.saveImage()}
                     style={style.sign}
-                    onDragEvent={()=>Dragged()}
-                    saveImageFileInExtStorage={true}
-                    showNativeButtons={true}
+                    saveImageFileInExtStorage={false}
+                    showNativeButtons={false}
                     showTitleLabel={true}
-                    onSaveEvent={(img)=>setSign(img)}
+                    onSaveEvent={img => setSign(img.encoded)}
                     backgroundColor={color.palette.white}
                     strokeColor="black"
                     minStrokeWidth={4}
@@ -849,8 +823,10 @@ export const Form = () => {
                     viewMode={'portrait'}
                   />
                 </View>
-                <Image style={{width: 100, height: 50, resizeMode:'center', borderWidth: 1, borderColor: 'red'}} source={{uri:sign}} />
-                <View style={[style.agree_conatiner,{paddingBottom:30}]}>
+                {/* <View style={{width:"100%",height:200,borderWidth:1}}>
+                    <Image style={{width:"80%",height:80,borderWidth:1,}}  source={{uri: `data:image/png;base64,${sign}`}} />
+                </View> */}
+                <View style={[style.agree_conatiner, {paddingBottom: 30}]}>
                   <View style={style.tick_square}>
                     <TickSquare width={'100%'} height={'100%'} />
                   </View>
@@ -873,7 +849,7 @@ export const Form = () => {
                       <Text style={style.text}>Back</Text>
                     </LinearGradient>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => setStep(step + 1)}>
+                  <TouchableOpacity onPress={() => {}}>
                     <LinearGradient
                       useAngle={true}
                       colors={[color.palette.darkblue, color.palette.lightBlue]}
@@ -1048,11 +1024,13 @@ const style = StyleSheet.create({
     color: color.palette.black,
   },
   data_conianer: {
-    borderRadius: 10,
+    borderRadius: 20,
     padding: 15,
     borderWidth: 1,
-    borderColor: color.palette.lightwhite,
-    marginTop: 10,
+    //borderColor: color.palette.lightwhite,
+    marginTop: 15,
+    marginBottom: 15,
+    margin: 5,
   },
   data_view: {
     flexDirection: 'row',
