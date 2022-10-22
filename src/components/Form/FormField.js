@@ -236,7 +236,7 @@ const style = StyleSheet.create({
     justifyContent: 'space-between',
   },
   urdu1: {
-    width: 20,
+    width: 17,
     height: 20,
   },
   urdu2: {
@@ -244,19 +244,19 @@ const style = StyleSheet.create({
     height: 20,
   },
   urdu3: {
-    width: 70,
+    width: 65,
     height: 20,
   },
   urdu4: {
-    width: 40,
+    width: 35,
     height: 20,
   },
   urdu5: {
-    width: 80,
+    width: 72,
     height: 20,
   },
   urdu6: {
-    width: 80,
+    width: 76,
     height: 20,
   },
   urdu7: {
@@ -264,31 +264,31 @@ const style = StyleSheet.create({
     height: 20,
   },
   urdu8: {
-    width: 100,
+    width: 88,
     height: 20,
   },
   urdu9: {
-    width: 80,
+    width: 84,
     height: 20,
   },
   urdu10: {
-    width: 30,
+    width: 27,
     height: 20,
   },
   urdu11: {
-    width: 50,
+    width: 45,
     height: 20,
   },
   urdu12: {
-    width: 40,
+    width: 34,
     height: 20,
   },
   urdu13: {
-    width: 30,
+    width: 25,
     height: 20,
   },
   urdu14: {
-    width: 130,
+    width: 115,
     height: 20,
   },
   urdu15: {
@@ -312,7 +312,7 @@ const style = StyleSheet.create({
     height: 20,
   },
   urdu19: {
-    width: 35,
+    width: 32,
     height: 20,
   },
   urdu20: {
@@ -329,8 +329,8 @@ const style = StyleSheet.create({
 
   ///form header end
   urdu21: {
-    width: 60,
-    height: 30,
+    width: 55,
+    height: 22,
   },
   urdu23: {
     width: "100%",

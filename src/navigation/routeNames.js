@@ -10,5 +10,6 @@ export const RoutNames={
     PrivacyScreen:'PrivacyScreen',
     SettingScreen:'SettingScreen',
     AnnouncementScreen:"AnnouncementScreen",
-    EnrollmentScreen:"EnrollmentScreen"
+    EnrollmentScreen:"EnrollmentScreen",
+    EnrolAgreement:'EnrolAgreement'
 }

@@ -39,7 +39,11 @@ export const HomeScreen = () => {
         <HomeDates />
       )}
       {status == 'notRegister' ? (
-        <View style={[style.bottom_container,{backgroundColor:color.palette.lightgray}]}>
+        <View
+          style={[
+            style.bottom_container,
+            /* {backgroundColor: color.palette.lightgray}, */
+          ]}>
           <View style={style.event_view}>
             <HomeEvent
               Icon={'circleArrow'}
@@ -169,14 +173,14 @@ const style = StyleSheet.create({
   not_register_view: {
     borderRadius: 20,
     backgroundColor: color.palette.red,
-    bottom:6
+    bottom: 6,
   },
   not_register_text: {
     color: color.palette.white,
-    padding:6,
-    paddingLeft:8,
-    paddingRight:8,
+    padding: 6,
+    paddingLeft: 8,
+    paddingRight: 8,
 
-    fontSize:12
+    fontSize: 12,
   },
 });

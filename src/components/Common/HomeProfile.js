@@ -3,15 +3,20 @@ import React from 'react';
 import Profile from '../../assets/HomeAssets/Svgs/profilePhoto.svg';
 import RightArrow from '../../assets/HomeAssets/Svgs/rightArrow.svg';
 import { fontWeights } from '../../theme/styles';
-import { color } from '../../theme';
+import {color} from '../../theme';
+import {useNavigation} from '@react-navigation/native';
+import { RoutNames } from '../../navigation/routeNames';
 
 export const HomeProfile = () => {
+  const navigate = useNavigation();
   return (
     <View style={style.container}>
       <View style={style.profile_view}>
         <Profile width={'100%'} height={'100%'} />
       </View>
-      <TouchableOpacity style={style.name_container}>
+      <TouchableOpacity
+        style={style.name_container}
+        onPress={() => navigate.navigate(RoutNames.SettingScreen)}>
         <View style={style.name_view}>
           <Text style={style.name}>M. Habib Ali</Text>
         </View>
@@ -37,29 +42,26 @@ const style = StyleSheet.create({
   },
   name_container: {
     flexDirection: 'column',
-    left:2,
+    left: 2,
     alignSelf: 'flex-end',
   },
-  name_view:{
-
-  },
+  name_view: {},
   name: {
     fontSize: 18,
-    fontWeight:fontWeights.bold,
-    color:color.palette.black
+    fontWeight: fontWeights.bold,
+    color: color.palette.black,
   },
   arrow_container: {
     flexDirection: 'row',
     alignItems: 'center',
-    bottom:3
+    bottom: 3,
   },
-  profile_text:{
-    fontSize:10,
-    textAlign:"center",
-    color:color.palette.black
+  profile_text: {
+    fontSize: 10,
+    textAlign: 'center',
+    color: color.palette.black,
   },
   arrow_view: {
-    left:5,
-          
+    left: 5,
   },
 });

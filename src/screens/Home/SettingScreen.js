@@ -4,8 +4,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
+  Image,
 } from 'react-native';
-import React, {useRef} from 'react';
+import React, {useRef, useState} from 'react';
 import {HomeComponent, NearBtn} from '../../components';
 import {color} from '../../theme';
 import HomeIcon from '../../assets/HomeAssets/Svgs/homeblack.svg';
@@ -20,14 +21,72 @@ import User from '../../assets/svg/smallUser.svg';
 import Email from '../../assets/svg/email.svg';
 import LinearGradient from 'react-native-linear-gradient';
 import PowerIcon from '../../assets/HomeAssets/Svgs/powerIcon.svg';
-import PowerLine from '../../assets/HomeAssets/Svgs/powerIconLIne.svg'
+import PowerLine from '../../assets/HomeAssets/Svgs/powerIconLIne.svg';
 import EditIcon from '../../assets/HomeAssets/Svgs/editIcon.svg';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import Cross from '../../assets/svg/cross.svg';
 import WhiteTick from '../../assets/HomeAssets/Svgs/whiteTIck.svg';
+import EditIconWhite from '../../assets/EnrolmentAssets/EditIconWhite.svg';
+import Cellicon from '../../assets/HomeAssets/Svgs/cellIcon.svg';
+import ImagePicker from 'react-native-image-crop-picker';
+
 export const SettingScreen = () => {
   const refRBSheet = useRef();
+  const profileRBsheet = useRef();
+  const [imgPath, setimgPath] = useState('');
+  const [img, setimg] = useState(false);
 
+  const pickFromGallary = () => {
+    ImagePicker.clean()
+      .then(() => {})
+      .catch(e => {
+        alert(e);
+      });
+    ImagePicker.openPicker({
+      width: 400,
+      height: 400,
+      cropping: true,
+    }).then(image => {
+      setimgPath(image.path);
+      setimg(true);
+      profileRBsheet.current.close();
+    });
+  };
+  const pickFromCamer = () => {
+    ImagePicker.clean()
+      .then(() => {})
+      .catch(e => {
+        alert(e);
+      });
+    ImagePicker.openCamera({
+      width: 400,
+      height: 400,
+      cropping: true,
+    }).then(image => {
+      setimgPath(image.path);
+      setimg(true);
+      profileRBsheet.current.close();
+    });
+  };
+
+  const select = () => {
+    if (img == true) {
+      return (
+        <Image
+          style={{width: '100%', height: '100%', borderRadius: 50}}
+          source={{uri: imgPath}}
+        />
+      );
+    } else {
+      return (
+        <Image
+          style={{width: '100%', height: '100%'}}
+          source={require('../../assets/images/profile.png')}
+        />
+      );
+    }
+  };
+  console.log('object', imgPath);
   const navigate = useNavigation();
   return (
     <View style={style.container}>
@@ -62,7 +121,7 @@ export const SettingScreen = () => {
           <View style={style.text_view}>
             <Text style={style.info_text}>0300153100534</Text>
             <View style={style.input_icon}>
-              <User width={'100%'} height={'100%'} />
+              <Cellicon width={'100%'} height={'100%'} />
             </View>
           </View>
         </View>
@@ -110,18 +169,18 @@ export const SettingScreen = () => {
           </View>
           <View style={style.log_btn_view}>
             <TouchableOpacity>
-            <LinearGradient
-              useAngle={true}
-              colors={[color.palette.darkblue, color.palette.lightBlue]}
-              style={style.power_container}>
-              <View style={style.powerIcon_view}>
-                <PowerIcon width={'100%'} height={'100%'} />
-                <View style={style.power_line}>
-                <PowerLine width={10} height={12} />
+              <LinearGradient
+                useAngle={true}
+                colors={[color.palette.darkblue, color.palette.lightBlue]}
+                style={style.power_container}>
+                <View style={style.powerIcon_view}>
+                  <PowerIcon width={'100%'} height={'100%'} />
+                  <View style={style.power_line}>
+                    <PowerLine width={10} height={12} />
+                  </View>
                 </View>
-              </View>
-              <Text style={style.text}>Log out</Text>
-            </LinearGradient>
+                <Text style={style.text}>Log out</Text>
+              </LinearGradient>
             </TouchableOpacity>
           </View>
         </View>
@@ -149,8 +208,6 @@ export const SettingScreen = () => {
         </View>
       </View>
 
-      {/*       <Button title="OPEN BOTTOM SHEET" onPress={() => refRBSheet.current.open()} />
-       */}
       <RBSheet
         ref={refRBSheet}
         closeOnDragDown={false}
@@ -180,44 +237,118 @@ export const SettingScreen = () => {
             </TouchableOpacity>
           </View>
           <View style={[style.profile_container, {height: '35%'}]}>
-            <View style={style.profile}>
-              <Profile width={'100%'} height={'100%'} />
+            <View style={[style.profile, {width: 100, height: 100}]}>
+              {select()}
+              <TouchableOpacity
+                onPress={() => profileRBsheet.current.open()}
+                style={{
+                  position: 'absolute',
+                  alignSelf: 'flex-end',
+                  top: '60%',
+                }}>
+                <LinearGradient
+                  colors={[color.palette.darkblue, color.palette.lightBlue]}
+                  style={style.edit_white_container}>
+                  <View style={style.edit_white_view}>
+                    <EditIconWhite width={'100%'} height={'100%'} />
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
             </View>
           </View>
-          <View style={[style.textInput_container, {height: '35%'}]}>
-            <View style={style.text_view}>
-              <Text style={style.info_text}>Muhammad Ali Asghar</Text>
-              <View style={style.input_icon}>
+          <View style={style.Edit_profile_container}>
+            <View style={style.edit_profile_view}>
+              <TextInput
+                style={style.profile_input}
+                placeholder={'Muhammad Ali Asghar'}
+                placeholderTextColor={color.palette.black}
+              />
+              <View style={style.profile_input_icon}>
                 <User width={'100%'} height={'100%'} />
               </View>
+              <View style={{borderWidth: 1, bottom: 8}}></View>
             </View>
-            <View style={style.text_view}>
-              <Text style={style.info_text}>Dummy@gmail.com</Text>
-              <View style={style.input_icon}>
+            <View style={style.edit_profile_view}>
+              <TextInput
+                style={style.profile_input}
+                placeholder={'Dummy@gmail.com'}
+                placeholderTextColor={color.palette.black}
+              />
+              <View style={style.profile_input_icon}>
                 <Email width={'100%'} height={'100%'} />
               </View>
+              <View style={{borderWidth: 1, bottom: 8}}></View>
             </View>
-            <View style={style.text_view}>
-              <Text style={style.info_text}>0300153100534</Text>
-              <View style={style.input_icon}>
-                <User width={'100%'} height={'100%'} />
+            <View style={style.edit_profile_view}>
+              <TextInput
+                style={style.profile_input}
+                placeholder={'15151151551'}
+                placeholderTextColor={color.palette.black}
+              />
+              <View style={style.profile_input_icon}>
+                <Cellicon width={'100%'} height={'100%'} />
               </View>
+              <View style={{borderWidth: 1, bottom: 8}}></View>
             </View>
           </View>
           <View
-            style={[style.log_btn_view, {width: '80%', alignSelf: 'center',}]}>
-              <TouchableOpacity>
-            <LinearGradient
-              useAngle={true}
-              colors={[color.palette.darkblue, color.palette.lightBlue]}
-              style={style.power_container}>
-              <View style={style.powerIcon_view}>
-                <WhiteTick width={'100%'} height={'100%'} />
-              </View>
-              <Text style={style.text}>Update</Text>
-            </LinearGradient>
+            style={[style.log_btn_view, {width: '80%', alignSelf: 'center'}]}>
+            <TouchableOpacity>
+              <LinearGradient
+                useAngle={true}
+                colors={[color.palette.darkblue, color.palette.lightBlue]}
+                style={style.power_container}>
+                <View style={style.powerIcon_view}>
+                  <WhiteTick width={'100%'} height={'100%'} />
+                </View>
+                <Text style={style.text}>Update</Text>
+              </LinearGradient>
             </TouchableOpacity>
           </View>
+          <>
+            <RBSheet
+              ref={profileRBsheet}
+              closeOnDragDown={true}
+              openDuration={500}
+              closeOnPressMask={true}
+              animationType={'fade'}
+              customStyles={{
+                wrapper: {
+                  backgroundColor: 'rgba(0,0,0,0.6)',
+                },
+                draggableIcon: {
+                  backgroundColor: 'white',
+                },
+                container: {
+                  borderTopRightRadius: 50,
+                  borderTopLeftRadius: 50,
+                  height: '30%',
+                },
+              }}>
+              <View style={style.profile_sheet_container}>
+                <TouchableOpacity onPress={() => pickFromGallary()}>
+                  <LinearGradient
+                    useAngle={true}
+                    colors={[color.palette.darkblue, color.palette.lightBlue]}
+                    style={style.pick_camera_view}>
+                    <Text style={style.camera_text}>
+                      Pick Image From Gallary
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => pickFromCamer()}>
+                  <LinearGradient
+                    useAngle={true}
+                    colors={[color.palette.darkblue, color.palette.lightBlue]}
+                    style={style.pick_gallery_view}>
+                    <Text style={style.gallary_text}>
+                      Pick Image from Camera
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+            </RBSheet>
+          </>
         </View>
       </RBSheet>
     </View>
@@ -334,9 +465,10 @@ const style = StyleSheet.create({
     borderBottomWidth: 1,
     paddingLeft: '13%',
     color: color.palette.black,
+    paddingBottom: 3,
   },
   input_icon: {
-    width: '10%',
+    width: 30,
     height: 20,
     position: 'absolute',
     paddingLeft: 10,
@@ -387,13 +519,74 @@ const style = StyleSheet.create({
     color: color.palette.white,
   },
   powerIcon_view: {
-
     width: '20%',
   },
-  power_line:{
-    position:"absolute",
-    alignSelf:"center",
-    top:4
-
-  }
+  power_line: {
+    position: 'absolute',
+    alignSelf: 'center',
+    top: 4,
+  },
+  edit_white_container: {
+    borderRadius: 50,
+    width: 35,
+    height: 35,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  edit_white_view: {
+    width: 15,
+    height: 15,
+  },
+  profile_sheet_container: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  pick_gallery_view: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '70%',
+    alignSelf: 'center',
+    height: 50,
+    borderRadius: 20,
+  },
+  gallary_text: {
+    color: color.palette.white,
+    fontSize: 18,
+    fontWeight: fontWeights.bold,
+  },
+  pick_camera_view: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '70%',
+    alignSelf: 'center',
+    height: 50,
+    borderRadius: 20,
+    marginBottom: 20,
+  },
+  camera_text: {
+    color: color.palette.white,
+    fontSize: 18,
+    fontWeight: fontWeights.bold,
+  },
+  Edit_profile_container: {
+    width: '80%',
+    alignSelf: 'center',
+    height: '35%',
+  },
+  edit_profile_view: {
+    width: '100%',
+    alignSelf: 'center',
+  },
+  profile_input: {
+    textAlignVertical: 'bottom',
+    paddingLeft: 40,
+    color: color.palette.black,
+  },
+  profile_input_icon: {
+    width: 20,
+    height: 20,
+    position: 'absolute',
+    top: '30%',
+    left: 4,
+  },
 });

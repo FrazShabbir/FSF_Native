@@ -18,38 +18,22 @@ import {RoutNames} from '../../navigation/routeNames';
 import {fontWeights} from '../../theme/styles';
 import DownloadIcon from '../../assets/HomeAssets/Svgs/downloadIcon.svg';
 import RBSheet from 'react-native-raw-bottom-sheet';
-
+import RightArrow from '../../assets/svg/rightArrow.svg';
 import Cell from '../../assets/HomeAssets/Svgs/cellIconWhite.svg';
 import BackDown from '../../assets/HomeAssets/Svgs/backDown.svg';
 import LocIcon from '../../assets/HomeAssets/Svgs/locationIcon.svg';
 import LocDot from '../../assets/HomeAssets/Svgs/locationDot.svg';
 
 import LinearGradient from 'react-native-linear-gradient';
-export const PrivacyScreen = () => {
+export const EnrolAgreement = () => {
   const refRBSheet = useRef();
   const navigate = useNavigation();
-  const dialCall = number => {
-    let phoneNumber = '';
-    if (Platform.OS === 'android') {
-      phoneNumber = `tel:${number}`;
-    } else {
-      phoneNumber = `telprompt:${number}`;
-    }
-    Linking.openURL(phoneNumber);
-  };
   return (
     <View style={style.container}>
-      <HomeComponent title={'Privacy Policy'} backIcon={true} />
+      <HomeComponent title={'Terms & Conditions'} backIcon={true} />
       <View style={style.bottom_container}>
-        <View style={style.btn_view}>
-          <TouchableOpacity
-            style={style.NearBtn}
-            onPress={() => refRBSheet.current.open()}>
-            <NearBtn />
-          </TouchableOpacity>
-        </View>
         <View style={style.text_container}>
-          <Text style={style.haeding}>What is Funeral services Fund?</Text>
+          <Text style={style.haeding}>User's Privacy</Text>
           <Text style={style.paragraph}>
             Lorem Ipsum is simply dummy text of the printing and typesetting
             industry. Lorem Ipsum has been the industry's standard dummy text
@@ -80,7 +64,9 @@ export const PrivacyScreen = () => {
               <DownloadIcon width="100%" height="100%" />
             </View>
             <View style={style.manual_text_conatiner}>
-              <Text style={style.manual_text}>Download Privacy Policy (urdu)</Text>
+              <Text style={style.manual_text}>
+                Download Privacy Policy (urdu)
+              </Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity style={style.manual_view}>
@@ -88,8 +74,24 @@ export const PrivacyScreen = () => {
               <DownloadIcon width="100%" height="100%" />
             </View>
             <View style={style.manual_text_conatiner}>
-              <Text style={style.manual_text}>Download Privacy Policy (english)</Text>
+              <Text style={style.manual_text}>
+                Download Privacy Policy (english)
+              </Text>
             </View>
+          </TouchableOpacity>
+        </View>
+        <View style={style.agree_container}>
+          <TouchableOpacity
+            onPress={() => navigate.navigate(RoutNames.EnrollmentScreen)}>
+            <LinearGradient
+              useAngle={true}
+              colors={[color.palette.darkblue, color.palette.lightBlue]}
+              style={style.power_container}>
+              <Text style={style.text}>Agree</Text>
+              <View style={style.powerIcon_view}>
+                <RightArrow width={'100%'} height={'100%'} />
+              </View>
+            </LinearGradient>
           </TouchableOpacity>
         </View>
       </View>
@@ -253,9 +255,10 @@ const style = StyleSheet.create({
     height: '75%',
     width: '80%',
     alignSelf: 'center',
+    paddingTop:20
   },
   haeding: {
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: fontWeights.bold,
     color: color.palette.black,
     paddingBottom: 7,
@@ -264,7 +267,7 @@ const style = StyleSheet.create({
     fontSize: 12,
     color: color.palette.black,
   },
-  
+
   NearBtn: {
     alignItems: 'flex-end',
   },
@@ -286,7 +289,7 @@ const style = StyleSheet.create({
     color: color.palette.black,
   },
   edit_icon_view: {
-    width:22,
+    width: 22,
     height: 22,
   },
   profile_container: {
@@ -356,21 +359,21 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   power_container: {
-    width: 130,
-    height: 34,
+    width: 90,
+    height: "100%",
     borderRadius: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     paddingLeft: 12,
     paddingRight: 12,
   },
   text: {
     color: color.palette.white,
-    fontWeight:fontWeights.bold
+    fontWeight: fontWeights.bold,
   },
   powerIcon_view: {
-    width: '15%',
+    width: '20%',
   },
   loc_icon_container: {
     top: '3%',
@@ -385,25 +388,30 @@ const style = StyleSheet.create({
     height: '15%',
     width: '80%',
     alignSelf: 'center',
-    flexDirection:"column",
-    justifyContent:"space-around"
+    flexDirection: 'column',
+    justifyContent: 'space-around',
   },
   manual_view: {
     flexDirection: 'row',
   },
   download_icon_view: {
     width: 30,
-    height:30,
-
+    height: 30,
   },
   manual_text_conatiner: {
-    justifyContent:"center",
-    paddingLeft:2
+    justifyContent: 'center',
+    paddingLeft: 2,
   },
   manual_text: {
     color: color.palette.black,
     left: 3,
-    borderBottomWidth:1,
-    borderBottomColor:color.palette.black
+    borderBottomWidth: 1,
+    borderBottomColor: color.palette.black,
   },
+  agree_container:{
+    alignItems:"flex-end",
+    width:"80%",
+    alignSelf:"center",
+    height:"5%",
+  }
 });

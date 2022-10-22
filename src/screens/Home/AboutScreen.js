@@ -75,14 +75,16 @@ export const AboutScreen = () => {
             PageMaker including versions of Lorem Ipsum.
           </Text>
         </View>
+        <View style={style.download_conatainer}>
         <TouchableOpacity style={style.manual_view}>
-          <View style={style.download_icon_view}>
-            <DownloadIcon width="100%" height="100%" />
-          </View>
-          <View style={style.manual_text_conatiner}>
-            <Text style={style.manual_text}>Download Manual</Text>
-          </View>
-        </TouchableOpacity>
+            <View style={style.download_icon_view}>
+              <DownloadIcon width="100%" height="100%" />
+            </View>
+            <View style={style.manual_text_conatiner}>
+              <Text style={style.manual_text}>Download Manual</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
       </View>
       <View style={style.bottom_tab_container}>
         <View style={style.icons_container}>
@@ -115,6 +117,8 @@ export const AboutScreen = () => {
         customStyles={{
           wrapper: {
             backgroundColor: 'rgba(0,0,0,0.6)',
+
+            
           },
           draggableIcon: {
             backgroundColor: 'white',
@@ -129,7 +133,7 @@ export const AboutScreen = () => {
           <View style={[style.edit_container, {}]}>
             <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
               <View style={style.loc_icon_container}>
-                <LocIcon width={30} height={40} />
+                <LocIcon width={23} height={40} />
                 <View style={style.loc_icon}>
                   <LocDot width="100%" height="100%" />
                 </View>
@@ -258,21 +262,7 @@ const style = StyleSheet.create({
     fontSize: 12,
     color: color.palette.black,
   },
-  manual_view: {
-    height: '10%',
-    width: '80%',
-    alignSelf: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  download_icon_view: {
-    width: '8%',
-  },
-  manual_text_conatiner: {},
-  manual_text: {
-    color: color.palette.black,
-    left: 3,
-  },
+  
   sheet_container: {
     flex: 1,
   },
@@ -289,10 +279,11 @@ const style = StyleSheet.create({
     fontSize: 20,
     fontWeight: fontWeights.extraBold,
     color: color.palette.black,
+    
   },
   edit_icon_view: {
-    width: '10%',
-    height: '50%',
+    width:22,
+    height: 22,
   },
   profile_container: {
     height: '20%',
@@ -361,7 +352,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   power_container: {
-    width: '42%',
+    width: 130,
     height: 34,
     borderRadius: 20,
     flexDirection: 'row',
@@ -372,6 +363,7 @@ const style = StyleSheet.create({
   },
   text: {
     color: color.palette.white,
+    fontWeight:fontWeights.bold
   },
   powerIcon_view: {
     width: '15%',
@@ -384,5 +376,30 @@ const style = StyleSheet.create({
     height: 30,
     position: 'absolute',
     alignSelf: 'center',
+  },
+  download_conatainer: {
+    height: '15%',
+    width: '80%',
+    alignSelf: 'center',
+    flexDirection:"column",
+    
+  },
+  manual_view: {
+    flexDirection: 'row',
+  },
+  download_icon_view: {
+    width: 30,
+    height:30,
+
+  },
+  manual_text_conatiner: {
+    justifyContent:"center",
+    paddingLeft:2
+  },
+  manual_text: {
+    color: color.palette.black,
+    left: 3,
+    borderBottomWidth:1,
+    borderBottomColor:color.palette.black
   },
 });

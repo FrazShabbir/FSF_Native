@@ -10,7 +10,7 @@ import {useNavigation} from '@react-navigation/native';
 import {RoutNames} from '../../navigation/routeNames';
 import {fontWeights} from '../../theme/styles';
 import LinearGradient from 'react-native-linear-gradient';
-import { ScrollView } from 'react-native-gesture-handler';
+import {ScrollView} from 'react-native-gesture-handler';
 
 export const EnrollmentScreen = () => {
   const navigate = useNavigation();
@@ -19,8 +19,7 @@ export const EnrollmentScreen = () => {
     <View style={style.container}>
       <HomeComponent title={'Enroll Yourself'} backIcon={true} />
       <View style={style.bottom_container}>
-    
-      <Form />
+        <Form />
       </View>
       <View style={style.bottom_tab_container}>
         <View style={style.icons_container}>
@@ -29,8 +28,9 @@ export const EnrollmentScreen = () => {
             onPress={() => navigate.navigate(RoutNames.HomeScreen)}>
             <HomeIcon width={'100%'} />
           </TouchableOpacity>
-          <TouchableOpacity style={style.icons}
-          onPress={() => navigate.navigate(RoutNames.AboutScreen)}>
+          <TouchableOpacity
+            style={style.icons}
+            onPress={() => navigate.navigate(RoutNames.AboutScreen)}>
             <AboutIcon width={'100%'} />
           </TouchableOpacity>
           <TouchableOpacity
@@ -58,7 +58,7 @@ const style = StyleSheet.create({
     backgroundColor: color.palette.white,
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
-    paddingTop:10,
+    paddingTop: 10,
   },
   bottom_tab_container: {
     flex: 0.08,
@@ -75,11 +75,10 @@ const style = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  form_container:{
-    flex:1,
-    borderWidth:1,
-    width:"80%",
-    alignSelf:'center'
+  form_container: {
+    flex: 1,
+    borderWidth: 1,
+    width: '80%',
+    alignSelf: 'center',
   },
- 
 });

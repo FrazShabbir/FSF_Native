@@ -15,7 +15,7 @@ export const NearBtn = () => {
 }
 const style=StyleSheet.create({
     container:{
-        width:"45%",
+        width:150,
         height:32,
         borderRadius:20,
         flexDirection:'row',

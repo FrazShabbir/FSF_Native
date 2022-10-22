@@ -1,9 +1,7 @@
-import {View, Text} from 'react-native';
 import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {RoutNames} from './routeNames';
-import { TabNavigator } from './tabNavigator';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {
   ForgetPassword,
@@ -18,7 +16,8 @@ import {
   SettingScreen,
   AnnouncementScreen,
   EnrollmnetScreen,
-  EnrollmentScreen
+  EnrollmentScreen,
+  EnrolAgreement
 } from '../screens';
 import {useSelector} from 'react-redux';
 export const RootNavigator = React.forwardRef((props, ref) => {
@@ -50,6 +49,8 @@ export const RootNavigator = React.forwardRef((props, ref) => {
           <tab.Screen name={RoutNames.PrivacyScreen} component={PrivacyScreen} />
           <tab.Screen name={RoutNames.SettingScreen} component={SettingScreen} />
           <tab.Screen name={RoutNames.AnnouncementScreen} component={AnnouncementScreen} />
+          <tab.Screen name={RoutNames.EnrolAgreement} component={EnrolAgreement} />
+
           <tab.Screen name={RoutNames.EnrollmentScreen} component={EnrollmentScreen} />
 
 

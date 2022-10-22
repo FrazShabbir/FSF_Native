@@ -16,7 +16,7 @@ export const HomeStatus = ({status}) => {
   const selectStatus = () => {
     if (status == 'notRegister') {
       return (
-        <TouchableOpacity style={style.status_view} onPress={()=>navigate.navigate(RoutNames.EnrollmentScreen)} >
+        <TouchableOpacity style={style.status_view} onPress={()=>navigate.navigate(RoutNames.EnrolAgreement)} >
           <Text style={style.status_text}>Register Now</Text>
           <View style={style.back_view}>
             <BackIcon width={"100%"} />
