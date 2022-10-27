@@ -10,7 +10,7 @@ import TopShape from '../../assets/HomeAssets/Svgs/topShape.svg';
 import {fontWeights} from '../../theme/styles';
 import {color} from '../../theme';
 import Notify from '../../assets/HomeAssets/Svgs/notify.svg';
-import GreenDot from '../../assets/HomeAssets/Svgs/greenDot.svg';
+import GreenDot from '../../assets/HomeAssets/Svgs/notifyDot.svg';
 import BackBtn from '../../assets/svg/back.svg'
 import { useNavigation } from '@react-navigation/native';
 import { RoutNames } from '../../navigation/routeNames';

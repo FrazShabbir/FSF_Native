@@ -89,7 +89,7 @@ const style = StyleSheet.create({
   back_view:{
     width:12,
     height:14,
-    left:2
+    marginLeft:4
   },
   status_text: {
     color: color.palette.black,

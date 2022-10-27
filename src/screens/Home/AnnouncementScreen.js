@@ -110,6 +110,8 @@ export const AnnouncementScreen = () => {
         customStyles={{
           wrapper: {
             backgroundColor: 'rgba(0,0,0,0.6)',
+
+            
           },
           draggableIcon: {
             backgroundColor: 'white',
@@ -124,7 +126,7 @@ export const AnnouncementScreen = () => {
           <View style={[style.edit_container, {}]}>
             <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
               <View style={style.loc_icon_container}>
-                <LocIcon width={30} height={40} />
+                <LocIcon width={23} height={40} />
                 <View style={style.loc_icon}>
                   <LocDot width="100%" height="100%" />
                 </View>
@@ -286,8 +288,8 @@ const style = StyleSheet.create({
     color: color.palette.black,
   },
   edit_icon_view: {
-    width: '10%',
-    height: '50%',
+    width:22,
+    height: 22,
   },
   profile_container: {
     height: '20%',
@@ -356,7 +358,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   power_container: {
-    width: '42%',
+    width: 130,
     height: 34,
     borderRadius: 20,
     flexDirection: 'row',
@@ -367,6 +369,7 @@ const style = StyleSheet.create({
   },
   text: {
     color: color.palette.white,
+    fontWeight:fontWeights.bold
   },
   powerIcon_view: {
     width: '15%',

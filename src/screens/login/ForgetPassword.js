@@ -18,6 +18,11 @@ import {ScrollView} from 'react-native-gesture-handler';
 import {RoutNames} from '../../navigation/routeNames';
 import {useNavigation} from '@react-navigation/native';
 import LeftShape from '../../assets/svg//leftShape.svg';
+import {Formik} from 'formik';
+import * as Yup from 'yup'
+const schema=Yup.object({
+  email:Yup.string().email("Not Valid").required("*Required")
+})
 export const ForgetPassword = () => {
   const navigate = useNavigation();
 
@@ -28,45 +33,78 @@ export const ForgetPassword = () => {
         description={'Enter your email to reset your password'}
         icon={'email'}
       />
-      <View style={style.Allinputfeild_view}>
-        <View style={style.input_view}>
-          <CustomTextInput icon={'email'} />
-          <TextInput  placeholderTextColor={color.palette.lightgray} style={style.input} placeholder="Email" />
-        </View>
-      </View>
-      <View style={style.btn_view}>
-        <View style={style.left_shape}>
-        <LeftShape width={40} />
-        </View>
-        <View style={style.btn_option}>
-          <TouchableOpacity
-            style={style.btn}
-            onPress={() => navigate.navigate(RoutNames.OtpScreen)}>
-            <Button title={'Send Mail'} />
-          </TouchableOpacity>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <Text style={{color: color.palette.black}}>
-              If you do not have account?
-            </Text>
-            <TouchableOpacity
-              onPress={() => navigate.navigate(RoutNames.LoginScreen)}>
-              <Text
-                style={{
-                  color: color.palette.darkblue,
-                  fontWeight: 'bold',
-                  paddingLeft: 5,
-                }}>
-                Sign In
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
+      <Formik
+      initialValues={{email:''}}
+      validationSchema={schema}
+      onSubmit={async(values,action)=>{
+        console.log("values",values)
+        const res = await fetch(
+          `https://fsfeu.org/es/fsf/api/auth/forget-password?email=${values.email}`,
+          {
+            method: 'Post',
+            headers: {
+              'content-type': 'application/json',
+            },
+          },
+        );
+        const jsonRes = await res.json();
+        if (jsonRes.status === 200) {
+          navigate.navigate(RoutNames.OtpScreen,{email:values.email,from:RoutNames.NewPasswordScreen});
+        } else {
+          console.log(jsonRes.message);
+        }
+      }}
+      >
+        {({handleBlur,handleSubmit,handleChange}) => (
+          <>
+            <View style={style.Allinputfeild_view}>
+              <View style={style.input_view}>
+                <CustomTextInput icon={'email'} />
+                <TextInput
+                  placeholderTextColor={color.palette.lightgray}
+                  style={style.input}
+                  placeholder="Email"
+                  onChangeText={handleChange('email')}
+                  onBlur={handleBlur('email')}
+                />
+              </View>
+            </View>
+            <View style={style.btn_view}>
+              <View style={style.left_shape}>
+                <LeftShape width={40} />
+              </View>
+              <View style={style.btn_option}>
+                <TouchableOpacity
+                  style={style.btn}
+                  onPress={handleSubmit}>
+                  <Button title={'Send Mail'} />
+                </TouchableOpacity>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                  <Text style={{color: color.palette.black}}>
+                    If you do not have account?
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => navigate.navigate(RoutNames.LoginScreen)}>
+                    <Text
+                      style={{
+                        color: color.palette.darkblue,
+                        fontWeight: 'bold',
+                        paddingLeft: 5,
+                      }}>
+                      Sign In
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </>
+        )}
+      </Formik>
     </View>
   );
 };
@@ -95,11 +133,11 @@ const style = StyleSheet.create({
   btn_view: {
     flex: 0.35,
     flexDirection: 'row',
-    top:-30
+    top: -30,
   },
   left_shape: {
-    width:40,
-    bottom:'10%'
+    width: 40,
+    bottom: '10%',
   },
   btn_option: {
     width: '80%',
@@ -108,6 +146,6 @@ const style = StyleSheet.create({
   },
   btn: {
     width: '100%',
-    top:20
+    top: 20,
   },
 });

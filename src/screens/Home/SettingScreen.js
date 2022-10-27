@@ -29,13 +29,15 @@ import WhiteTick from '../../assets/HomeAssets/Svgs/whiteTIck.svg';
 import EditIconWhite from '../../assets/EnrolmentAssets/EditIconWhite.svg';
 import Cellicon from '../../assets/HomeAssets/Svgs/cellIcon.svg';
 import ImagePicker from 'react-native-image-crop-picker';
-
+import { useDispatch, useSelector } from 'react-redux';
+import {Logout } from '../../Reduxs/Reducers';
 export const SettingScreen = () => {
+  const dispatch=useDispatch()
   const refRBSheet = useRef();
   const profileRBsheet = useRef();
   const [imgPath, setimgPath] = useState('');
   const [img, setimg] = useState(false);
-
+  const {user}=useSelector((state)=>state.UserReducer)
   const pickFromGallary = () => {
     ImagePicker.clean()
       .then(() => {})
@@ -86,7 +88,9 @@ export const SettingScreen = () => {
       );
     }
   };
-  console.log('object', imgPath);
+  console.log(
+
+  )
   const navigate = useNavigation();
   return (
     <View style={style.container}>
@@ -107,13 +111,13 @@ export const SettingScreen = () => {
         </View>
         <View style={style.textInput_container}>
           <View style={style.text_view}>
-            <Text style={style.info_text}>Muhammad Ali Asghar</Text>
+            <Text style={style.info_text}>{user.user.full_name}</Text>
             <View style={style.input_icon}>
               <User width={'100%'} height={'100%'} />
             </View>
           </View>
           <View style={style.text_view}>
-            <Text style={style.info_text}>Dummy@gmail.com</Text>
+            <Text style={style.info_text}>{user.user.email}</Text>
             <View style={style.input_icon}>
               <Email width={'100%'} height={'100%'} />
             </View>
@@ -168,7 +172,7 @@ export const SettingScreen = () => {
             </View>
           </View>
           <View style={style.log_btn_view}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={()=>dispatch(Logout({}))}>
               <LinearGradient
                 useAngle={true}
                 colors={[color.palette.darkblue, color.palette.lightBlue]}

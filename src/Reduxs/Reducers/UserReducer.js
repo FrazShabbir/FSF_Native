@@ -1,26 +1,26 @@
-import {createSlice} from '@reduxjs/toolkit';
+import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 const initialState = {
-  data:false,
-  email: 'aa',
-  password: 'pp',
+  loginRequired: true,
+  user:{}
 };
 
-
-const UserReducer=createSlice({
-  name:"User",
+const UserReducer = createSlice({
+  name: 'User',
   initialState,
-  reducers:{
-    ADD(state,action){
-      state.data=action.payload
+  reducers: {
+    Loggin(state, {payload}) {
+      state.user = payload;
+      state.loginRequired=false
     },
-    REMOVE(state,action){
-      state.data=action.payload
-    }
-  }
-})
+    Logout(state, {payload}) {
+      state.user = payload;
+      state.loginRequired=true
+    },
+  },
+});
 
-export const {ADD,REMOVE}=UserReducer.actions
-export default UserReducer.reducer
+export const {Loggin,Logout} = UserReducer.actions;
+export default UserReducer.reducer;
 
 /* export const UserReducer = (state = initialState, action) => {
   switch (action.type) {

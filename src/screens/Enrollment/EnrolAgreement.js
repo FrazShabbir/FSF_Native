@@ -87,7 +87,7 @@ export const EnrolAgreement = () => {
               useAngle={true}
               colors={[color.palette.darkblue, color.palette.lightBlue]}
               style={style.power_container}>
-              <Text style={style.text}>Agree</Text>
+              <Text style={style.text}>Agree Next</Text>
               <View style={style.powerIcon_view}>
                 <RightArrow width={'100%'} height={'100%'} />
               </View>
@@ -359,7 +359,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   power_container: {
-    width: 90,
+    width: 130,
     height: "100%",
     borderRadius: 20,
     flexDirection: 'row',
@@ -373,7 +373,7 @@ const style = StyleSheet.create({
     fontWeight: fontWeights.bold,
   },
   powerIcon_view: {
-    width: '20%',
+    width: 17,
   },
   loc_icon_container: {
     top: '3%',

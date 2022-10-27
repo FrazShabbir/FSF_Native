@@ -11,10 +11,8 @@ import Logo from '../assets/svg/logo.svg';
 import { useSelector,useDispatch } from 'react-redux';
 import { ADD,REMOVE } from '../Reduxs/Reducers';
 export const MainScreen = () => {
-  const {data,email,password}=useSelector((state)=>state.UserReducer)
   const dispatch=useDispatch()
   const navigate = useNavigation();
-  console.log("object",data)
   return (
     <View style={style.container}>
       <View style={style.shape_container}>

@@ -6,7 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {fontSizes, fontWeights, globalStyles} from '../../theme/styles';
 import {color} from '../../theme';
 import {
@@ -14,14 +14,33 @@ import {
   CustomTextInput,
   Button,
 } from '../../components';
-import {ScrollView} from 'react-native-gesture-handler';
 import {useNavigation} from '@react-navigation/native';
 import {RoutNames} from '../../navigation/routeNames';
 import Eye from '../../assets/svg/eye.svg';
 import Tick from '../../assets/svg/tickSquare.svg';
 import LeftShape from '../../assets/svg/leftShape.svg';
+import {Formik} from 'formik';
+import * as Yup from 'yup';
+import customFetch from '../../utils/axios';
+import axios from 'axios';
+import {useDispatch, useSelector} from 'react-redux';
+import {Loggin} from '../../Reduxs/Reducers';
+const initialState = {
+  email: '',
+  password: '',
+};
+const schema = Yup.object({
+  email: Yup.string().email("Not Valid").required('Required'),
+  password: Yup.string().min(8).max(64).required('Required'),
+});
+
+//https://fsfeu.org/es/fsf/api/auth/login?email=asdf&password=11
 export const Login = () => {
+  const dispatch = useDispatch();
+  const {user}=useSelector((state)=>state.UserReducer)
   const navigate = useNavigation();
+  const [hidePassword, setHidePassword] = useState(true);
+  console.log("object",user)
   return (
     <View style={[globalStyles.fillAll, style.container]}>
       <Login_signup_Component
@@ -29,64 +48,111 @@ export const Login = () => {
         description={'Welcome back, please enter your details'}
         icon={'user'}
       />
-      <View style={style.Allinputfeild_view}>
-        <View style={style.input_view}>
-          <CustomTextInput icon={'email'} />
-          <TextInput 
-          placeholderTextColor={color.palette.lightgray} style={style.input} placeholder="Email" />
-        </View>
-        <View style={style.input_view}>
-          <View style={style.fix}>
-            <CustomTextInput icon={'user'} />
-            <TextInput  placeholderTextColor={color.palette.lightgray} style={style.input} placeholder="Password" />
-          </View>
-          <TouchableOpacity style={style.eye}>
-            <Eye width={22} height={25} />
-          </TouchableOpacity>
-        </View>
-        <View style={style.option_view}>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <Tick style={style.tick} width={20} height={20} />
+      <Formik
+        initialValues={initialState}
+        validationSchema={schema}
+        onSubmit={async (values, action) => {
+          const res = await fetch(
+            `https://fsfeu.org/es/fsf/api/auth/login?email=${values.email}&password=${values.password}`,
+            {
+              method: 'Post',
+              headers: {
+                'content-type': 'application/json',
+              },
+            },
+          );
+          const jsonRes= await res.json();
+          if(jsonRes.status === true){
+            dispatch(Loggin(jsonRes))
+          }else{
+            console.log(jsonRes.message)
+          }
 
-            <Text style={style.text_logged}>Keep me logged in</Text>
-          </View>
-          <TouchableOpacity
-            onPress={() => navigate.navigate(RoutNames.ForgetPassword)}>
-            <Text style={style.text_forgot}>Forgot Password?</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-      <View style={style.btn_view}>
-        <View style={style.left_shape}>
-        <LeftShape  width={40} />
-        </View>
-        <View style={style.btn_option}>
-          <TouchableOpacity style={style.btn}>
-            <Button title={'Sign In'} />
-          </TouchableOpacity>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <Text style={{color: color.palette.black}}>
-              If you do not have account?
-            </Text>
-            <TouchableOpacity
-              onPress={() => navigate.navigate(RoutNames.SignUpScreen)}>
-              <Text style={{color: color.palette.darkblue, fontWeight: 'bold'}}>
-                Sign Up
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
+
+
+
+        }}>
+        {({handleChange, handleBlur, handleSubmit}) => (
+          <>
+            <View style={style.Allinputfeild_view}>
+              <View style={style.input_view}>
+                <CustomTextInput icon={'email'} />
+                <TextInput
+                  placeholderTextColor={color.palette.lightgray}
+                  style={style.input}
+                  placeholder="Email"
+                  onChangeText={handleChange('email')}
+                  onBlur={handleBlur('email')}
+                />
+              </View>
+              <View style={style.input_view}>
+                <View style={style.fix}>
+                  <CustomTextInput icon={'user'} />
+                  <TextInput
+                    placeholderTextColor={color.palette.lightgray}
+                    style={style.input}
+                    placeholder="Password"
+                    secureTextEntry={hidePassword}
+                    onChangeText={handleChange('password')}
+                    onBlur={handleBlur('password')}
+                  />
+                </View>
+                <TouchableOpacity
+                  onPress={() => setHidePassword(!hidePassword)}
+                  style={style.eye}>
+                  <Eye width={22} height={25} />
+                </TouchableOpacity>
+              </View>
+              <View style={style.option_view}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                  <Tick style={style.tick} width={20} height={20} />
+
+                  <Text style={style.text_logged}>Keep me logged in</Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => navigate.navigate(RoutNames.ForgetPassword)}>
+                  <Text style={style.text_forgot}>Forgot Password?</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View style={style.btn_view}>
+              <View style={style.left_shape}>
+                <LeftShape width={40} />
+              </View>
+              <View style={style.btn_option}>
+                <TouchableOpacity onPress={handleSubmit} style={style.btn}>
+                  <Button title={'Sign In'} />
+                </TouchableOpacity>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                  <Text style={{color: color.palette.black}}>
+                    If you do not have account?
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => navigate.navigate(RoutNames.SignUpScreen)}>
+                    <Text
+                      style={{
+                        color: color.palette.darkblue,
+                        fontWeight: 'bold',
+                      }}>
+                      Sign Up
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </>
+        )}
+      </Formik>
     </View>
   );
 };
@@ -141,8 +207,8 @@ const style = StyleSheet.create({
     paddingTop: 10,
   },
   left_shape: {
-    width:40,
-    bottom:'10%'
+    width: 40,
+    bottom: '10%',
   },
   btn_option: {
     width: '80%',
@@ -151,6 +217,6 @@ const style = StyleSheet.create({
   },
   btn: {
     width: '100%',
-    top:20
+    top: 20,
   },
 });

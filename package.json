@@ -23,8 +23,10 @@
     "react-native": "0.70.1",
     "react-native-date-picker": "^4.2.5",
     "react-native-device-info": "^10.2.1",
+    "react-native-flash-message": "^0.3.1",
     "react-native-gesture-handler": "^2.6.2",
     "react-native-image-crop-picker": "^0.38.0",
+    "react-native-indicators": "^0.17.0",
     "react-native-linear-gradient": "^2.6.2",
     "react-native-network-info": "^5.2.1",
     "react-native-radio-buttons-group": "^2.2.11",
@@ -36,6 +38,7 @@
     "react-native-svg": "^13.2.0",
     "react-native-svg-transformer": "^1.0.0",
     "react-redux": "^8.0.4",
+    "redux-persist": "^6.0.0",
     "redux-saga": "^1.2.1",
     "yup": "^0.32.11"
   },

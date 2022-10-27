@@ -317,12 +317,11 @@ export const Form = () => {
                 <TouchableOpacity
                   onPress={() => {
                     setOpen(true);
-                    
                   }}>
                   <View style={[style.input, {justifyContent: 'center'}]}>
                     <Text style={style.gender_input}>{selectDate()}</Text>
                   </View>
-                  <View style={[style.backDown, {width: 25, height: 25}]}>
+                  <View style={[style.backDown, {width: 19, height: 19}]}>
                     <Calender width={'100%'} height={'100%'} />
                   </View>
                 </TouchableOpacity>
@@ -910,7 +909,9 @@ export const Form = () => {
                       viewMode={'portrait'}
                     />
                   </View>
-                  <TouchableOpacity onPress={()=>singRef.current.resetImage()} style={style.clear_sign_view}>
+                  <TouchableOpacity
+                    onPress={() => singRef.current.resetImage()}
+                    style={style.clear_sign_view}>
                     <Text style={style.clear_sign_text}>Clear</Text>
                   </TouchableOpacity>
                 </View>
@@ -1029,11 +1030,11 @@ const style = StyleSheet.create({
     fontSize: 16,
   },
   backDown: {
-    width: 18,
-    height: 18,
+    width: 16,
+    height: 16,
     position: 'absolute',
     alignSelf: 'flex-end',
-    top: '20%',
+    top: '25%',
     right: '5%',
   },
   log_btn_view: {
@@ -1065,6 +1066,7 @@ const style = StyleSheet.create({
     fontSize: 15,
   },
   form_title_view: {
+    marginTop:10,
     width: '80%',
     alignSelf: 'center',
   },
@@ -1282,20 +1284,20 @@ const style = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  clear_sign_view:{
-    width:50,
-    justifyContent:"center",
-    alignItems:"center",
-    position:"absolute",
-    alignSelf:"flex-end",
-    top:1.7,
-    borderBottomWidth:1,
-    borderLeftWidth:1,
-    borderBottomLeftRadius:15,
+  clear_sign_view: {
+    width: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    alignSelf: 'flex-end',
     
+    borderWidth:1,
+    borderBottomLeftRadius: 15,
+    borderStyle:"dashed",
+    borderTopRightRadius:30,
   },
-  clear_sign_text:{
-    color:color.palette.darkblue,
-    fontWeight:fontWeights.bold
-  }
+  clear_sign_text: {
+    color: color.palette.darkblue,
+    fontWeight: fontWeights.bold,
+  },
 });

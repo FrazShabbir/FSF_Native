@@ -18,15 +18,32 @@ import {
   SmallButton,
 } from '../../components';
 import {RoutNames} from '../../navigation/routeNames';
-import {useNavigation} from '@react-navigation/native';
+import {PrivateValueStore, useNavigation} from '@react-navigation/native';
 import Eye from '../../assets/svg/eye.svg';
 import LeftShape from '../../assets/svg/leftShape.svg';
 import Cross from '../../assets/svg/cross.svg';
-import Tick from '../../assets/svg/tick.svg'
-export const NewPassword = () => {
+import Tick from '../../assets/svg/tick.svg';
+import {Formik} from 'formik';
+import * as Yup from 'yup';
+const initailState = {
+  newPassword: '',
+  confirmPassword: '',
+};
+const schema = Yup.object({
+  newPassword: Yup.string().min(8).max(64).required('*Required'),
+  confirmPassword: Yup.string()
+    .min(8)
+    .max(64)
+    .required('*Required')
+    .oneOf([Yup.ref('newPassword'), null], 'Passwords must match'),
+});
+export const NewPassword = ({route}) => {
   const navigate = useNavigation();
   const [saved, setsaved] = useState(false);
-  
+  const [hidePassword, setHidePassword] = useState(true);
+  const [hidePassword1, setHidePassword1] = useState(true);
+  const {email,otp} = route.params;
+
   return (
     <View style={[style.container, globalStyles.fillAll]}>
       <Login_signup_Component
@@ -34,103 +51,153 @@ export const NewPassword = () => {
         description={'Enter password with following instructions'}
         icon={'lock'}
       />
-      <View style={style.Allinputfeild_view}>
-        <View style={style.input_view}>
-          <View style={style.fix}>
-            <CustomTextInput icon={'lock'} />
-            <TextInput  placeholderTextColor={color.palette.lightgray} style={style.input} placeholder="New Password" />
-          </View>
-          <TouchableOpacity style={style.eye}>
-            <Eye width={22} height={25} />
-          </TouchableOpacity>
-        </View>
-        <View style={style.input_view}>
-          <View style={style.fix}>
-            <CustomTextInput icon={'lock'} />
-            <TextInput  placeholderTextColor={color.palette.lightgray} style={style.input} placeholder="Confirm Password" />
-          </View>
-          <TouchableOpacity style={style.eye}>
-            <Eye width={22} height={25} />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <View style={style.condition_view}>
-        <View style={style.condition}>
-          <Cross style={style.cross} width={13} height={13} />
-          <Text style={style.condition_text}>Atleast 8 characters</Text>
-        </View>
-        <View style={style.condition}>
-          <Cross style={style.cross} width={13} height={13} />
-          <Text style={style.condition_text}>
-            Both upper and lowercase letters (optional)
-          </Text>
-        </View>
-        <View style={style.condition}>
-          <Cross style={style.cross} width={13} height={13} />
-          <Text style={style.condition_text}>
-            Atleast one number or symbol (optional)
-          </Text>
-        </View>
-      </View>
-
-      <View style={style.btn_view}>
-        <View style={style.left_shape}>
-        <LeftShape   width={"100%"}/>
-        </View>
-        <View style={style.btn_option}>
-          <TouchableOpacity
-            style={style.btn}
-            onPress={() => {
-              setsaved(!saved);
-            }}>
-            <Button title={'Save'} />
-          </TouchableOpacity>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <Text style={{color: color.palette.black}}>
-              If you do not have account?
-            </Text>
-            <TouchableOpacity
-              onPress={() => navigate.navigate(RoutNames.LoginScreen)}>
-              <Text style={{color: color.palette.darkblue, fontWeight: 'bold'}}>
-                Sign In
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-      <Modal visible={saved} transparent={true} animationType="fade">
-        <View style={style.modal_view}>
-          <View style={style.view}>
-            <View
-              style={{
-                width: '90%',
-                justifyContent: 'center',
-                alignItems: 'center',
-                padding: 20,
-              }}>
-              <View style={style.tick_view}>
-                <Tick width={25} height={25}/>
+      <Formik
+        initialValues={initailState}
+        validationSchema={schema}
+        onSubmit={async (values, action) => {
+          console.log('values', values,otp,email);
+          const res = await fetch(
+            `
+            https://fsfeu.org/es/fsf/api/auth/set-new-password?email=${email}&password=${values.newPassword}&otp=${otp}`,
+            {
+              method: 'Post',
+              headers: {
+                'content-type': 'application/json',
+              },
+            },
+          );
+          const jsonRes = await res.json();
+          if (jsonRes.status === 200) {
+            setsaved(true);
+          } else {
+            console.log(jsonRes);
+          }
+        }}>
+        {({handleSubmit, handleBlur, handleChange}) => (
+          <>
+            <View style={style.Allinputfeild_view}>
+              <View style={style.input_view}>
+                <View style={style.fix}>
+                  <CustomTextInput icon={'lock'} />
+                  <TextInput
+                    placeholderTextColor={color.palette.lightgray}
+                    style={style.input}
+                    placeholder="New Password"
+                    onChangeText={handleChange('newPassword')}
+                    onBlur={handleBlur('newPassword')}
+                    secureTextEntry={hidePassword1}
+                  />
+                </View>
+                <TouchableOpacity
+                  onPress={() => setHidePassword1(!hidePassword1)}
+                  style={style.eye}>
+                  <Eye width={22} height={25} />
+                </TouchableOpacity>
               </View>
-              <View style={style.modal_text_view}>
-                <Text style={style.modal_text}>
-                  Your Password has been Changed
+              <View style={style.input_view}>
+                <View style={style.fix}>
+                  <CustomTextInput icon={'lock'} />
+                  <TextInput
+                    placeholderTextColor={color.palette.lightgray}
+                    style={style.input}
+                    placeholder="Confirm Password"
+                    onChangeText={handleChange('confirmPassword')}
+                    onBlur={handleBlur('confirmPassword')}
+                    secureTextEntry={hidePassword}
+                  />
+                </View>
+                <TouchableOpacity
+                  onPress={() => setHidePassword(!hidePassword)}
+                  style={style.eye}>
+                  <Eye width={22} height={25} />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={style.condition_view}>
+              <View style={style.condition}>
+                <Cross style={style.cross} width={13} height={13} />
+                <Text style={style.condition_text}>Atleast 8 characters</Text>
+              </View>
+              <View style={style.condition}>
+                <Cross style={style.cross} width={13} height={13} />
+                <Text style={style.condition_text}>
+                  Both upper and lowercase letters (optional)
                 </Text>
               </View>
-              <TouchableOpacity
-                style={style.modal_btn_view}
-                onPress={() =>{setsaved(!saved),navigate.navigate(RoutNames.LoginScreen)}}>
-                <SmallButton  title={'Login'} />
-              </TouchableOpacity>
+              <View style={style.condition}>
+                <Cross style={style.cross} width={13} height={13} />
+                <Text style={style.condition_text}>
+                  Atleast one number or symbol (optional)
+                </Text>
+              </View>
             </View>
-          </View>
-        </View>
-      </Modal>
+
+            <View style={style.btn_view}>
+              <View style={style.left_shape}>
+                <LeftShape width={'100%'} />
+              </View>
+              <View style={style.btn_option}>
+                <TouchableOpacity
+                  style={style.btn}
+                  onPress={/* setsaved(!saved); */ handleSubmit}>
+                  <Button title={'Save'} />
+                </TouchableOpacity>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                  <Text style={{color: color.palette.black}}>
+                    If you do not have account?
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => navigate.navigate(RoutNames.LoginScreen)}>
+                    <Text
+                      style={{
+                        color: color.palette.darkblue,
+                        fontWeight: 'bold',
+                      }}>
+                      Sign In
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+            <Modal visible={saved} transparent={true} animationType="fade">
+              <View style={style.modal_view}>
+                <View style={style.view}>
+                  <View
+                    style={{
+                      width: '90%',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      padding: 20,
+                    }}>
+                    <View style={style.tick_view}>
+                      <Tick width={25} height={25} />
+                    </View>
+                    <View style={style.modal_text_view}>
+                      <Text style={style.modal_text}>
+                        Your Password has been Changed
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      style={style.modal_btn_view}
+                      onPress={() => {
+                        setsaved(!saved),
+                          navigate.navigate(RoutNames.LoginScreen);
+                      }}>
+                      <SmallButton title={'Login'} />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </Modal>
+          </>
+        )}
+      </Formik>
     </View>
   );
 };
@@ -148,7 +215,6 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 15,
-  
   },
   input: {
     position: 'absolute',
@@ -173,7 +239,7 @@ const style = StyleSheet.create({
   condition_view: {
     flex: 0.1,
     alignItems: 'center',
-    top:"2%"
+    top: '2%',
   },
   condition: {
     alignItems: 'center',
@@ -190,30 +256,27 @@ const style = StyleSheet.create({
     height: 10,
   },
   btn_view: {
-  
     flex: 0.35,
     flexDirection: 'row',
-    
   },
   left_shape: {
-    width:40,
-    bottom:'10%'
+    width: 40,
+    bottom: '10%',
   },
   btn_option: {
     width: '80%',
     justifyContent: 'space-between',
-    paddingBottom:40
+    paddingBottom: 40,
   },
   btn: {
     width: '100%',
-    top:20
+    top: 20,
   },
   modal_view: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor:'rgba(0,0,0,0.6)'
-    
+    backgroundColor: 'rgba(0,0,0,0.6)',
   },
   view: {
     width: '80%',

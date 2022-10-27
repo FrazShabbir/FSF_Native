@@ -305,6 +305,7 @@ const style = StyleSheet.create({
   },
   english: {
     color: color.palette.black,
+    fontSize:15
   },
   ///form header
   urdu18: {
