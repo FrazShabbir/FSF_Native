@@ -11,5 +11,15 @@ export const RoutNames={
     SettingScreen:'SettingScreen',
     AnnouncementScreen:"AnnouncementScreen",
     EnrollmentScreen:"EnrollmentScreen",
-    EnrolAgreement:'EnrolAgreement'
+    EnrolAgreement:'EnrolAgreement',
+    StatusScreen:'StatusScreen',
+    RenewEnrollStatus:"RenewEnrollStatus",
+    DonationStatusScreen:'DonationStatusScreen',
+    FamilyStatusScreen:"FamilyStatusScreen",
+    UploadDonationScreen:"UploadDonationScreen",
+    AnounceDetailScreen:"AnnounceDetailScreen",
+    EnrollmentHistory:'EnrollmentHistory',
+    FormHistoryDetailScreen:'FormHistoryDetailScreen',
+    DonationHistoryDetailScreen:"DonationHistoryDetailScreen"
+    
 }

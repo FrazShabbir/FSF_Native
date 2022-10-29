@@ -15,9 +15,17 @@ import {
   PrivacyScreen,
   SettingScreen,
   AnnouncementScreen,
-  EnrollmnetScreen,
   EnrollmentScreen,
   EnrolAgreement,
+  StatusScreen,
+  RenewEnrollStatus,
+  DonationStatusScreen,
+  FamilyStatusScreen,
+  UploadDonationScreen,
+  AnounceDetailsScreen,
+  EnrolmentHistory,
+  FormHistoryDetailScreen,
+  DonationHistoryDetailScreen
 } from '../screens';
 import {useSelector} from 'react-redux';
 export const RootNavigator = React.forwardRef((props, ref) => {
@@ -67,6 +75,24 @@ export const RootNavigator = React.forwardRef((props, ref) => {
               name={RoutNames.EnrollmentScreen}
               component={EnrollmentScreen}
             />
+
+            <tab.Screen name={RoutNames.StatusScreen} component={StatusScreen} />
+            <tab.Screen name={RoutNames.RenewEnrollStatus} component={RenewEnrollStatus} />
+            <tab.Screen name={RoutNames.DonationStatusScreen} component={DonationStatusScreen} />
+            <tab.Screen name={RoutNames.FamilyStatusScreen} component={FamilyStatusScreen} />
+            <tab.Screen name={RoutNames.UploadDonationScreen} component={UploadDonationScreen} />
+            <tab.Screen name={RoutNames.AnounceDetailScreen} component={AnounceDetailsScreen} />
+            <tab.Screen name={RoutNames.EnrollmentHistory} component={EnrolmentHistory} />
+            <tab.Screen name={RoutNames.FormHistoryDetailScreen} component={FormHistoryDetailScreen} />
+            <tab.Screen name={RoutNames.DonationHistoryDetailScreen} component={DonationHistoryDetailScreen} />
+
+
+
+
+
+
+
+
           </tab.Group>
         )}
       </stack.Navigator>

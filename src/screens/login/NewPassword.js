@@ -18,11 +18,12 @@ import {
   SmallButton,
 } from '../../components';
 import {RoutNames} from '../../navigation/routeNames';
-import {PrivateValueStore, useNavigation} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import Eye from '../../assets/svg/eye.svg';
 import LeftShape from '../../assets/svg/leftShape.svg';
 import Cross from '../../assets/svg/cross.svg';
 import Tick from '../../assets/svg/tick.svg';
+import { showMessage } from 'react-native-flash-message';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
 const initailState = {
@@ -42,7 +43,9 @@ export const NewPassword = ({route}) => {
   const [saved, setsaved] = useState(false);
   const [hidePassword, setHidePassword] = useState(true);
   const [hidePassword1, setHidePassword1] = useState(true);
-  const {email,otp} = route.params;
+  const [indicator, setIndicator] = useState(null);
+
+  const {email, otp} = route.params;
 
   return (
     <View style={[style.container, globalStyles.fillAll]}>
@@ -55,10 +58,11 @@ export const NewPassword = ({route}) => {
         initialValues={initailState}
         validationSchema={schema}
         onSubmit={async (values, action) => {
-          console.log('values', values,otp,email);
+          //   console.log('values', values, otp, email);
+          setIndicator(true);
+
           const res = await fetch(
-            `
-            https://fsfeu.org/es/fsf/api/auth/set-new-password?email=${email}&password=${values.newPassword}&otp=${otp}`,
+            `https://fsfeu.org/es/fsf/api/auth/set-new-password?email=${email}&password=${values.newPassword}&otp=${otp}`,
             {
               method: 'Post',
               headers: {
@@ -69,8 +73,15 @@ export const NewPassword = ({route}) => {
           const jsonRes = await res.json();
           if (jsonRes.status === 200) {
             setsaved(true);
+            setIndicator(false);
           } else {
+            showMessage({
+              message:jsonRes.message,
+              type:"danger",
+              duration:3000,
+            })
             console.log(jsonRes);
+            setIndicator(false);
           }
         }}>
         {({handleSubmit, handleBlur, handleChange}) => (
@@ -141,7 +152,7 @@ export const NewPassword = ({route}) => {
                 <TouchableOpacity
                   style={style.btn}
                   onPress={/* setsaved(!saved); */ handleSubmit}>
-                  <Button title={'Save'} />
+                  <Button loading={indicator} title={'Save'} />
                 </TouchableOpacity>
                 <View
                   style={{

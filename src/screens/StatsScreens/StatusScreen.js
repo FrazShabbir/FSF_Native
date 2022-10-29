@@ -1,47 +1,31 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Linking,
-  Platform,
-} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, Modal} from 'react-native';
 import React, {useRef, useState} from 'react';
-import {Announce, HomeComponent, NearBtn, NearOffice} from '../../components';
+import {HomeComponent, HomeEvent, NearBtn} from '../../components';
 import {color} from '../../theme';
-import HomeIcon from '../../assets/HomeAssets/Svgs/homeblack.svg';
 import AboutIcon from '../../assets/HomeAssets/Svgs/aboutIcon.svg';
 import SettingIcon from '../../assets/HomeAssets/Svgs/settingIcon.svg';
 import PrivacyIcon from '../../assets/HomeAssets/Svgs/privacyIcon.svg';
-import {useNavigation} from '@react-navigation/native';
-import {RoutNames} from '../../navigation/routeNames';
-import {fontWeights} from '../../theme/styles';
 import RBSheet from 'react-native-raw-bottom-sheet';
-
-import Cell from '../../assets/HomeAssets/Svgs/cellIconWhite.svg';
-import BackDown from '../../assets/HomeAssets/Svgs/backDown.svg';
 import LocIcon from '../../assets/HomeAssets/Svgs/locationIcon.svg';
 import LocDot from '../../assets/HomeAssets/Svgs/locationDot.svg';
-
+import BackDown from '../../assets/HomeAssets/Svgs/backDown.svg';
+import {fontWeights} from '../../theme/styles';
+import Cell from '../../assets/HomeAssets/Svgs/cellIconWhite.svg';
+import {RoutNames} from '../../navigation/routeNames';
 import LinearGradient from 'react-native-linear-gradient';
-import { ScrollView } from 'react-native-gesture-handler';
+import {useNavigation} from '@react-navigation/native';
+import Cross from '../../assets/svg/cross.svg';
+import AlertIcon from '../../assets/HomeAssets/Svgs/alertIcon.svg';
+import HomeIcon from '../../assets/HomeAssets/Svgs/homeblack.svg';
 
-export const AnnouncementScreen = () => {
-  const navigate = useNavigation();
+export const StatusScreen = () => {
   const refRBSheet = useRef();
-  const dialCall = number => {
-    let phoneNumber = '';
-    if (Platform.OS === 'android') {
-      phoneNumber = `tel:${number}`;
-    } else {
-      phoneNumber = `telprompt:${number}`;
-    }
-    Linking.openURL(phoneNumber);
-  };
+  const [noRelative, setNoRelative] = useState(true);
+  const navigate = useNavigation();
   return (
     <View style={style.container}>
-      <HomeComponent title={'Announcements'} backIcon={true} />
-      <View style={style.bottom_container}>
+      <HomeComponent backIcon={true} title={'Applications'} />
+      <View style={[style.bottom_container, {}]}>
         <View style={style.btn_view}>
           <TouchableOpacity
             style={style.NearBtn}
@@ -49,33 +33,41 @@ export const AnnouncementScreen = () => {
             <NearBtn />
           </TouchableOpacity>
         </View>
-        <ScrollView showsVerticalScrollIndicator={false} style={style.text_container}>
-          <TouchableOpacity onPress={()=>navigate.navigate(RoutNames.AnounceDetailScreen)} style={style.announce_container}>
-            <Announce />
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            height: '70%',
+            alignItems: 'center',
+            width: '80%',
+            alignSelf: 'center',
+          }}>
+          <TouchableOpacity
+            onPress={() => navigate.navigate(RoutNames.RenewEnrollStatus)}
+            style={[style.event_view, {}]}>
+            <HomeEvent
+              Icon={'circleArrow'}
+              text={'Renew enrolment application stats'}
+            />
           </TouchableOpacity>
-          <TouchableOpacity  onPress={()=>navigate.navigate(RoutNames.AnounceDetailScreen)} style={style.announce_container}>
-            <Announce />
+          <TouchableOpacity
+            onPress={() => navigate.navigate(RoutNames.DonationStatusScreen)}
+            style={style.event_view}>
+            <HomeEvent
+              Icon={'priceIcon'}
+              text={'Donation receipt Upload application status'}
+            />
           </TouchableOpacity>
-          <TouchableOpacity  onPress={()=>navigate.navigate(RoutNames.AnounceDetailScreen)} style={style.announce_container}>
-            <Announce />
+          <TouchableOpacity
+            style={style.event_view}
+            onPress={() =>navigate.navigate(RoutNames.FamilyStatusScreen)}>
+            <HomeEvent
+              Icon={'peoples'}
+              text={'See your family application status'}
+            />
           </TouchableOpacity>
-          <TouchableOpacity  onPress={()=>navigate.navigate(RoutNames.AnounceDetailScreen)} style={style.announce_container}>
-            <Announce />
-          </TouchableOpacity>
-          <TouchableOpacity  onPress={()=>navigate.navigate(RoutNames.AnounceDetailScreen)} style={style.announce_container}>
-            <Announce />
-          </TouchableOpacity>
-          <TouchableOpacity  onPress={()=>navigate.navigate(RoutNames.AnounceDetailScreen)} style={style.announce_container}>
-            <Announce />
-          </TouchableOpacity>
-          <TouchableOpacity  onPress={()=>navigate.navigate(RoutNames.AnounceDetailScreen)} style={style.announce_container}>
-            <Announce />
-          </TouchableOpacity>
-          <TouchableOpacity  onPress={()=>navigate.navigate(RoutNames.AnounceDetailScreen)} style={style.announce_container}>
-            <Announce />
-          </TouchableOpacity>
-          
-        </ScrollView>
+        </View>
       </View>
       <View style={style.bottom_tab_container}>
         <View style={style.icons_container}>
@@ -110,8 +102,6 @@ export const AnnouncementScreen = () => {
         customStyles={{
           wrapper: {
             backgroundColor: 'rgba(0,0,0,0.6)',
-
-            
           },
           draggableIcon: {
             backgroundColor: 'white',
@@ -126,7 +116,7 @@ export const AnnouncementScreen = () => {
           <View style={[style.edit_container, {}]}>
             <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
               <View style={style.loc_icon_container}>
-                <LocIcon width={23} height={40} />
+                <LocIcon width={22} height={40} />
                 <View style={style.loc_icon}>
                   <LocDot width="100%" height="100%" />
                 </View>
@@ -200,6 +190,33 @@ export const AnnouncementScreen = () => {
           </View>
         </View>
       </RBSheet>
+      <Modal visible={noRelative} transparent={true} animationType="fade">
+        <View style={style.modal_view}>
+          <View style={style.view}>
+            <View style={style.heading_container}>
+              <View style={style.heading_icon}>
+                <AlertIcon width={'100%'} height={'100%'} />
+              </View>
+              <View style={style.heading_text_view}>
+                <Text style={style.heading_text}>
+                There is no family
+                </Text>
+              </View>
+            </View>
+            <View style={[style.paragraph_container, {paddingTop: 10}]}>
+              <Text style={style.paragraph_text}>
+                You don’t have family member in your hierarchy. Please add your
+                fmaily member or contact to the nearest office.
+              </Text>
+            </View>
+            <TouchableOpacity style={style.cross_view} onPress={() => {
+              setNoRelative(false)
+            }}>
+              <Cross width={'100%'} height={'100%'} />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -214,11 +231,23 @@ const style = StyleSheet.create({
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
   },
-
+  event_view: {
+    width: '50%',
+    height: '38%',
+  },
   bottom_tab_container: {
     flex: 0.08,
     backgroundColor: color.palette.white,
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+  icons: {
+    width: '20%',
+  },
+  icons_container: {
+    width: '85%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   btn_view: {
@@ -230,45 +259,6 @@ const style = StyleSheet.create({
   },
   NearBtn: {
     alignItems: 'flex-end',
-  },
-  icons: {
-    width: '20%',
-  },
-  icons_container: {
-    width: '85%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  text_container: {
-    flex:1,
-    width: '80%',
-    alignSelf: 'center',
-  },
-  haeding: {
-    fontSize: 15,
-    fontWeight: fontWeights.bold,
-    color: color.palette.black,
-    paddingBottom: 7,
-  },
-  paragraph: {
-    fontSize: 12,
-    color: color.palette.black,
-  },
-  manual_view: {
-    height: '10%',
-    width: '80%',
-    alignSelf: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  download_icon_view: {
-    width: '8%',
-  },
-  manual_text_conatiner: {},
-  manual_text: {
-    color: color.palette.black,
-    left: 3,
   },
   sheet_container: {
     flex: 1,
@@ -288,7 +278,7 @@ const style = StyleSheet.create({
     color: color.palette.black,
   },
   edit_icon_view: {
-    width:22,
+    width: 22,
     height: 22,
   },
   profile_container: {
@@ -369,7 +359,7 @@ const style = StyleSheet.create({
   },
   text: {
     color: color.palette.white,
-    fontWeight:fontWeights.bold
+    fontWeight: fontWeights.bold,
   },
   powerIcon_view: {
     width: '15%',
@@ -383,7 +373,80 @@ const style = StyleSheet.create({
     position: 'absolute',
     alignSelf: 'center',
   },
-  announce_container:{
-    paddingBottom:20,
-}
+  download_conatainer: {
+    height: '15%',
+    width: '80%',
+    alignSelf: 'center',
+    flexDirection: 'column',
+    justifyContent: 'space-around',
+  },
+  modal_view: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+  },
+  view: {
+    width: '80%',
+    backgroundColor: 'white',
+    borderRadius: 30,
+    alignItems: 'center',
+
+    paddingTop: 20,
+    paddingBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  heading_container: {
+    width: '90%',
+    flexDirection: 'row',
+  },
+  heading_icon: {
+    width: 45,
+    height: 45,
+    borderRadius: 50,
+    padding: 5,
+  },
+  heading_text_view: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    left: 10,
+  },
+  heading_text: {
+    color: color.palette.black,
+    fontSize: 17,
+    fontWeight: fontWeights.extraBold,
+  },
+  paragraph_container: {
+    width: '90%',
+    padding: 5,
+  },
+  paragraph_text: {
+    color: color.palette.black,
+  },
+  cross_view: {
+    width: 30,
+    height: 30,
+    backgroundColor: 'white',
+    borderRadius: 50,
+    padding: 7,
+    position: 'absolute',
+    alignSelf: 'flex-end',
+    right: 7,
+    top: -10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
 });

@@ -6,7 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-import React from 'react';
+import React,{useState} from 'react';
 import {color} from '../../theme';
 import {globalStyles} from '../../theme/styles';
 import {
@@ -18,6 +18,7 @@ import {ScrollView} from 'react-native-gesture-handler';
 import {RoutNames} from '../../navigation/routeNames';
 import {useNavigation} from '@react-navigation/native';
 import LeftShape from '../../assets/svg//leftShape.svg';
+import { showMessage } from 'react-native-flash-message';
 import {Formik} from 'formik';
 import * as Yup from 'yup'
 const schema=Yup.object({
@@ -25,6 +26,8 @@ const schema=Yup.object({
 })
 export const ForgetPassword = () => {
   const navigate = useNavigation();
+  const [indicator, setIndicator] = useState(null);
+
 
   return (
     <View style={[style.container, globalStyles.fillAll]}>
@@ -38,6 +41,8 @@ export const ForgetPassword = () => {
       validationSchema={schema}
       onSubmit={async(values,action)=>{
         console.log("values",values)
+        setIndicator(true);
+
         const res = await fetch(
           `https://fsfeu.org/es/fsf/api/auth/forget-password?email=${values.email}`,
           {
@@ -49,9 +54,18 @@ export const ForgetPassword = () => {
         );
         const jsonRes = await res.json();
         if (jsonRes.status === 200) {
+          setIndicator(false);
+
           navigate.navigate(RoutNames.OtpScreen,{email:values.email,from:RoutNames.NewPasswordScreen});
         } else {
+          showMessage({
+            message:jsonRes.message,
+            type:"danger",
+            duration:3000,
+          })
           console.log(jsonRes.message);
+          setIndicator(false);
+
         }
       }}
       >
@@ -77,7 +91,7 @@ export const ForgetPassword = () => {
                 <TouchableOpacity
                   style={style.btn}
                   onPress={handleSubmit}>
-                  <Button title={'Send Mail'} />
+                  <Button loading={indicator} title={'Send Mail'} />
                 </TouchableOpacity>
                 <View
                   style={{

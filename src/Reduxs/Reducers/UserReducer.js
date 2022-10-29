@@ -13,7 +13,6 @@ const UserReducer = createSlice({
       state.loginRequired=false
     },
     Logout(state, {payload}) {
-      state.user = payload;
       state.loginRequired=true
     },
   },

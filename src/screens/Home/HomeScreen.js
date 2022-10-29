@@ -16,15 +16,25 @@ import {
 import {color} from '../../theme';
 import {useNavigation} from '@react-navigation/native';
 import {RoutNames} from '../../navigation/routeNames';
+import { useSelector } from 'react-redux';
 
 export const HomeScreen = () => {
-  const [status, setStatus] = useState('notRegister');
-
+  const {user}=useSelector((state)=>state.UserReducer)
   const navigate = useNavigation();
+  console.log("user",user)
+  
+  const [status, setStatus] = useState('accepted');
+/* useEffect(() => {
+  if(user.user.application_status==0)
+  {
+    setStatus("notRegister")
+  }
+}, []) */
+
   return (
     <View style={style.container}>
       <HomeComponent title={'Home'} />
-      <HomeProfile />
+      <HomeProfile  />
 
       <HomeStatus status={status} />
       {status == 'notRegister' ? (
@@ -79,19 +89,19 @@ export const HomeScreen = () => {
               text={'Renew your subscription to continue you services'}
             />
           </TouchableOpacity>
-          <TouchableOpacity style={style.event_view}>
+          <TouchableOpacity onPress={()=>navigate.navigate(RoutNames.UploadDonationScreen)}  style={style.event_view}>
             <HomeEvent
               Icon={'priceIcon'}
               text={'Upload your donation receipt with all requirement'}
             />
           </TouchableOpacity>
-          <TouchableOpacity style={style.event_view}>
+          <TouchableOpacity style={style.event_view} onPress={()=>navigate.navigate(RoutNames.StatusScreen)}>
             <HomeEvent
               Icon={'doubleTick'}
               text={"See all your's and your family application with status"}
             />
           </TouchableOpacity>
-          <TouchableOpacity style={style.event_view}>
+          <TouchableOpacity onPress={()=>navigate.navigate(RoutNames.EnrollmentHistory)} style={style.event_view}>
             <HomeEvent
               Icon={'clockIcon'}
               text={

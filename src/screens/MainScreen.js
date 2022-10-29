@@ -9,7 +9,6 @@ import {RoutNames} from '../navigation/routeNames';
 import Shape from '../assets/svg/shape.svg';
 import Logo from '../assets/svg/logo.svg';
 import { useSelector,useDispatch } from 'react-redux';
-import { ADD,REMOVE } from '../Reduxs/Reducers';
 export const MainScreen = () => {
   const dispatch=useDispatch()
   const navigate = useNavigation();
@@ -31,8 +30,8 @@ export const MainScreen = () => {
           <Button title={'Sign In'} />
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() =>dispatch(ADD(1))}
-          style={style.btn}>
+        onPress={() => navigate.navigate(RoutNames.SignUpScreen)}
+           style={style.btn}>
           <Button button2={true} title={'Create Account'} />
         </TouchableOpacity>
       </View>

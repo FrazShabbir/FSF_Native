@@ -16,7 +16,6 @@ import PrivacyIcon from '../../assets/HomeAssets/Svgs/privacyIcon.svg';
 import {useNavigation} from '@react-navigation/native';
 import {RoutNames} from '../../navigation/routeNames';
 import {fontWeights} from '../../theme/styles';
-import Profile from '../../assets/HomeAssets/Svgs/profilePhoto.svg';
 import User from '../../assets/svg/smallUser.svg';
 import Email from '../../assets/svg/email.svg';
 import LinearGradient from 'react-native-linear-gradient';
@@ -106,7 +105,7 @@ export const SettingScreen = () => {
         </View>
         <View style={style.profile_container}>
           <View style={style.profile}>
-            <Profile width={'100%'} height={'100%'} />
+            <Image style={{width:"100%",height:"100%",borderRadius:50}} source={{uri:user.user.avatar}} />
           </View>
         </View>
         <View style={style.textInput_container}>
@@ -453,8 +452,8 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   profile: {
-    width: '60%',
-    height: '60%',
+    width: 80,
+    height: 80,
   },
   textInput_container: {
     width: '80%',

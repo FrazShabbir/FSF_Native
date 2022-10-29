@@ -3,20 +3,20 @@ import {
   Text,
   StyleSheet,
   TextInput,
-  Image,
   TouchableOpacity,
+  Modal
 } from 'react-native';
 import React, {useState} from 'react';
 import {fontSizes, globalStyles} from '../../theme/styles';
 import {color} from '../../theme';
 import {Button, Login_signup_Component} from '../../components';
 import {CustomTextInput} from '../../components';
-import {ScrollView} from 'react-native-gesture-handler';
 import {RoutNames} from '../../navigation/routeNames';
 import {useNavigation} from '@react-navigation/native';
 import Eye from '../../assets/svg/eye.svg';
 import RightShape from '../../assets/svg/rightShape.svg';
 import Cross from '../../assets/svg/cross.svg';
+import { showMessage } from 'react-native-flash-message';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
 const initialState = {
@@ -33,6 +33,8 @@ const schema = Yup.object({
 export const SignUp = () => {
   const navigate = useNavigation();
   const [hidePassword, setHidePassword] = useState(true);
+  const [indicator, setIndicator] = useState(null);
+
   return (
     <View style={[globalStyles.fillAll, style.container]}>
       <Login_signup_Component
@@ -44,6 +46,7 @@ export const SignUp = () => {
         initialValues={initialState}
         validationSchema={schema}
         onSubmit={async (values, action) => {
+          setIndicator(true);
           const res = await fetch(
             `https://fsfeu.org/es/fsf/api/auth/register?full_name=${values.fullName}&email=${values.email}&password=${values.password}`,
             {
@@ -55,9 +58,19 @@ export const SignUp = () => {
           );
           const jsonRes = await res.json();
           if (jsonRes.status === 200) {
-            navigate.navigate(RoutNames.OtpScreen,{email:values.email,from:RoutNames.LoginScreen});
+            setIndicator(false);
+            navigate.navigate(RoutNames.OtpScreen, {
+              email: values.email,
+              from: RoutNames.LoginScreen,
+            });
           } else {
-            console.log(jsonRes.message);
+            showMessage({
+              message:jsonRes.errors.email[0],
+              type:"danger",
+              duration:3000,
+            })
+            console.log(jsonRes);
+            setIndicator(false);
           }
         }}>
         {({handleBlur, handleChange, handleSubmit}) => (
@@ -129,7 +142,7 @@ export const SignUp = () => {
             </View>
             <View style={style.bottom_view}>
               <TouchableOpacity onPress={handleSubmit} style={style.btn_view}>
-                <Button title={'Sign up'} />
+                <Button loading={indicator} title={'Sign up'} />
               </TouchableOpacity>
               <View style={style.text_View}>
                 <View style={{alignItems: 'center'}}>

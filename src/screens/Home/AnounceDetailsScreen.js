@@ -1,80 +1,37 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Linking,
-  Platform,
-} from 'react-native';
-import React, {useRef, useState} from 'react';
-import {Announce, HomeComponent, NearBtn, NearOffice} from '../../components';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import React, {useRef} from 'react';
+import {HomeComponent, NearBtn,DonationStatus} from '../../components';
 import {color} from '../../theme';
-import HomeIcon from '../../assets/HomeAssets/Svgs/homeblack.svg';
 import AboutIcon from '../../assets/HomeAssets/Svgs/aboutIcon.svg';
 import SettingIcon from '../../assets/HomeAssets/Svgs/settingIcon.svg';
 import PrivacyIcon from '../../assets/HomeAssets/Svgs/privacyIcon.svg';
-import {useNavigation} from '@react-navigation/native';
-import {RoutNames} from '../../navigation/routeNames';
-import {fontWeights} from '../../theme/styles';
 import RBSheet from 'react-native-raw-bottom-sheet';
-
-import Cell from '../../assets/HomeAssets/Svgs/cellIconWhite.svg';
-import BackDown from '../../assets/HomeAssets/Svgs/backDown.svg';
 import LocIcon from '../../assets/HomeAssets/Svgs/locationIcon.svg';
 import LocDot from '../../assets/HomeAssets/Svgs/locationDot.svg';
-
+import BackDown from '../../assets/HomeAssets/Svgs/backDown.svg';
+import {fontWeights} from '../../theme/styles';
+import Cell from '../../assets/HomeAssets/Svgs/cellIconWhite.svg';
+import {RoutNames} from '../../navigation/routeNames';
 import LinearGradient from 'react-native-linear-gradient';
+import {useNavigation} from '@react-navigation/native';
+import HomeIcon from '../../assets/HomeAssets/Svgs/homeblack.svg';
 import { ScrollView } from 'react-native-gesture-handler';
 
-export const AnnouncementScreen = () => {
-  const navigate = useNavigation();
+export const AnounceDetailsScreen = () => {
   const refRBSheet = useRef();
-  const dialCall = number => {
-    let phoneNumber = '';
-    if (Platform.OS === 'android') {
-      phoneNumber = `tel:${number}`;
-    } else {
-      phoneNumber = `telprompt:${number}`;
-    }
-    Linking.openURL(phoneNumber);
-  };
+  const navigate = useNavigation();
   return (
     <View style={style.container}>
-      <HomeComponent title={'Announcements'} backIcon={true} />
-      <View style={style.bottom_container}>
-        <View style={style.btn_view}>
-          <TouchableOpacity
-            style={style.NearBtn}
-            onPress={() => refRBSheet.current.open()}>
-            <NearBtn />
-          </TouchableOpacity>
-        </View>
-        <ScrollView showsVerticalScrollIndicator={false} style={style.text_container}>
-          <TouchableOpacity onPress={()=>navigate.navigate(RoutNames.AnounceDetailScreen)} style={style.announce_container}>
-            <Announce />
-          </TouchableOpacity>
-          <TouchableOpacity  onPress={()=>navigate.navigate(RoutNames.AnounceDetailScreen)} style={style.announce_container}>
-            <Announce />
-          </TouchableOpacity>
-          <TouchableOpacity  onPress={()=>navigate.navigate(RoutNames.AnounceDetailScreen)} style={style.announce_container}>
-            <Announce />
-          </TouchableOpacity>
-          <TouchableOpacity  onPress={()=>navigate.navigate(RoutNames.AnounceDetailScreen)} style={style.announce_container}>
-            <Announce />
-          </TouchableOpacity>
-          <TouchableOpacity  onPress={()=>navigate.navigate(RoutNames.AnounceDetailScreen)} style={style.announce_container}>
-            <Announce />
-          </TouchableOpacity>
-          <TouchableOpacity  onPress={()=>navigate.navigate(RoutNames.AnounceDetailScreen)} style={style.announce_container}>
-            <Announce />
-          </TouchableOpacity>
-          <TouchableOpacity  onPress={()=>navigate.navigate(RoutNames.AnounceDetailScreen)} style={style.announce_container}>
-            <Announce />
-          </TouchableOpacity>
-          <TouchableOpacity  onPress={()=>navigate.navigate(RoutNames.AnounceDetailScreen)} style={style.announce_container}>
-            <Announce />
-          </TouchableOpacity>
-          
+      <HomeComponent backIcon={true} title={'Update Privacy'} />
+      <View style={style.status_text_view}>
+        <Text style={style.status_text}>Policy</Text>
+      </View>
+      <View style={[style.bottom_container, {}]}>
+        
+        <ScrollView showsVerticalScrollIndicator={false} style={style.form_container}>
+        <Text style={style.texts}>From: CEO </Text>
+        <Text  style={style.texts}>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec dictum lacinia urna, at pharetra nisi dapibus ac. Duis fringilla orci felis, aliquet pretium elit scelerisque quis. Sed bibendum suscipit porta. Ut eget ultrices orci. Aliquam ex lectus, mollis at elementum id, scelerisque quis nulla. Duis nulla elit, mattis ut purus vitae, iaculis rutrum lectus. Aenean cursus, enim sed commodo dignissim, metus nisi tristique nulla, feugiat lacinia dui turpis ac justo. Aliquam congue, elit ac congue efficitur, nibh sem iaculis nisl, quis tincidunt ante massa ut dolor.</Text>
+        <Text  style={style.texts}>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec dictum lacinia urna, at pharetra nisi dapibus ac. Duis fringilla orci felis, aliquet pretium elit scelerisque quis. Sed bibendum suscipit porta. Ut eget ultrices orci. Aliquam ex lectus, mollis at elementum id, scelerisque quis nulla. Duis nulla elit, mattis ut purus vitae, iaculis rutrum lectus. Aenean cursus, enim sed commodo dignissim, metus nisi tristique nulla, feugiat lacinia dui turpis ac justo. Aliquam congue, elit ac congue efficitur, nibh sem iaculis nisl, quis tincidunt ante massa ut dolor.</Text>
         </ScrollView>
       </View>
       <View style={style.bottom_tab_container}>
@@ -110,8 +67,6 @@ export const AnnouncementScreen = () => {
         customStyles={{
           wrapper: {
             backgroundColor: 'rgba(0,0,0,0.6)',
-
-            
           },
           draggableIcon: {
             backgroundColor: 'white',
@@ -126,7 +81,7 @@ export const AnnouncementScreen = () => {
           <View style={[style.edit_container, {}]}>
             <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
               <View style={style.loc_icon_container}>
-                <LocIcon width={23} height={40} />
+                <LocIcon width={22} height={40} />
                 <View style={style.loc_icon}>
                   <LocDot width="100%" height="100%" />
                 </View>
@@ -208,17 +163,48 @@ const style = StyleSheet.create({
     flex: 1,
     backgroundColor: color.palette.lightBlue,
   },
+  status_text_view:{
+    height:40,
+    width:"80%",
+    alignSelf:'center',
+    bottom:20,
+    
+  },
+  status_text:{
+    fontSize: 28,
+    fontWeight: fontWeights.extraBold,
+    color: color.palette.black,
+  },
   bottom_container: {
     flex: 0.76,
     backgroundColor: color.palette.white,
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
   },
-
+  form_container:{
+    flex:1,
+    alignSelf:"center",
+    width:"80%",
+    paddingTop:20
+  },
+  texts:{
+    color:color.palette.black,
+    marginBottom:10,
+    
+  },
   bottom_tab_container: {
     flex: 0.08,
     backgroundColor: color.palette.white,
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+  icons: {
+    width: '20%',
+  },
+  icons_container: {
+    width: '85%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   btn_view: {
@@ -230,45 +216,6 @@ const style = StyleSheet.create({
   },
   NearBtn: {
     alignItems: 'flex-end',
-  },
-  icons: {
-    width: '20%',
-  },
-  icons_container: {
-    width: '85%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  text_container: {
-    flex:1,
-    width: '80%',
-    alignSelf: 'center',
-  },
-  haeding: {
-    fontSize: 15,
-    fontWeight: fontWeights.bold,
-    color: color.palette.black,
-    paddingBottom: 7,
-  },
-  paragraph: {
-    fontSize: 12,
-    color: color.palette.black,
-  },
-  manual_view: {
-    height: '10%',
-    width: '80%',
-    alignSelf: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  download_icon_view: {
-    width: '8%',
-  },
-  manual_text_conatiner: {},
-  manual_text: {
-    color: color.palette.black,
-    left: 3,
   },
   sheet_container: {
     flex: 1,
@@ -288,7 +235,7 @@ const style = StyleSheet.create({
     color: color.palette.black,
   },
   edit_icon_view: {
-    width:22,
+    width: 22,
     height: 22,
   },
   profile_container: {
@@ -369,7 +316,7 @@ const style = StyleSheet.create({
   },
   text: {
     color: color.palette.white,
-    fontWeight:fontWeights.bold
+    fontWeight: fontWeights.bold,
   },
   powerIcon_view: {
     width: '15%',
@@ -383,7 +330,11 @@ const style = StyleSheet.create({
     position: 'absolute',
     alignSelf: 'center',
   },
-  announce_container:{
-    paddingBottom:20,
-}
+  download_conatainer: {
+    height: '15%',
+    width: '80%',
+    alignSelf: 'center',
+    flexDirection: 'column',
+    justifyContent: 'space-around',
+  },
 });

@@ -9,6 +9,7 @@ import PriceIcon from '../../assets/HomeAssets/Svgs/rupeeSign.svg';
 import DoubleTick from '../../assets/HomeAssets/Svgs/doubleTick.svg';
 import Clock from '../../assets/HomeAssets/Svgs/clockCircle.svg';
 import Tick from '../../assets/HomeAssets/Svgs/ticktick.svg';
+import Peoples from '../../assets/HomeAssets/Svgs/peoples.svg'
 export const HomeEvent = ({text, Icon}) => {
   const selectIcon = () => {
     if (Icon == 'circleArrow') {
@@ -26,6 +27,8 @@ export const HomeEvent = ({text, Icon}) => {
           </View>
         </View>
       );
+    } else if(Icon=="peoples"){
+     return <Peoples width={"100%"} />
     }
   };
   return (

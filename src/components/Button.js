@@ -11,13 +11,15 @@ import {color, typography} from '../theme';
 import {fontWeights, globalStyles} from '../theme/styles';
 import Button1 from '../assets/svg/button1.svg'
 import Button2 from '../assets/svg/button2.svg'
-export const Button = ({title, onPress,button2, titleStyle}) => {
+import { BarIndicator,BallIndicator,DotIndicator,MaterialIndicator,PacmanIndicator,WaveIndicator,PulseIndicator,UIActivityIndicator,SkypeIndicator } from 'react-native-indicators';
+export const Button = ({title, onPress,button2, titleStyle,loading}) => {
   return (
     <View style={style.container}>
       {button2?(<Button2 style={style.btn} width={"100%"} />):(
        <Button1 style={style.btn} width={"100%"}/>
       )}
-      <Text style={style.title}>{title}</Text>
+      {loading? (<SkypeIndicator size={40}  style={{position:'absolute'}} color='white' />):(<Text style={style.title}>{title}</Text>)
+}
     </View>
   );
 };

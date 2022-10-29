@@ -5,6 +5,7 @@ import {
   Image,
   TextInput,
   TouchableOpacity,
+  Modal
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {color} from '../../theme';
@@ -13,11 +14,14 @@ import {
   Login_signup_Component,
   CustomTextInput,
   Button,
+  SmallButton
 } from '../../components';
 import {ScrollView} from 'react-native-gesture-handler';
 import {RoutNames} from '../../navigation/routeNames';
 import {useNavigation} from '@react-navigation/native';
 import LeftShape from '../../assets/svg/leftShape.svg';
+import Tick from '../../assets/svg/greenTick.svg'
+import { showMessage } from 'react-native-flash-message';
 import {Formik} from 'formik';
 const initialState = {
   inp1: '',
@@ -27,9 +31,11 @@ const initialState = {
 };
 export const OtpScreen = ({route}) => {
   const navigate = useNavigation();
+  const [indicator, setIndicator] = useState(null);
+  const [saved, setsaved] = useState(false);
 
   const [seconds, setSeconds] = useState(59);
-  //const {email,from} = route.params;
+  const {email, from} = route.params;
   useEffect(() => {
     if (seconds > 0) {
       setTimeout(() => {
@@ -41,9 +47,11 @@ export const OtpScreen = ({route}) => {
   const inp2 = useRef();
   const inp3 = useRef();
   const inp4 = useRef();
-  const resendOtp=async()=>{
+  const resendOtp = async () => {
+    setIndicator(true);
+
     const res = await fetch(
-      `https://fsfeu.org/es/fsf/api/auth/forget-password?email=furqan@gmail.com`,
+      `https://fsfeu.org/es/fsf/api/auth/forget-password?email=${email}`,
       {
         method: 'Post',
         headers: {
@@ -53,11 +61,23 @@ export const OtpScreen = ({route}) => {
     );
     const jsonRes = await res.json();
     if (jsonRes.status === 200) {
-      console.log("Otp Sended")
+      setIndicator(false);
+      showMessage({
+        message:"Otp Successfully sended",
+        type:"success",
+        duration:3000,
+      })
+      console.log('Otp Sended');
     } else {
+      setIndicator(false);
+      showMessage({
+        message:jsonRes.message,
+        type:"danger",
+        duration:3000,
+      })
       console.log(jsonRes.message);
     }
-  }
+  };
   return (
     <View style={[style.container, globalStyles.fillAll]}>
       <Login_signup_Component
@@ -68,9 +88,11 @@ export const OtpScreen = ({route}) => {
       <Formik
         initialValues={initialState}
         onSubmit={async (values, action) => {
-         const   otp=values.inp1+values.inp2+values.inp3+values.inp4;
+          setIndicator(true);
+
+          const otp = values.inp1 + values.inp2 + values.inp3 + values.inp4;
           console.log('otp', otp);
-        /*    const res = await fetch(
+          const res = await fetch(
             `https://fsfeu.org/es/fsf/api/auth/verify-otp?email=${email}&otp=${otp}`,
             {
               method: 'Post',
@@ -81,14 +103,26 @@ export const OtpScreen = ({route}) => {
           );
           const jsonRes = await res.json();
           if (jsonRes.status === 200) {
-            if(from ==RoutNames.LoginScreen){
-              navigate.navigate(RoutNames.LoginScreen);
-            }else{
-              navigate.navigate(RoutNames.NewPasswordScreen,{email:email,otp:otp})
+            if (from == RoutNames.LoginScreen) {
+              setIndicator(false);
+              setsaved(true);
+            } else {
+              setIndicator(false);
+
+              navigate.navigate(RoutNames.NewPasswordScreen, {
+                email: email,
+                otp: otp,
+              });
             }
           } else {
+            setIndicator(false);
+            showMessage({
+              message:jsonRes.message,
+              type:"danger",
+              duration:3000,
+            })
             console.log(jsonRes);
-          } */
+          }
         }}>
         {({handleBlur, handleChange, handleSubmit}) => (
           <>
@@ -157,7 +191,10 @@ export const OtpScreen = ({route}) => {
               <View style={style.otp_time_view}>
                 <Text style={style.otp_time_seconds}>00:{seconds}</Text>
                 {seconds === 0 ? (
-                  <TouchableOpacity onPress={() => {setSeconds(59),resendOtp()}}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setSeconds(59), resendOtp();
+                    }}>
                     <Text style={style.otp_time_text}>Resend OTP</Text>
                   </TouchableOpacity>
                 ) : (
@@ -173,7 +210,7 @@ export const OtpScreen = ({route}) => {
               </View>
               <View style={style.btn_option}>
                 <TouchableOpacity style={style.btn} onPress={handleSubmit}>
-                  <Button title={'Verify'} />
+                  <Button loading={indicator} title={'Verify'} />
                 </TouchableOpacity>
                 <View
                   style={{
@@ -199,6 +236,36 @@ export const OtpScreen = ({route}) => {
                 </View>
               </View>
             </View>
+            <Modal visible={saved} transparent={true} animationType="fade">
+              <View style={style.modal_view}>
+                <View style={style.view}>
+                  <View
+                    style={{
+                      width: '90%',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      padding: 20,
+                    }}>
+                    <View style={style.tick_view}>
+                      <Tick width={25} height={25} />
+                    </View>
+                    <View style={style.modal_text_view}>
+                      <Text style={style.modal_text}>
+                        Your account Has Been Varified
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      style={style.modal_btn_view}
+                      onPress={() => {
+                        setsaved(!saved),
+                          navigate.navigate(RoutNames.LoginScreen);
+                      }}>
+                      <SmallButton title={'Login'} />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </Modal>
           </>
         )}
       </Formik>
@@ -264,5 +331,49 @@ const style = StyleSheet.create({
   otp_time_text: {
     color: color.palette.darkblue,
     fontWeight: '600',
+  },
+  modal_view: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+  },
+  view: {
+    width: '80%',
+    backgroundColor: 'white',
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  tick_view: {
+    borderWidth: 2,
+    borderColor: color.palette.lightgreen,
+    borderRadius: 30,
+    marginBottom: 20,
+    padding: 10,
+  },
+  tick: {
+    width: 25,
+    height: 25,
+  },
+  modal_text_view: {
+    marginBottom: 20,
+  },
+  modal_text: {
+    fontSize: 20,
+    textAlign: 'center',
+    color: color.palette.black,
+  },
+  modal_btn_view: {
+    width: 100,
+    height: 35,
   },
 });

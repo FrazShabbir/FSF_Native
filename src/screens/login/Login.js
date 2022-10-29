@@ -5,6 +5,7 @@ import {
   Image,
   TextInput,
   TouchableOpacity,
+  Modal,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {fontSizes, fontWeights, globalStyles} from '../../theme/styles';
@@ -25,22 +26,23 @@ import customFetch from '../../utils/axios';
 import axios from 'axios';
 import {useDispatch, useSelector} from 'react-redux';
 import {Loggin} from '../../Reduxs/Reducers';
+import {showMessage, hideMessage} from 'react-native-flash-message';
+import {SkypeIndicator} from 'react-native-indicators';
+
 const initialState = {
   email: '',
   password: '',
 };
 const schema = Yup.object({
-  email: Yup.string().email("Not Valid").required('Required'),
+  email: Yup.string().email('Not Valid').required('Required'),
   password: Yup.string().min(8).max(64).required('Required'),
 });
 
-//https://fsfeu.org/es/fsf/api/auth/login?email=asdf&password=11
 export const Login = () => {
   const dispatch = useDispatch();
-  const {user}=useSelector((state)=>state.UserReducer)
   const navigate = useNavigation();
   const [hidePassword, setHidePassword] = useState(true);
-  console.log("object",user)
+  const [indicator, setIndicator] = useState(null);
   return (
     <View style={[globalStyles.fillAll, style.container]}>
       <Login_signup_Component
@@ -52,27 +54,32 @@ export const Login = () => {
         initialValues={initialState}
         validationSchema={schema}
         onSubmit={async (values, action) => {
+          setIndicator(true);
+            console.log('response', values);
           const res = await fetch(
             `https://fsfeu.org/es/fsf/api/auth/login?email=${values.email}&password=${values.password}`,
             {
               method: 'Post',
               headers: {
-                'content-type': 'application/json',
+                'content-type': 'application/json', 
               },
             },
           );
-          const jsonRes= await res.json();
-          if(jsonRes.status === true){
-            dispatch(Loggin(jsonRes))
-          }else{
-            console.log(jsonRes.message)
-          }
-
-
-
-
+          const jsonRes = await res.json();
+          if (jsonRes.status === true) {
+            dispatch(Loggin(jsonRes));
+            setIndicator(false);
+          } else {
+            showMessage({
+              message:jsonRes.message,
+              type:"danger",
+              duration:3000,
+            })
+            console.log(jsonRes.message);
+            setIndicator(false);
+          } 
         }}>
-        {({handleChange, handleBlur, handleSubmit}) => (
+        {({handleChange, handleBlur, handleSubmit, errors}) => (
           <>
             <View style={style.Allinputfeild_view}>
               <View style={style.input_view}>
@@ -96,6 +103,11 @@ export const Login = () => {
                     onChangeText={handleChange('password')}
                     onBlur={handleBlur('password')}
                   />
+                  {/* {errors?.email?showMessage({
+                  message: errors.email,
+                  type: "danger",
+                  
+                }):null} */}
                 </View>
                 <TouchableOpacity
                   onPress={() => setHidePassword(!hidePassword)}
@@ -126,7 +138,7 @@ export const Login = () => {
               </View>
               <View style={style.btn_option}>
                 <TouchableOpacity onPress={handleSubmit} style={style.btn}>
-                  <Button title={'Sign In'} />
+                  <Button loading={indicator} title={'Sign In'} />
                 </TouchableOpacity>
                 <View
                   style={{
@@ -153,6 +165,13 @@ export const Login = () => {
           </>
         )}
       </Formik>
+      <>
+        <Modal visible={false} transparent animationType="fade">
+          <View style={{flex: 1, backgroundColor: 'rgba(0,0,0,0.6)'}}>
+            <SkypeIndicator color="white" size={60} />
+          </View>
+        </Modal>
+      </>
     </View>
   );
 };
