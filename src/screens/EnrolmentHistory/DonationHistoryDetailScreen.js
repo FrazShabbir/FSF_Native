@@ -18,7 +18,7 @@ import HomeIcon from '../../assets/HomeAssets/Svgs/homeblack.svg';
 import {ScrollView} from 'react-native-gesture-handler';
 import StatsIcon from '../../assets/HomeAssets/Svgs/appStatus.svg';
 import GreenDot from '../../assets/HomeAssets/Svgs/greenDot.svg'
-import RupeeIcon from '../../assets/HomeAssets/Svgs/rupeeSign.svg'
+import RupeeIcon from '../../assets/HomeAssets/Svgs/rupeeSignSmall.svg'
 
 export const DonationHistoryDetailScreen = () => {
   const refRBSheet = useRef();
@@ -396,8 +396,9 @@ const style = StyleSheet.create({
   status_logo:{
     width:80,
     height:80,
-    padding:15,
-    borderRadius:50
+    padding:18,
+    borderRadius:50,
+  
   },
   dot_view:{
     width:12,

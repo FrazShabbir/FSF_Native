@@ -40,7 +40,7 @@ export const AnnouncementScreen = () => {
   };
   return (
     <View style={style.container}>
-      <HomeComponent title={'Announcements'} backIcon={true} />
+      <HomeComponent title={'Announcements'} backIcon={true} dot={false} />
       <View style={style.bottom_container}>
         <View style={style.btn_view}>
           <TouchableOpacity

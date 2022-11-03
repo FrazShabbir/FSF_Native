@@ -507,6 +507,7 @@ const style = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'flex-end',
+    
   },
   power_container: {
     width: '30%',
@@ -535,6 +536,7 @@ const style = StyleSheet.create({
     height: 35,
     justifyContent: 'center',
     alignItems: 'center',
+    top:4
   },
   edit_white_view: {
     width: 15,
@@ -586,10 +588,11 @@ const style = StyleSheet.create({
     color: color.palette.black,
   },
   profile_input_icon: {
-    width: 20,
-    height: 20,
+    width: 22,
+    height: 22,
     position: 'absolute',
-    top: '30%',
+    top: '32%',
     left: 4,
+    alignSelf:"flex-end"
   },
 });

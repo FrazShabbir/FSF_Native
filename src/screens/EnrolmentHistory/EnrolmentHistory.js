@@ -79,7 +79,7 @@ export const EnrolmentHistory = () => {
   };
   return (
     <View style={style.container}>
-      <HomeComponent title={'Announcements'} backIcon={true} />
+      <HomeComponent title={'History'} backIcon={true} />
       <View style={style.bottom_container}>
         <View style={style.btn_view}>
           <TouchableOpacity

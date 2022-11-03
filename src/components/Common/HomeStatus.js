@@ -2,24 +2,28 @@ import {View, Text, StyleSheet} from 'react-native';
 import React from 'react';
 import BlueDot from '../../assets/HomeAssets/Svgs/blueDot.svg';
 import {fontWeights} from '../../theme/styles';
-import GreenDot from '../../assets/HomeAssets/Svgs/greenDot.svg'
-import RedDot from '../../assets/HomeAssets/Svgs/redDot.svg'
+import GreenDot from '../../assets/HomeAssets/Svgs/greenDot.svg';
+import RedDot from '../../assets/HomeAssets/Svgs/redDot.svg';
 
 import {color} from '../../theme';
-import BackIcon from '../../assets/HomeAssets/Svgs/rightBack.svg'
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useNavigation } from '@react-navigation/native';
-import { RoutNames } from '../../navigation/routeNames';
+import BackIcon from '../../assets/HomeAssets/Svgs/rightBack.svg';
+import {TouchableOpacity} from 'react-native-gesture-handler';
+import {useNavigation} from '@react-navigation/native';
+import {RoutNames} from '../../navigation/routeNames';
 
 export const HomeStatus = ({status}) => {
-  const navigate=useNavigation()
+  const navigate = useNavigation();
   const selectStatus = () => {
     if (status == 'notRegister') {
       return (
-        <TouchableOpacity style={style.status_view} onPress={()=>navigate.navigate(RoutNames.EnrolAgreement)} >
-          <Text style={style.status_text}>Register Now</Text>
+        <TouchableOpacity
+          style={style.status_view}
+          onPress={() => navigate.navigate(RoutNames.EnrolAgreement)}>
+          <Text style={[style.status_text, {textDecorationLine: 'underline'}]}>
+            Register Now
+          </Text>
           <View style={style.back_view}>
-            <BackIcon width={"100%"} />
+            <BackIcon width={'100%'} />
           </View>
         </TouchableOpacity>
       );
@@ -41,7 +45,7 @@ export const HomeStatus = ({status}) => {
           <Text style={style.status_text}>Approved</Text>
         </View>
       );
-    } else if(status == 'rejected') {
+    } else if (status == 'rejected') {
       return (
         <View style={style.status_view}>
           <View style={style.dot_view}>
@@ -83,13 +87,12 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   dot_view: {
-    
     right: 3,
   },
-  back_view:{
-    width:12,
-    height:14,
-    marginLeft:4
+  back_view: {
+    width: 12,
+    height: 14,
+    marginLeft: 4,
   },
   status_text: {
     color: color.palette.black,

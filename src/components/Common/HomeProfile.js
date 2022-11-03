@@ -46,8 +46,7 @@ const style = StyleSheet.create({
   },
   name_container: {
     flexDirection: 'column',
-    left: 4,
-    alignSelf: 'flex-end',
+    left: 5,
   },
   name_view: {},
   name: {
@@ -61,7 +60,7 @@ const style = StyleSheet.create({
     bottom: 3,
   },
   profile_text: {
-    fontSize: 10,
+    fontSize: 12,
     textAlign: 'center',
     color: color.palette.black,
   },

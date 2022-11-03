@@ -383,7 +383,7 @@ const style = StyleSheet.create({
   status_logo:{
     width:80,
     height:80,
-    padding:15,
+    padding:18,
     borderRadius:50
   },
   dot_view:{

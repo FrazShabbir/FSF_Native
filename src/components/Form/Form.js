@@ -353,29 +353,49 @@ export const Form = () => {
                   style={style.input}
                 />
                 <FormField english={'Country:'} urdu={'country'} />
-                <TextInput
-                  placeholder={'Dummy Country'}
-                  placeholderTextColor={color.palette.lightgray}
-                  style={style.input}
-                />
+                <View style={{justifyContent: 'center'}}>
+                  <TextInput
+                    placeholder={'Dummy Country'}
+                    placeholderTextColor={color.palette.lightgray}
+                    style={style.input}
+                  />
+                  <View style={style.input_icon}>
+                    <BackDown width={'100%'} height={'100%'} />
+                  </View>
+                </View>
                 <FormField english={'Community:'} urdu={'community'} />
-                <TextInput
-                  placeholder={'dummy Community'}
-                  placeholderTextColor={color.palette.lightgray}
-                  style={style.input}
-                />
+                <View style={{justifyContent: 'center'}}>
+                  <TextInput
+                    placeholder={'Dummy Community'}
+                    placeholderTextColor={color.palette.lightgray}
+                    style={style.input}
+                  />
+                  <View style={style.input_icon}>
+                    <BackDown width={'100%'} height={'100%'} />
+                  </View>
+                </View>
                 <FormField english={'Province:'} urdu={'province'} />
-                <TextInput
-                  placeholder={'Dummy'}
-                  placeholderTextColor={color.palette.lightgray}
-                  style={style.input}
-                />
+                <View style={{justifyContent: 'center'}}>
+                  <TextInput
+                    placeholder={'Dummy province'}
+                    placeholderTextColor={color.palette.lightgray}
+                    style={style.input}
+                  />
+                  <View style={style.input_icon}>
+                    <BackDown width={'100%'} height={'100%'} />
+                  </View>
+                </View>
                 <FormField english={'City:'} urdu={'city'} />
-                <TextInput
-                  placeholder={'Dummy City'}
-                  placeholderTextColor={color.palette.lightgray}
-                  style={style.input}
-                />
+                <View style={{justifyContent: 'center'}}>
+                  <TextInput
+                    placeholder={'Dummy City'}
+                    placeholderTextColor={color.palette.lightgray}
+                    style={style.input}
+                  />
+                  <View style={style.input_icon}>
+                    <BackDown width={'100%'} height={'100%'} />
+                  </View>
+                </View>
                 <FormField english={'Area/Street/House No:'} urdu={'area'} />
                 <TextInput
                   placeholder={'Area/Street/House No'}
@@ -390,19 +410,15 @@ export const Form = () => {
                   placeholderTextColor={color.palette.lightgray}
                   style={style.input}
                 />
-                <FormField
-                  english={'ID Card No.(native country):'}
-                  urdu={'CNIC'}
-                />
+                <FormField english={'ID Card No.(native country):'} />
+                <FormField urdu={'CNIC'} />
                 <TextInput
                   placeholder={'000515552'}
                   placeholderTextColor={color.palette.lightgray}
                   style={style.input}
                 />
-                <FormField
-                  english={'Complete Address.(native country):'}
-                  urdu={'completeAddress'}
-                />
+                <FormField english={'Complete Address.(native country):'} />
+                <FormField urdu={'completeAddress'} />
                 <TextInput
                   placeholder={'Complete Address.(native country)'}
                   placeholderTextColor={color.palette.lightgray}
@@ -516,11 +532,11 @@ export const Form = () => {
                   style={style.input}
                 />
                 <FormField
-                  english={'Complete Address.(native country):'}
+                  english={'Complete Address:'}
                   urdu={'completeAddress2'}
                 />
                 <TextInput
-                  placeholder={'Complete Address.(native country)'}
+                  placeholder={'Complete Address'}
                   placeholderTextColor={color.palette.lightgray}
                   style={[style.input, {height: 90, textAlignVertical: 'top'}]}
                   multiline={true}
@@ -546,11 +562,11 @@ export const Form = () => {
                   style={style.input}
                 />
                 <FormField
-                  english={'Complete Address.(native country):'}
+                  english={'Complete Address:'}
                   urdu={'completeAddress2'}
                 />
                 <TextInput
-                  placeholder={'Complete Address.(native country)'}
+                  placeholder={'Complete Address'}
                   placeholderTextColor={color.palette.lightgray}
                   style={[style.input, {height: 90, textAlignVertical: 'top'}]}
                   multiline={true}
@@ -607,11 +623,11 @@ export const Form = () => {
                   style={style.input}
                 />
                 <FormField
-                  english={'Complete Address.(native country):'}
+                  english={'Complete Address:'}
                   urdu={'completeAddress2'}
                 />
                 <TextInput
-                  placeholder={'Complete Address.(native country)'}
+                  placeholder={'Complete Address'}
                   placeholderTextColor={color.palette.lightgray}
                   style={[style.input, {height: 90, textAlignVertical: 'top'}]}
                   multiline={true}
@@ -637,11 +653,11 @@ export const Form = () => {
                   style={style.input}
                 />
                 <FormField
-                  english={'Complete Address.(native country):'}
+                  english={'Complete Address:'}
                   urdu={'completeAddress2'}
                 />
                 <TextInput
-                  placeholder={'Complete Address.(native country)'}
+                  placeholder={'Complete Address'}
                   placeholderTextColor={color.palette.lightgray}
                   style={[style.input, {height: 90, textAlignVertical: 'top'}]}
                   multiline={true}
@@ -702,11 +718,11 @@ export const Form = () => {
                   style={style.input}
                 />
                 <FormField
-                  english={'Complete Address.(native country):'}
+                  english={'Complete Address:'}
                   urdu={'completeAddress2'}
                 />
                 <TextInput
-                  placeholder={'Complete Address.(native country)'}
+                  placeholder={'Complete Address'}
                   placeholderTextColor={color.palette.lightgray}
                   style={[style.input, {height: 90, textAlignVertical: 'top'}]}
                   multiline={true}
@@ -891,8 +907,10 @@ export const Form = () => {
                     </View>
                   ) : null}
                 </View>
-                <Text style={style.sing_text}>Your Signature:</Text>
-                <View>
+                <View style={{marginTop: 10}}>
+                  <FormField english={'Your Signature:'} urdu={'signature'} />
+                </View>
+                <View style={{marginTop: 5}}>
                   <View style={style.sign_view}>
                     <SignatureCapture
                       ref={singRef}
@@ -1022,8 +1040,9 @@ const style = StyleSheet.create({
     height: 50,
     paddingLeft: '8%',
     paddingRight: '8%',
-    marginBottom: 20,
+    marginBottom: 10,
     color: color.palette.black,
+   
   },
   gender_input: {
     color: color.palette.black,
@@ -1041,11 +1060,14 @@ const style = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'flex-end',
+    marginTop: 20,
+    marginBottom: 10,
   },
   log_btn_view2: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 10,
+    marginTop: 20,
+    marginBottom: 10,
   },
   power_container: {
     width: 90,
@@ -1056,19 +1078,29 @@ const style = StyleSheet.create({
     justifyContent: 'space-between',
     paddingLeft: 18,
     paddingRight: 12,
+    
   },
   powerIcon_view: {
     alignSelf: 'center',
     width: '25%',
+  },
+  input_icon: {
+    width: 16,
+    height: 16,
+    position: 'absolute',
+    alignSelf: 'flex-end',
+    right: 17,
+    top: 17,
   },
   text: {
     color: color.palette.white,
     fontSize: 15,
   },
   form_title_view: {
-    marginTop:10,
+    marginTop: 10,
     width: '80%',
     alignSelf: 'center',
+    paddingBottom: 10,
   },
   form_title: {
     color: color.palette.black,
@@ -1178,6 +1210,7 @@ const style = StyleSheet.create({
     marginTop: 15,
     marginBottom: 15,
     margin: 5,
+    
   },
   data_view: {
     flexDirection: 'row',
@@ -1290,11 +1323,11 @@ const style = StyleSheet.create({
     alignItems: 'center',
     position: 'absolute',
     alignSelf: 'flex-end',
-    
-    borderWidth:1,
+
+    borderWidth: 1,
     borderBottomLeftRadius: 15,
-    borderStyle:"dashed",
-    borderTopRightRadius:30,
+    borderStyle: 'dashed',
+    borderTopRightRadius: 30,
   },
   clear_sign_text: {
     color: color.palette.darkblue,

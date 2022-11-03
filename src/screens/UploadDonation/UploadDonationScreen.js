@@ -651,6 +651,7 @@ const style = StyleSheet.create({
     height: 22,
     width: '20%',
     alignSelf: 'center',
+    padding:2
   },
   rupee_input: {
     width: '80%',
@@ -745,8 +746,8 @@ const style = StyleSheet.create({
   },
   heading_icon: {
     borderWidth: 2,
-    width: 45,
-    height: 45,
+    width: 37,
+    height: 37,
     padding: 5,
     borderColor: color.palette.lightgreen,
     borderRadius: 50,
@@ -758,7 +759,7 @@ const style = StyleSheet.create({
   },
   heading_text: {
     color: color.palette.black,
-    fontSize: 17,
+    fontSize: 18,
     fontWeight: fontWeights.extraBold,
   },
   paragraph_container: {

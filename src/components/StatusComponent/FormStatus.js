@@ -66,7 +66,7 @@ export const FormStatus = ({icon, status, title, date}) => {
 const style = StyleSheet.create({
   container: {
     marginTop: 20,
-    borderBottomWidth: 2,
+    borderBottomWidth: 1,
     height: 55,
     flexDirection: 'row',
   },
@@ -74,7 +74,7 @@ const style = StyleSheet.create({
     width: 35,
     height: 35,
     borderRadius: 10,
-    padding: 3,
+    padding: 5,
     marginTop: 5,
     marginBottom: 5,
     alignSelf: 'center',

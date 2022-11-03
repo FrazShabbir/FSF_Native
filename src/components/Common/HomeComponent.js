@@ -16,7 +16,8 @@ import { useNavigation } from '@react-navigation/native';
 import { RoutNames } from '../../navigation/routeNames';
 export const HomeComponent = ({
   backIcon,
-  title
+  title,
+  dot
 }) => {
   const navigate=useNavigation()
   return (
@@ -27,9 +28,10 @@ export const HomeComponent = ({
         </View>
         <TouchableOpacity style={style.noti_container} onPress={()=>navigate.navigate(RoutNames.AnnouncementScreen)}>
           <Notify />
-          <View style={style.dot_view}>
+          {dot?<View style={style.dot_view}>
             <GreenDot />
-          </View>
+          </View>:null}
+          
         </TouchableOpacity>
       </View>
       <View style={style.title_view}>

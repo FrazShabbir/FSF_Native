@@ -7,7 +7,7 @@ import GreenDot from '../../assets/HomeAssets/Svgs/greenDot.svg';
 import {fontWeights} from '../../theme/styles';
 import RedDot from '../../assets/HomeAssets/Svgs/redDot.svg';
 import YellowDot from '../../assets/HomeAssets/Svgs/yellowDot.svg';
-import RupeeSign from '../../assets/HomeAssets/Svgs/rupeeSign.svg';
+import RupeeSign from '../../assets/HomeAssets/Svgs/rupeeSignSmall.svg';
 
 export const DonationStatus = ({icon, status, title, date}) => {
   const selectIcon = () => {
@@ -64,7 +64,7 @@ export const DonationStatus = ({icon, status, title, date}) => {
         <View style={style.status_view}>{selectStatus()}</View>
       </View>
       <View style={style.amount_view}>
-        <Text style={style.amount}>100$</Text>
+        <Text style={style.amount}>€ 100</Text>
       </View>
     </View>
   );
@@ -72,7 +72,7 @@ export const DonationStatus = ({icon, status, title, date}) => {
 const style = StyleSheet.create({
   container: {
     marginTop: 20,
-    borderBottomWidth: 2,
+    borderBottomWidth: 1,
     height: 70,
     flexDirection: 'row',
     paddingBottom:3
@@ -84,7 +84,7 @@ const style = StyleSheet.create({
     width: 35,
     height: 35,
     borderRadius: 10,
-    padding: 5,
+    padding: 6,
     marginTop: 5,
     marginBottom: 5,
     alignSelf: 'center',
@@ -106,6 +106,7 @@ const style = StyleSheet.create({
     fontWeight: fontWeights.bold,
     fontSize: 11,
     color: color.palette.black,
+    top:2,
   },
   status_view: {
     flexDirection: 'row',

@@ -78,12 +78,12 @@ export const FamilyStatusScreen = () => {
             <View style={style.title_container}>
               <TouchableOpacity
                 onPress={() => setFormView(true)}
-                style={style.title_view}>
+                style={[style.title_view,formView?{borderBottomWidth:2,borderColor:color.palette.darkblue}:null]}>
                 <Text style={style.title_text}>Forms</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => setFormView(false)}
-                style={style.title_view}>
+                style={[style.title_view,formView?{borderBottomWidth:1}:{borderBottomWidth:2,borderColor:color.palette.darkblue}]}>
                 <Text style={style.title_text}>Donations</Text>
               </TouchableOpacity>
             </View>
@@ -507,7 +507,7 @@ const style = StyleSheet.create({
     width: '50%',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderColor: color.palette.darkblue,
+    borderColor: color.palette.gray,
   },
   title_text: {
     color: color.palette.black,

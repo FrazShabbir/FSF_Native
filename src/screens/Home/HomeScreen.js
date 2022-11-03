@@ -2,6 +2,8 @@ import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {globalStyles} from '../../theme/styles';
 import HomeIcon from '../../assets/HomeAssets/Svgs/homeIcon.svg';
+import HomeIconBlack from '../../assets/HomeAssets/Svgs/homeblack.svg';
+
 import AboutIcon from '../../assets/HomeAssets/Svgs/aboutIcon.svg';
 import SettingIcon from '../../assets/HomeAssets/Svgs/settingIcon.svg';
 import PrivacyIcon from '../../assets/HomeAssets/Svgs/privacyIcon.svg';
@@ -16,15 +18,15 @@ import {
 import {color} from '../../theme';
 import {useNavigation} from '@react-navigation/native';
 import {RoutNames} from '../../navigation/routeNames';
-import { useSelector } from 'react-redux';
+import {useSelector} from 'react-redux';
 
 export const HomeScreen = () => {
-  const {user}=useSelector((state)=>state.UserReducer)
+  const {user} = useSelector(state => state.UserReducer);
   const navigate = useNavigation();
-  console.log("user",user)
-  
-  const [status, setStatus] = useState('accepted');
-/* useEffect(() => {
+  console.log('user', user);
+
+  const [status, setStatus] = useState('notRegister');
+  /* useEffect(() => {
   if(user.user.application_status==0)
   {
     setStatus("notRegister")
@@ -33,8 +35,8 @@ export const HomeScreen = () => {
 
   return (
     <View style={style.container}>
-      <HomeComponent title={'Home'} />
-      <HomeProfile  />
+      <HomeComponent title={'Home'} dot={true} />
+      <HomeProfile />
 
       <HomeStatus status={status} />
       {status == 'notRegister' ? (
@@ -49,92 +51,130 @@ export const HomeScreen = () => {
         <HomeDates />
       )}
       {status == 'notRegister' ? (
-        <View
-          style={[
-            style.bottom_container,
-            /* {backgroundColor: color.palette.lightgray}, */
-          ]}>
-          <View style={style.event_view}>
-            <HomeEvent
-              Icon={'circleArrow'}
-              text={'Renew your subscription to continue you services'}
-            />
+        <>
+          <View
+            style={[
+              style.bottom_container,
+              /* {backgroundColor: color.palette.lightgray}, */
+            ]}>
+            <View style={style.event_view}>
+              <HomeEvent
+                Icon={'circleArrow'}
+                text={'Renew your subscription to continue you services'}
+              />
+            </View>
+            <View style={style.event_view}>
+              <HomeEvent
+                Icon={'priceIcon'}
+                text={'Upload your donation receipt with all requirement'}
+              />
+            </View>
+            <View style={style.event_view}>
+              <HomeEvent
+                Icon={'doubleTick'}
+                text={"See all your's and your family application with status"}
+              />
+            </View>
+            <View style={style.event_view}>
+              <HomeEvent
+                Icon={'clockIcon'}
+                text={
+                  'See all your previous records of forms and donation submission'
+                }
+              />
+            </View>
+            <View style={[style.bottom_container,{position:"absolute",backgroundColor:"rgba(255,255,255,0.5)",width:"100%",height:"100%"}]}>
+            </View>
           </View>
-          <View style={style.event_view}>
-            <HomeEvent
-              Icon={'priceIcon'}
-              text={'Upload your donation receipt with all requirement'}
-            />
+          <View style={style.bottom_tab_container}>
+            <View style={style.icons_container}>
+              <TouchableOpacity
+                style={style.icons}
+                onPress={() => navigate.navigate(RoutNames.HomeScreen)}>
+                <HomeIconBlack width={'100%'} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={style.icons}
+                onPress={() => navigate.navigate(RoutNames.AboutScreen)}>
+                <AboutIcon width={'100%'} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={style.icons}
+                onPress={() => navigate.navigate(RoutNames.PrivacyScreen)}>
+                <PrivacyIcon width={'100%'} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={style.icons}
+                onPress={() => navigate.navigate(RoutNames.SettingScreen)}>
+                <SettingIcon width={'100%'} />
+              </TouchableOpacity>
+            </View>
+            <View style={[style.bottom_tab_container,{position:"absolute",backgroundColor:"rgba(255,255,255,0.6)",width:"75%",height:"100%",alignSelf:"stretch"}]}>
+            </View>
           </View>
-          <View style={style.event_view}>
-            <HomeEvent
-              Icon={'doubleTick'}
-              text={"See all your's and your family application with status"}
-            />
-          </View>
-          <View style={style.event_view}>
-            <HomeEvent
-              Icon={'clockIcon'}
-              text={
-                'See all your previous records of forms and donation submission'
-              }
-            />
-          </View>
-        </View>
+        </>
       ) : (
-        <View style={[style.bottom_container, {}]}>
-          <TouchableOpacity style={[style.event_view, {}]}>
-            <HomeEvent
-              Icon={'circleArrow'}
-              text={'Renew your subscription to continue you services'}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={()=>navigate.navigate(RoutNames.UploadDonationScreen)}  style={style.event_view}>
-            <HomeEvent
-              Icon={'priceIcon'}
-              text={'Upload your donation receipt with all requirement'}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity style={style.event_view} onPress={()=>navigate.navigate(RoutNames.StatusScreen)}>
-            <HomeEvent
-              Icon={'doubleTick'}
-              text={"See all your's and your family application with status"}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={()=>navigate.navigate(RoutNames.EnrollmentHistory)} style={style.event_view}>
-            <HomeEvent
-              Icon={'clockIcon'}
-              text={
-                'See all your previous records of forms and donation submission'
-              }
-            />
-          </TouchableOpacity>
-        </View>
+        <>
+          <View style={[style.bottom_container, {}]}>
+            <TouchableOpacity style={[style.event_view, {}]}>
+              <HomeEvent
+                Icon={'circleArrow'}
+                text={'Renew your subscription to continue you services'}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigate.navigate(RoutNames.UploadDonationScreen)}
+              style={style.event_view}>
+              <HomeEvent
+                Icon={'priceIcon'}
+                text={'Upload your donation receipt with all requirement'}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={style.event_view}
+              onPress={() => navigate.navigate(RoutNames.StatusScreen)}>
+              <HomeEvent
+                Icon={'doubleTick'}
+                text={"See all your's and your family application with status"}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigate.navigate(RoutNames.EnrollmentHistory)}
+              style={style.event_view}>
+              <HomeEvent
+                Icon={'clockIcon'}
+                text={
+                  'See all your previous records of forms and donation submission'
+                }
+              />
+            </TouchableOpacity>
+          </View>
+          <View style={style.bottom_tab_container}>
+            <View style={style.icons_container}>
+              <TouchableOpacity
+                style={style.icons}
+                onPress={() => navigate.navigate(RoutNames.HomeScreen)}>
+                <HomeIcon width={'100%'} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={style.icons}
+                onPress={() => navigate.navigate(RoutNames.AboutScreen)}>
+                <AboutIcon width={'100%'} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={style.icons}
+                onPress={() => navigate.navigate(RoutNames.PrivacyScreen)}>
+                <PrivacyIcon width={'100%'} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={style.icons}
+                onPress={() => navigate.navigate(RoutNames.SettingScreen)}>
+                <SettingIcon width={'100%'} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </>
       )}
-      <View style={style.bottom_tab_container}>
-        <View style={style.icons_container}>
-          <TouchableOpacity
-            style={style.icons}
-            onPress={() => navigate.navigate(RoutNames.HomeScreen)}>
-            <HomeIcon width={'100%'} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={style.icons}
-            onPress={() => navigate.navigate(RoutNames.AboutScreen)}>
-            <AboutIcon width={'100%'} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={style.icons}
-            onPress={() => navigate.navigate(RoutNames.PrivacyScreen)}>
-            <PrivacyIcon width={'100%'} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={style.icons}
-            onPress={() => navigate.navigate(RoutNames.SettingScreen)}>
-            <SettingIcon width={'100%'} />
-          </TouchableOpacity>
-        </View>
-      </View>
     </View>
   );
 };
