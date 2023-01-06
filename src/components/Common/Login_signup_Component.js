@@ -83,8 +83,8 @@ const style = StyleSheet.create({
   page_title: {
     fontSize: fontSizes.biggest,
     color: color.palette.black,
-    fontStyle: typography.Avenir_Bold,
-    fontWeight: fontWeights.extraBold,
+    fontFamily: typography.demi,
+   
     fontSize: 30,
   },
   descr_view: {
@@ -95,6 +95,8 @@ const style = StyleSheet.create({
     fontWeight: '300',
     textAlign: 'center',
     fontSize: 16,
+    fontFamily:typography.medium
+
   },
   semi_circle_View: {
     flex: 1,

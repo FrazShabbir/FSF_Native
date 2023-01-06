@@ -14,6 +14,11 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		7699B88040F8A987B510C191 /* libPods-funeral_servie_fund-funeral_servie_fundTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-funeral_servie_fund-funeral_servie_fundTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		24EDC14165E04B469743F346 /* AvenirNextLTPro-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 07FF837C252E49798CAF9569 /* AvenirNextLTPro-Bold.otf */; };
+		E0AE2A2F6387437F91D1ADA3 /* AvenirNextLTPro-Demi.otf in Resources */ = {isa = PBXBuildFile; fileRef = 969ABBB414914F8486B500B8 /* AvenirNextLTPro-Demi.otf */; };
+		FB02A6C95EDF49418E5C3EFA /* AvenirNextLTPro-Heavy.otf in Resources */ = {isa = PBXBuildFile; fileRef = 7DA8B3F1E418412DBBC99439 /* AvenirNextLTPro-Heavy.otf */; };
+		B4C2137D48754909819F8710 /* AvenirNextLTPro-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = CA8CF86C62C443FF92E960D5 /* AvenirNextLTPro-Medium.otf */; };
+		8062EE01137D44EAB1F980F8 /* AvenirNextLTPro-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = CBC5A8B084EF4C3D8114A39E /* AvenirNextLTPro-Regular.otf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +49,11 @@
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = funeral_servie_fund/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-funeral_servie_fund-funeral_servie_fundTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-funeral_servie_fund-funeral_servie_fundTests.release.xcconfig"; path = "Target Support Files/Pods-funeral_servie_fund-funeral_servie_fundTests/Pods-funeral_servie_fund-funeral_servie_fundTests.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		07FF837C252E49798CAF9569 /* AvenirNextLTPro-Bold.otf */ = {isa = PBXFileReference; name = "AvenirNextLTPro-Bold.otf"; path = "../src/assets/fonts/AvenirNextLTPro-Bold.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		969ABBB414914F8486B500B8 /* AvenirNextLTPro-Demi.otf */ = {isa = PBXFileReference; name = "AvenirNextLTPro-Demi.otf"; path = "../src/assets/fonts/AvenirNextLTPro-Demi.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		7DA8B3F1E418412DBBC99439 /* AvenirNextLTPro-Heavy.otf */ = {isa = PBXFileReference; name = "AvenirNextLTPro-Heavy.otf"; path = "../src/assets/fonts/AvenirNextLTPro-Heavy.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		CA8CF86C62C443FF92E960D5 /* AvenirNextLTPro-Medium.otf */ = {isa = PBXFileReference; name = "AvenirNextLTPro-Medium.otf"; path = "../src/assets/fonts/AvenirNextLTPro-Medium.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		CBC5A8B084EF4C3D8114A39E /* AvenirNextLTPro-Regular.otf */ = {isa = PBXFileReference; name = "AvenirNextLTPro-Regular.otf"; path = "../src/assets/fonts/AvenirNextLTPro-Regular.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -122,6 +132,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
+				CC07DA510E3A4B6AB4A21DAE /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -147,6 +158,19 @@
 			);
 			path = Pods;
 			sourceTree = "<group>";
+		};
+		CC07DA510E3A4B6AB4A21DAE /* Resources */ = {
+			isa = "PBXGroup";
+			children = (
+				07FF837C252E49798CAF9569 /* AvenirNextLTPro-Bold.otf */,
+				969ABBB414914F8486B500B8 /* AvenirNextLTPro-Demi.otf */,
+				7DA8B3F1E418412DBBC99439 /* AvenirNextLTPro-Heavy.otf */,
+				CA8CF86C62C443FF92E960D5 /* AvenirNextLTPro-Medium.otf */,
+				CBC5A8B084EF4C3D8114A39E /* AvenirNextLTPro-Regular.otf */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+			path = "";
 		};
 /* End PBXGroup section */
 
@@ -244,6 +268,11 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				24EDC14165E04B469743F346 /* AvenirNextLTPro-Bold.otf in Resources */,
+				E0AE2A2F6387437F91D1ADA3 /* AvenirNextLTPro-Demi.otf in Resources */,
+				FB02A6C95EDF49418E5C3EFA /* AvenirNextLTPro-Heavy.otf in Resources */,
+				B4C2137D48754909819F8710 /* AvenirNextLTPro-Medium.otf in Resources */,
+				8062EE01137D44EAB1F980F8 /* AvenirNextLTPro-Regular.otf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

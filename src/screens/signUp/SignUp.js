@@ -4,11 +4,11 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  Modal
+  Modal,
 } from 'react-native';
 import React, {useState} from 'react';
 import {fontSizes, globalStyles} from '../../theme/styles';
-import {color} from '../../theme';
+import {color, typography} from '../../theme';
 import {Button, Login_signup_Component} from '../../components';
 import {CustomTextInput} from '../../components';
 import {RoutNames} from '../../navigation/routeNames';
@@ -16,8 +16,10 @@ import {useNavigation} from '@react-navigation/native';
 import Eye from '../../assets/svg/eye.svg';
 import RightShape from '../../assets/svg/rightShape.svg';
 import Cross from '../../assets/svg/cross.svg';
-import { showMessage } from 'react-native-flash-message';
+import {showMessage} from 'react-native-flash-message';
 import {Formik} from 'formik';
+import CrossEye from '../../assets/svg/crossEye.svg';
+
 import * as Yup from 'yup';
 const initialState = {
   fullName: '',
@@ -26,9 +28,15 @@ const initialState = {
 };
 
 const schema = Yup.object({
-  fullName: Yup.string().min(3).max(70).required('*Required'),
-  email: Yup.string().email('Not Valid').required('*Required'),
-  password: Yup.string().min(8).max(64).required('*Required'),
+  fullName: Yup.string()
+    .min(2, 'Atleast 2 character')
+    .max(70)
+    .required('*Required'),
+  email: Yup.string().email('Email Not Valid').required('Email Required'),
+  password: Yup.string()
+    .min(8, 'Password cannot less then 8 numbers')
+    .max(64)
+    .required('Password Required'),
 });
 export const SignUp = () => {
   const navigate = useNavigation();
@@ -65,18 +73,27 @@ export const SignUp = () => {
             });
           } else {
             showMessage({
-              message:jsonRes.errors.email[0],
-              type:"danger",
-              duration:3000,
-            })
+              message: jsonRes.errors.email[0],
+              type: 'danger',
+              duration: 3000,
+            });
             console.log(jsonRes);
             setIndicator(false);
           }
         }}>
-        {({handleBlur, handleChange, handleSubmit}) => (
+        {({handleBlur, handleChange, handleSubmit, touched, errors}) => (
           <>
             <View style={style.Allinputfeild_view}>
-              <View style={style.input_view}>
+              <View
+                style={[
+                  style.input_view,
+                  touched.fullName &&
+                    errors.fullName && {
+                      borderColor: 'red',
+                      borderWidth: 1,
+                      borderRadius: 15,
+                    },
+                ]}>
                 <CustomTextInput icon={'user'} />
                 <TextInput
                   placeholderTextColor={color.palette.lightgray}
@@ -85,8 +102,22 @@ export const SignUp = () => {
                   onChangeText={handleChange('fullName')}
                   onBlur={handleBlur('fullName')}
                 />
+                <View style={style.error_view}>
+                  <Text style={{color: 'red'}}>
+                    {touched.fullName && errors.fullName}
+                  </Text>
+                </View>
               </View>
-              <View style={style.input_view}>
+              <View
+                style={[
+                  style.input_view,
+                  touched.email &&
+                    errors.email && {
+                      borderColor: 'red',
+                      borderWidth: 1,
+                      borderRadius: 15,
+                    },
+                ]}>
                 <CustomTextInput icon={'email'} />
                 <TextInput
                   placeholderTextColor={color.palette.lightgray}
@@ -95,8 +126,22 @@ export const SignUp = () => {
                   onChangeText={handleChange('email')}
                   onBlur={handleBlur('email')}
                 />
+                <View style={style.error_view}>
+                  <Text style={{color: 'red'}}>
+                    {touched.email && errors.email}
+                  </Text>
+                </View>
               </View>
-              <View style={style.input_view}>
+              <View
+                style={[
+                  style.input_view,
+                  touched.password &&
+                    errors.password && {
+                      borderColor: 'red',
+                      borderWidth: 1,
+                      borderRadius: 15,
+                    },
+                ]}>
                 <View style={style.fix}>
                   <CustomTextInput icon={'user'} />
                   <TextInput
@@ -111,8 +156,17 @@ export const SignUp = () => {
                 <TouchableOpacity
                   onPress={() => setHidePassword(!hidePassword)}
                   style={style.eye}>
-                  <Eye width={22} height={25} />
+                  {hidePassword ? (
+                    <CrossEye width={22} height={25} />
+                  ) : (
+                    <Eye width={22} height={25} />
+                  )}
                 </TouchableOpacity>
+                <View style={style.error_view}>
+                  <Text style={{color: 'red'}}>
+                    {touched.password && errors.password}
+                  </Text>
+                </View>
               </View>
             </View>
 
@@ -150,7 +204,11 @@ export const SignUp = () => {
                     <Text
                       style={{
                         fontSize: fontSizes.xsmall,
+
+                        fontFamily:typography.medium,
                         color: color.palette.black,
+
+
                       }}>
                       By sign up, I accept the
                     </Text>
@@ -158,7 +216,8 @@ export const SignUp = () => {
                       <Text
                         style={{
                           color: color.palette.darkblue,
-                          fontWeight: 'bold',
+                          fontFamily:typography.demi,
+
                           paddingLeft: 5,
                         }}>
                         Terms of Services{' '}
@@ -168,6 +227,8 @@ export const SignUp = () => {
                       style={{
                         fontSize: fontSizes.xsmall,
                         color: color.palette.black,
+                        fontFamily:typography.medium,
+
                       }}>
                       and have
                     </Text>
@@ -177,6 +238,8 @@ export const SignUp = () => {
                       style={{
                         fontSize: fontSizes.xsmall,
                         color: color.palette.black,
+                        fontFamily:typography.medium,
+
                       }}>
                       read the{' '}
                     </Text>
@@ -184,7 +247,8 @@ export const SignUp = () => {
                       <Text
                         style={{
                           color: color.palette.darkblue,
-                          fontWeight: 'bold',
+                          fontFamily:typography.demi,
+
                         }}>
                         Privacy Policy
                       </Text>
@@ -199,7 +263,8 @@ export const SignUp = () => {
                     marginBottom: 20,
                     paddingTop: 20,
                   }}>
-                  <Text style={{color: color.palette.black}}>
+                  <Text style={{color: color.palette.black,                        fontFamily:typography.medium,
+}}>
                     Already have an account?
                   </Text>
                   <TouchableOpacity
@@ -209,6 +274,8 @@ export const SignUp = () => {
                         color: color.palette.darkblue,
                         fontWeight: 'bold',
                         paddingLeft: 5,
+                        fontFamily:typography.demi,
+
                       }}>
                       Sign In
                     </Text>
@@ -235,13 +302,21 @@ const style = StyleSheet.create({
     width: '80%',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 20,
   },
   input: {
     position: 'absolute',
     width: '73%',
     fontSize: 18,
     color: color.palette.black,
+    fontFamily:typography.Regular
+
+  },
+  error_view: {
+    position: 'absolute',
+    bottom: 50,
+    right: 10,
+    alignSelf: 'flex-end',
   },
   fix: {
     width: '100%',
@@ -250,7 +325,7 @@ const style = StyleSheet.create({
   },
   eye: {
     position: 'absolute',
-    right: '5%',
+    right: '8%',
   },
   condition_view: {
     flex: 0.1,
@@ -264,8 +339,10 @@ const style = StyleSheet.create({
   },
   condition_text: {
     marginLeft: 15,
-    fontSize: fontSizes.xxsmall,
+    fontSize: 10,
     color: color.palette.black,
+    fontFamily:typography.medium,
+
   },
   cross: {
     width: 10,
@@ -275,7 +352,9 @@ const style = StyleSheet.create({
     position: 'absolute',
     alignSelf: 'flex-end',
   },
-  shape: {},
+  shape: {
+    borderWidth:1,
+  },
   bottom_view: {
     flex: 0.25,
     alignItems: 'center',

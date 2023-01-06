@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {fontSizes, fontWeights, globalStyles} from '../../theme/styles';
-import {color} from '../../theme';
+import {color, typography} from '../../theme';
 import {
   Login_signup_Component,
   CustomTextInput,
@@ -28,14 +28,18 @@ import {useDispatch, useSelector} from 'react-redux';
 import {Loggin} from '../../Reduxs/Reducers';
 import {showMessage, hideMessage} from 'react-native-flash-message';
 import {SkypeIndicator} from 'react-native-indicators';
+import CrossEye from '../../assets/svg/crossEye.svg';
 
 const initialState = {
   email: '',
   password: '',
 };
 const schema = Yup.object({
-  email: Yup.string().email('Not Valid').required('Required'),
-  password: Yup.string().min(8).max(64).required('Required'),
+  email: Yup.string().email('Email Not Valid').required('Email Required'),
+  password: Yup.string()
+    .min(8, 'Password cannot less then 8 numbers')
+    .max(64)
+    .required('Password Required'),
 });
 
 export const Login = () => {
@@ -55,44 +59,71 @@ export const Login = () => {
         validationSchema={schema}
         onSubmit={async (values, action) => {
           setIndicator(true);
-            console.log('response', values);
+          console.log('response', values);
           const res = await fetch(
             `https://fsfeu.org/es/fsf/api/auth/login?email=${values.email}&password=${values.password}`,
             {
               method: 'Post',
               headers: {
-                'content-type': 'application/json', 
+                'content-type': 'application/json',
               },
             },
           );
           const jsonRes = await res.json();
-          if (jsonRes.status === true) {
+          console.log('Login', jsonRes);
+
+          if (jsonRes.status == 200) {
             dispatch(Loggin(jsonRes));
             setIndicator(false);
+            console.log('appliatsssssssssssss', jsonRes.applications);
           } else {
             showMessage({
-              message:jsonRes.message,
-              type:"danger",
-              duration:3000,
-            })
-            console.log(jsonRes.message);
+              message: jsonRes.message,
+              type: 'danger',
+              duration: 3000,
+            });
+            console.log(jsonRes);
             setIndicator(false);
-          } 
+          }
         }}>
-        {({handleChange, handleBlur, handleSubmit, errors}) => (
+        {({handleChange, handleBlur, handleSubmit, touched, errors}) => (
           <>
             <View style={style.Allinputfeild_view}>
-              <View style={style.input_view}>
+              <View
+                style={[
+                  style.input_view,
+                  touched.email &&
+                    errors.email && {
+                      borderColor: 'red',
+                      borderWidth: 1,
+                      borderRadius: 15,
+                    },
+                ]}>
                 <CustomTextInput icon={'email'} />
                 <TextInput
                   placeholderTextColor={color.palette.lightgray}
-                  style={style.input}
+                  style={[style.input]}
                   placeholder="Email"
                   onChangeText={handleChange('email')}
                   onBlur={handleBlur('email')}
                 />
+                <View style={style.error_view}>
+                  <Text style={{color: 'red'}}>
+                    {touched.email && errors.email}
+                  </Text>
+                </View>
               </View>
-              <View style={style.input_view}>
+
+              <View
+                style={[
+                  style.input_view,
+                  touched.password &&
+                    errors.password && {
+                      borderColor: 'red',
+                      borderWidth: 1,
+                      borderRadius: 15,
+                    },
+                ]}>
                 <View style={style.fix}>
                   <CustomTextInput icon={'user'} />
                   <TextInput
@@ -112,8 +143,18 @@ export const Login = () => {
                 <TouchableOpacity
                   onPress={() => setHidePassword(!hidePassword)}
                   style={style.eye}>
-                  <Eye width={22} height={25} />
+                  {hidePassword ? (
+                    <CrossEye width={22} height={25} />
+                  ) : (
+                    <Eye width={22} height={25} />
+                  )}
                 </TouchableOpacity>
+
+                <View style={style.error_view}>
+                  <Text style={{color: 'red'}}>
+                    {touched.password && errors.password}
+                  </Text>
+                </View>
               </View>
               <View style={style.option_view}>
                 <View
@@ -122,9 +163,7 @@ export const Login = () => {
                     justifyContent: 'center',
                     alignItems: 'center',
                   }}>
-                  <Tick style={style.tick} width={20} height={20} />
-
-                  <Text style={style.text_logged}>Keep me logged in</Text>
+                  <Text style={style.text_logged}>You Keep logged in</Text>
                 </View>
                 <TouchableOpacity
                   onPress={() => navigate.navigate(RoutNames.ForgetPassword)}>
@@ -146,7 +185,11 @@ export const Login = () => {
                     justifyContent: 'center',
                     alignItems: 'center',
                   }}>
-                  <Text style={{color: color.palette.black}}>
+                  <Text
+                    style={{
+                      color: color.palette.black,
+                      fontFamily: typography.Regular,
+                    }}>
                     If you do not have account?
                   </Text>
                   <TouchableOpacity
@@ -155,6 +198,8 @@ export const Login = () => {
                       style={{
                         color: color.palette.darkblue,
                         fontWeight: 'bold',
+                        marginLeft: 2,
+                        fontFamily: typography.Regular,
                       }}>
                       Sign Up
                     </Text>
@@ -184,17 +229,25 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   input_view: {
     width: '80%',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 20,
   },
   input: {
     position: 'absolute',
     width: '73%',
     fontSize: 18,
     color: color.palette.black,
+    fontFamily: typography.Regular,
+  },
+  error_view: {
+    position: 'absolute',
+    bottom: 50,
+    right: 10,
+    alignSelf: 'flex-end',
   },
   fix: {
     width: '100%',
@@ -212,12 +265,13 @@ const style = StyleSheet.create({
   },
   text_forgot: {
     color: color.palette.darkblue,
-    fontWeight: 'bold',
+    fontFamily: typography.demi,
   },
   text_logged: {
     fontSize: 15,
     paddingLeft: 5,
     color: color.palette.black,
+    fontFamily: typography.demi,
   },
   tick: {},
   btn_view: {

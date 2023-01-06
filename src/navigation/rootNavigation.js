@@ -25,8 +25,15 @@ import {
   AnounceDetailsScreen,
   EnrolmentHistory,
   FormHistoryDetailScreen,
-  DonationHistoryDetailScreen
+  DonationHistoryDetailScreen,
+  RenewEnrollment,
+  AllApplications,
+  UpdateApplication,
+  Application,
+  EnrollAgreementForEdit,
 } from '../screens';
+import {SkypeIndicator} from 'react-native-indicators';
+import {color} from '../theme';
 import {useSelector} from 'react-redux';
 export const RootNavigator = React.forwardRef((props, ref) => {
   const {loginRequired} = useSelector(store => store.UserReducer);
@@ -70,29 +77,65 @@ export const RootNavigator = React.forwardRef((props, ref) => {
               name={RoutNames.EnrolAgreement}
               component={EnrolAgreement}
             />
-
             <tab.Screen
               name={RoutNames.EnrollmentScreen}
               component={EnrollmentScreen}
             />
 
-            <tab.Screen name={RoutNames.StatusScreen} component={StatusScreen} />
-            <tab.Screen name={RoutNames.RenewEnrollStatus} component={RenewEnrollStatus} />
-            <tab.Screen name={RoutNames.DonationStatusScreen} component={DonationStatusScreen} />
-            <tab.Screen name={RoutNames.FamilyStatusScreen} component={FamilyStatusScreen} />
-            <tab.Screen name={RoutNames.UploadDonationScreen} component={UploadDonationScreen} />
-            <tab.Screen name={RoutNames.AnounceDetailScreen} component={AnounceDetailsScreen} />
-            <tab.Screen name={RoutNames.EnrollmentHistory} component={EnrolmentHistory} />
-            <tab.Screen name={RoutNames.FormHistoryDetailScreen} component={FormHistoryDetailScreen} />
-            <tab.Screen name={RoutNames.DonationHistoryDetailScreen} component={DonationHistoryDetailScreen} />
+            <tab.Screen
+              name={RoutNames.StatusScreen}
+              component={StatusScreen}
+            />
+            <tab.Screen
+              name={RoutNames.RenewEnrollStatus}
+              component={RenewEnrollStatus}
+            />
+            <tab.Screen
+              name={RoutNames.DonationStatusScreen}
+              component={DonationStatusScreen}
+            />
+            <tab.Screen
+              name={RoutNames.FamilyStatusScreen}
+              component={FamilyStatusScreen}
+            />
+            <tab.Screen
+              name={RoutNames.UploadDonationScreen}
+              component={UploadDonationScreen}
+            />
+            <tab.Screen
+              name={RoutNames.AnounceDetailScreen}
+              component={AnounceDetailsScreen}
+            />
+            <tab.Screen
+              name={RoutNames.EnrollmentHistory}
+              component={EnrolmentHistory}
+            />
+            <tab.Screen
+              name={RoutNames.FormHistoryDetailScreen}
+              component={FormHistoryDetailScreen}
+            />
+            <tab.Screen
+              name={RoutNames.DonationHistoryDetailScreen}
+              component={DonationHistoryDetailScreen}
+            />
+            <tab.Screen
+              name={RoutNames.RenewEnrollment}
+              component={RenewEnrollment}
+            />
 
-
-
-
-
-
-
-
+            <tab.Screen
+              name={RoutNames.AllApplications}
+              component={AllApplications}
+            />
+            <tab.Screen
+              name={RoutNames.UpdateApplication}
+              component={UpdateApplication}
+            />
+            <tab.Screen name={RoutNames.Application} component={Application} />
+            <tab.Screen
+              name={RoutNames.EnrollAgreementForEdit}
+              component={EnrollAgreementForEdit}
+            />
           </tab.Group>
         )}
       </stack.Navigator>

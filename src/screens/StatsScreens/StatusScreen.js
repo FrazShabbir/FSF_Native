@@ -1,14 +1,11 @@
 import {View, Text, StyleSheet, TouchableOpacity, Modal} from 'react-native';
 import React, {useRef, useState} from 'react';
-import {HomeComponent, HomeEvent, NearBtn} from '../../components';
+import {HomeComponent, HomeEvent, NearBtn, NearestOffice} from '../../components';
 import {color} from '../../theme';
 import AboutIcon from '../../assets/HomeAssets/Svgs/aboutIcon.svg';
 import SettingIcon from '../../assets/HomeAssets/Svgs/settingIcon.svg';
 import PrivacyIcon from '../../assets/HomeAssets/Svgs/privacyIcon.svg';
-import RBSheet from 'react-native-raw-bottom-sheet';
-import LocIcon from '../../assets/HomeAssets/Svgs/locationIcon.svg';
-import LocDot from '../../assets/HomeAssets/Svgs/locationDot.svg';
-import BackDown from '../../assets/HomeAssets/Svgs/backDown.svg';
+
 import {fontWeights} from '../../theme/styles';
 import Cell from '../../assets/HomeAssets/Svgs/cellIconWhite.svg';
 import {RoutNames} from '../../navigation/routeNames';
@@ -20,8 +17,10 @@ import HomeIcon from '../../assets/HomeAssets/Svgs/homeblack.svg';
 
 export const StatusScreen = () => {
   const refRBSheet = useRef();
-  const [noRelative, setNoRelative] = useState(true);
+  const [noRelative, setNoRelative] = useState(false);
   const navigate = useNavigation();
+  const [openSheet,setopenSheet]=useState()
+
   return (
     <View style={style.container}>
       <HomeComponent backIcon={true} title={'Applications'} />
@@ -29,8 +28,8 @@ export const StatusScreen = () => {
         <View style={style.btn_view}>
           <TouchableOpacity
             style={style.NearBtn}
-            onPress={() => refRBSheet.current.open()}>
-            <NearBtn />
+            onPress={() => setopenSheet(!openSheet)}>
+            <NearBtn title={"Nearest Office"}/>
           </TouchableOpacity>
         </View>
         <View
@@ -43,12 +42,13 @@ export const StatusScreen = () => {
             width: '80%',
             alignSelf: 'center',
           }}>
+            
           <TouchableOpacity
             onPress={() => navigate.navigate(RoutNames.RenewEnrollStatus)}
             style={[style.event_view, {}]}>
             <HomeEvent
               Icon={'circleArrow'}
-              text={'Renew enrolment application stats'}
+              text={'All application & status'}
             />
           </TouchableOpacity>
           <TouchableOpacity
@@ -93,103 +93,7 @@ export const StatusScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
-      <RBSheet
-        ref={refRBSheet}
-        closeOnDragDown={true}
-        openDuration={500}
-        closeOnPressMask={true}
-        animationType={'fade'}
-        customStyles={{
-          wrapper: {
-            backgroundColor: 'rgba(0,0,0,0.6)',
-          },
-          draggableIcon: {
-            backgroundColor: 'white',
-          },
-          container: {
-            borderTopRightRadius: 50,
-            borderTopLeftRadius: 50,
-            height: '40%',
-          },
-        }}>
-        <View style={style.sheet_container}>
-          <View style={[style.edit_container, {}]}>
-            <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
-              <View style={style.loc_icon_container}>
-                <LocIcon width={22} height={40} />
-                <View style={style.loc_icon}>
-                  <LocDot width="100%" height="100%" />
-                </View>
-              </View>
-              <Text style={style.personal_text}> Near Service Center</Text>
-            </View>
-            <TouchableOpacity
-              style={[style.edit_icon_view, {}]}
-              onPress={() => refRBSheet.current.close()}>
-              <BackDown width={'100%'} height={'100%'} />
-            </TouchableOpacity>
-          </View>
-          <View style={style.office_container}>
-            <View style={style.office_info_view}>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  Office Name:
-                </Text>
-                <Text style={style.office_text}>Ali Ahmad</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  Officer Cell No:
-                </Text>
-                <Text style={style.office_text}>031551548515</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  State:
-                </Text>
-                <Text style={style.office_text}>Dummy</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  City:
-                </Text>
-                <Text style={style.office_text}>Dummy City</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  Area:
-                </Text>
-                <Text style={style.office_text}>Dummy Area</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  Street:
-                </Text>
-                <Text style={style.office_text}>Street Dummy A-3</Text>
-              </View>
-            </View>
-            <View style={style.log_btn_view}>
-              <TouchableOpacity onPress={() => dialCall('000000000')}>
-                <LinearGradient
-                  useAngle={true}
-                  colors={[color.palette.darkblue, color.palette.lightBlue]}
-                  style={style.power_container}>
-                  <View style={style.powerIcon_view}>
-                    <Cell width={'100%'} height={'100%'} />
-                  </View>
-                  <Text style={style.text}>Call Us Now</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </RBSheet>
+      <NearestOffice open={openSheet}/>
       <Modal visible={noRelative} transparent={true} animationType="fade">
         <View style={style.modal_view}>
           <View style={style.view}>

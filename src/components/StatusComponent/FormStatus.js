@@ -1,7 +1,7 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import LinearGradient from 'react-native-linear-gradient';
-import {color} from '../../theme';
+import {color, typography} from '../../theme';
 import StatsIcon from '../../assets/HomeAssets/Svgs/appStatus.svg';
 import GreenDot from '../../assets/HomeAssets/Svgs/greenDot.svg';
 import {fontWeights} from '../../theme/styles';
@@ -15,7 +15,7 @@ export const FormStatus = ({icon, status, title, date}) => {
     }
   };
   const selectStatus = () => {
-    if (status == 'accepted') {
+    if (status == 'approved') {
       return (
         <>
           <View style={style.dotView}>
@@ -35,7 +35,7 @@ export const FormStatus = ({icon, status, title, date}) => {
           </Text>
         </>
       );
-    } else if (status == 'pendding') {
+    } else if (status == 'pending') {
       return (
         <>
           <View style={style.dotView}>
@@ -46,6 +46,10 @@ export const FormStatus = ({icon, status, title, date}) => {
           </Text>
         </>
       );
+    }else{
+      return<Text style={[style.status_text, {color: color.palette.darkblue}]}>
+      {status}
+    </Text>
     }
   };
   return (
@@ -85,17 +89,20 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontWeight: fontWeights.extraBold,
-    fontSize: 13,
+    //fontWeight: fontWeights.extraBold,
+    fontSize: 14,
     color: color.palette.black,
+    fontFamily:typography.demi,
+    marginBottom:2
   },
   date: {
-    fontWeight: fontWeights.bold,
-    fontSize: 11,
+    //fontWeight: fontWeights.bold,
+    fontSize: 12,
     color: color.palette.black,
+    fontFamily:typography.Regular
+
   },
   status_view: {
-    width: '25%',
     marginTop: 5,
     marginBottom: 5,
     flexDirection: 'row',
@@ -108,8 +115,9 @@ const style = StyleSheet.create({
   },
   status_text: {
     color: color.palette.green,
-    fontWeight: fontWeights.bold,
-    left: 3,
+    //fontWeight: fontWeights.bold,
+    marginLeft: 3,
     fontSize: 14,
+    fontFamily:typography.demi
   },
 });

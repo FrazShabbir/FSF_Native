@@ -1,10 +1,18 @@
-import {View, Text, StyleSheet, TouchableOpacity, Modal} from 'react-native';
-import React, {useRef, useState} from 'react';
-import {Formik} from 'formik';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  FlatList,
+  KeyboardAvoidingView,
+} from 'react-native';
+import React, {useRef, useState, useEffect} from 'react';
+import {Formik, useFormik, useFormikContext} from 'formik';
 import {ScrollView, TextInput} from 'react-native-gesture-handler';
 import {FormField} from './FormField';
 import {FormImage} from './FormImage';
-import {color} from '../../theme';
+import {color, typography} from '../../theme';
 import {fontWeights} from '../../theme/styles';
 import DatePicker from 'react-native-date-picker';
 import BackDown from '../../assets/EnrolmentAssets/downBack.svg';
@@ -24,7 +32,23 @@ import GreenTick from '../../assets/EnrolmentAssets/greenTick.svg';
 import Cross from '../../assets/svg/cross.svg';
 import {useNavigation} from '@react-navigation/native';
 import {RoutNames} from '../../navigation/routeNames';
-export const Form = () => {
+import {SetEnrollstatus, SetHomeRefresh} from '../../Reduxs/Reducers';
+import {showMessage} from 'react-native-flash-message';
+import {
+  stepOneSchema,
+  stepTwoSchema,
+  stepThreeSchma,
+  stepFourSchema,
+  stepFiveSchema,
+} from '../../utils/schema';
+import {useDispatch, useSelector} from 'react-redux';
+import {SkypeIndicator} from 'react-native-indicators';
+import SearchIcon from '../../assets/EnrolmentAssets/searchIcon.svg';
+import {CustomAlert} from '../Common/CustomAlert';
+import IntlPhoneInput from 'react-native-intl-phone-input';
+
+export const Form = ({updating = false, appId}) => {
+  const [indicator, setIndicator] = useState(false);
   const [enrolled, setEnrolled] = useState(false);
   const [date, setDate] = useState(new Date());
   const [open, setOpen] = useState(false);
@@ -33,9 +57,10 @@ export const Form = () => {
   const [img, setimg] = useState(false);
   const [filename, setfilename] = useState('');
   const [checked, setchecked] = useState(false);
+  const [checked1, setchecked1] = useState(false);
   const refRBSheet = useRef();
   const [buried, setburied] = useState(false);
-  const [data, setData] = useState(false);
+  const [PassportInfo, setPassportInfo] = useState(false);
   const [sign, setSign] = useState();
   const singRef = useRef();
   const navigate = useNavigation();
@@ -43,11 +68,95 @@ export const Form = () => {
   const [gender, setGender] = useState('Male');
   const [relative, setrealtive] = useState(false);
   const [otherPay, setOtherPay] = useState(false);
+  const {token, user, homeRefresh} = useSelector(state => state.UserReducer);
+  const dispatch = useDispatch();
+  const [relPassport, setRelPassport] = useState(null);
+  const [passportData, setpassportData] = useState({});
+  const [searchModel, setSearchModel] = useState(null);
+  const [country, setCountry] = useState('Country');
+  const [community, setCommunity] = useState('Community');
+  const [province, setprovince] = useState('Province');
+  const [city, setcity] = useState('City');
+  const [list, setlist] = useState([]);
+  const [forCountry, setforCountry] = useState(null);
+  const [forCommunity, setforcommunity] = useState(null);
+  const [forProvince, setforProvince] = useState(null);
+  const [forcity, setforcity] = useState(null);
+  const initialDate = new Date();
+  const [upload, setupload] = useState(true);
+  const [fetchData, setFetchData] = useState({
+    communities: [],
+    countries: [],
+    provinces: [],
+    cities: [],
+  });
+  const [location, setlocation] = useState({
+    community: '',
+    country: '',
+    province: '',
+    city: '',
+  });
+
+  const [Form, setForm] = useState({
+    fullName: '',
+    fatherName: '',
+    surName: '',
+    passportNumber: '',
+    europeResidenceCardNo: '',
+    cellNumber: '',
+    email: '',
+    country: '',
+    community: '',
+    province: '',
+    city: '',
+    areaStreetHouse: '',
+    nativeCountry: '',
+    idCardNo_native: '',
+    completeAddress_native: '',
+
+    //step 2
+    first_relative_fullName: '',
+    first_relative_relation: '',
+    first_relative_cellNo: '',
+    first_relative_completeAddress: '',
+
+    second_relative_fullName: '',
+    second_relative_relation: '',
+    second_relative_cellNo: '',
+    second_relative_completeAddress: '',
+    // //step 3
+
+    first_relative_fullName_native: '',
+    first_relative_relation_native: '',
+    first_relative_cellNo_native: '',
+    first_relative_completeAddress_native: '',
+
+    second_relative_fullName_native: '',
+    second_relative_relation_native: '',
+    second_relative_cellNo_native: '',
+    second_relative_completeAddress_native: '',
+    // //step 4
+
+    representive_fullName: '',
+    representive_surName: '',
+    representive_passportNo: '',
+    representive_cellNo: '',
+    representive_completeAddress: '',
+    step4_agree: '',
+    // // step 5
+    whereBurried: '',
+    relative_involve_fund: '',
+    relative_passportNo: relPassport,
+    pay_annually: '',
+    signature: '',
+    step5_agree: '',
+  });
+
   const [buriedRadio, setBuriedRadio] = useState([
     {
       id: '0', // acts as primary key, should be unique and non-empty string
       label: 'Native Country',
-      value: 'notPay',
+      value: 'Native Country',
       color: color.palette.darkblue,
       size: 20,
       labelStyle: {color: color.palette.black},
@@ -55,17 +164,18 @@ export const Form = () => {
     {
       id: '1', // acts as primary key, should be unique and non-empty string
       label: 'Residential Country',
-      value: 'notPay',
+      value: 'Residential Country',
       color: color.palette.darkblue,
       size: 20,
       labelStyle: {color: color.palette.black},
     },
   ]);
+
   const [relativeInvolveRadio, setRelativeInvovleRadio] = useState([
     {
       id: '0', // acts as primary key, should be unique and non-empty string
       label: 'Yes',
-      value: 'notPay',
+      value: 'yes',
       color: color.palette.darkblue,
       size: 20,
       labelStyle: {color: color.palette.black},
@@ -73,7 +183,7 @@ export const Form = () => {
     {
       id: '1', // acts as primary key, should be unique and non-empty string
       label: 'No',
-      value: 'notPay',
+      value: 'no',
       color: color.palette.darkblue,
       size: 20,
       labelStyle: {color: color.palette.black},
@@ -91,7 +201,7 @@ export const Form = () => {
     },
     {
       id: '1', // acts as primary key, should be unique and non-empty string
-      label: '30$',
+      label: '€ 30',
       value: '30',
       color: color.palette.darkblue,
       size: 20,
@@ -99,7 +209,7 @@ export const Form = () => {
     },
     {
       id: '2',
-      label: '50$',
+      label: '€ 50',
       value: '50',
       color: color.palette.darkblue,
       size: 20,
@@ -107,7 +217,7 @@ export const Form = () => {
     },
     {
       id: '3',
-      label: '70$',
+      label: '€ 70',
       value: '70',
       color: color.palette.darkblue,
       size: 20,
@@ -115,7 +225,7 @@ export const Form = () => {
     },
     {
       id: '4',
-      label: '100$',
+      label: '€ 100',
       value: '100',
       color: color.palette.darkblue,
       size: 20,
@@ -130,13 +240,30 @@ export const Form = () => {
       labelStyle: {color: color.palette.black},
     },
   ]);
-
+  const FormatDate = date => {
+    const year = date.slice(0, 4);
+    const mon = date.slice(5, 7);
+    const day = date.slice(8, 10);
+    return day + '-' + mon + '-' + year;
+  };
+  const step1ref = useRef();
+  const step2ref = useRef();
+  const step3ref = useRef();
+  const step4ref = useRef();
+  const step5ref = useRef();
   const selectDate = () => {
     const day = date.getDate();
     const mon = date.getMonth();
     const year = date.getFullYear().toString();
-    return day + '/' + (mon + 1) + '/' + year;
+    const fullDate =  day+ '-' + (mon + 1) + '-' + year;
+    return fullDate;
   };
+  const dateUpload = () => {
+    const day = date.getDate();
+    const mon = date.getMonth();
+    const year = date.getFullYear().toString();
+    return year + '-' + (mon + 1) + '-' +day ;
+  }; 
   const pickFromGallary = () => {
     ImagePicker.clean()
       .then(() => {})
@@ -151,6 +278,7 @@ export const Form = () => {
       .then(image => {
         setfilename(image.filename);
         setimgPath(image.path);
+        setupload(false);
         setimg(true);
         refRBSheet.current.close();
       })
@@ -170,6 +298,7 @@ export const Form = () => {
     })
       .then(image => {
         setimgPath(image.path);
+        setupload(false);
         setimg(true);
         refRBSheet.current.close();
       })
@@ -224,6 +353,329 @@ export const Form = () => {
       </View>
     );
   };
+
+  useEffect(() => {
+    fetch(
+      `https://fsfeu.org/es/fsf/api/application/create?user_id=${user.id}&api_token=${token}`,
+    )
+      .then(res => res.json())
+      .then(data => {
+        {
+          setFetchData({...fetchData, countries: data.countries});
+        }
+      })
+      .catch(err => console.log('err', err));
+  }, []);
+  const fetchCommunity = async id => {
+    await fetch(
+      `https://fsfeu.org/es/fsf/api/getCommunities?country_id=${id}`,
+      {
+        method: 'post',
+        headers: {
+          'content-type': 'application/json',
+        },
+      },
+    )
+      .then(res => res.json())
+      .then(data => {
+        setFetchData({...fetchData, communities: data.communities});
+      })
+      .catch(err => console.log('err', err));
+  };
+  const fetchProvince = async id => {
+    await fetch(
+      `https://fsfeu.org/es/fsf/api/getprovinces?community_id=${id}`,
+      {
+        method: 'post',
+        headers: {
+          'content-type': 'application/json',
+        },
+      },
+    )
+      .then(res => res.json())
+      .then(data => {
+        setFetchData({...fetchData, provinces: data.provinces});
+      })
+      .catch(err => console.log('err', err));
+  };
+  const fetchCity = async id => {
+    await fetch(`https://fsfeu.org/es/fsf/api/getcities?province_id=${id}`, {
+      method: 'post',
+      headers: {
+        'content-type': 'application/json',
+      },
+    })
+      .then(res => res.json())
+      .then(data => {
+        //console.log("province",data)
+        setFetchData({...fetchData, cities: data.cities});
+      })
+      .catch(err => console.log('err', err));
+  };
+  const SubmitCompleteForm = async (
+    whereBurried,
+    relative_involve_fund,
+    pay_annually,
+    relative_passportNo,
+  ) => {
+    console.log('alldata', Form);
+    setIndicator(true);
+    const formData = new FormData();
+
+    formData.append('user_id', user.id);
+    formData.append('api_token', token);
+
+    //step 1
+    formData.append('avatar', {
+      uri: imgPath,
+      name: 'image.png',
+      fileName: 'image',
+      type: 'image/png',
+    });
+    formData.append('full_name', Form.fullName);
+    formData.append('father_name', Form.fatherName);
+    formData.append('surname', Form.surName);
+    formData.append('gender', gender);
+    formData.append('dob', dateUpload());
+    formData.append('passport_number', Form.passportNumber);
+    formData.append('nie', Form.europeResidenceCardNo);
+    formData.append('phone', Form.cellNumber);
+    formData.append('email', Form.email);
+    formData.append('country_id', location.country);
+    formData.append('community_id', location.community);
+    formData.append('province_id', location.province);
+    formData.append('city_id', location.city);
+    formData.append('native_country', Form.nativeCountry);
+    formData.append('native_id', Form.idCardNo_native);
+    formData.append('native_country_address', Form.completeAddress_native);
+    formData.append('area', Form.areaStreetHouse);
+
+    //step 2
+    formData.append('s_relative_1_name', Form.first_relative_fullName);
+    formData.append('s_relative_1_relation', Form.first_relative_relation);
+    formData.append('s_relative_1_phone', Form.first_relative_cellNo);
+    formData.append(
+      's_relative_1_address',
+      Form.first_relative_completeAddress,
+    );
+    formData.append('s_relative_2_name', Form.second_relative_fullName);
+    formData.append('s_relative_2_relation', Form.second_relative_relation);
+    formData.append('s_relative_2_phone', Form.second_relative_cellNo);
+    formData.append(
+      's_relative_2_address',
+      Form.second_relative_completeAddress,
+    );
+
+    //step 3
+    formData.append('n_relative_1_name', Form.first_relative_fullName_native);
+    formData.append(
+      'n_relative_1_relation',
+      Form.first_relative_relation_native,
+    );
+    formData.append('n_relative_1_phone', Form.first_relative_cellNo_native);
+    formData.append(
+      'n_relative_1_address',
+      Form.first_relative_completeAddress_native,
+    );
+    formData.append('n_relative_2_name', Form.second_relative_fullName_native);
+    formData.append(
+      'n_relative_2_relation',
+      Form.second_relative_relation_native,
+    );
+    formData.append('n_relative_2_phone', Form.second_relative_cellNo_native);
+    formData.append(
+      'n_relative_2_address',
+      Form.second_relative_completeAddress_native,
+    );
+
+    //step 4
+    formData.append('rep_name', Form.representive_surName);
+    formData.append('rep_surname', Form.representive_surName);
+    formData.append('rep_passport_no', Form.representive_passportNo);
+    formData.append('rep_phone', Form.representive_cellNo);
+    formData.append('rep_address', Form.representive_completeAddress);
+    formData.append('rep_confirmed', '1');
+
+    //step 5
+    formData.append('buried_location', whereBurried);
+    formData.append('registered_relatives', relative_involve_fund);
+    formData.append('registered_relative_passport_no', relative_passportNo);
+    formData.append('annually_fund_amount', pay_annually);
+    formData.append('user_signature', {
+      uri: `file://${sign}`,
+      name: 'image.png',
+      fileName: 'image',
+      type: 'image/png',
+    });
+    formData.append('declaration_confirm', '1');
+
+    const res = await fetch(`https://fsfeu.org/es/fsf/api/application/store?`, {
+      method: 'post',
+      body: formData,
+      headers: {
+        'content-type': 'multipart/form-data',
+      },
+    });
+    const jsonRes = await res.json();
+    console.log('resssssss+++', jsonRes);
+    if (jsonRes.status === true) {
+      setEnrolled(true);
+      showMessage({
+        message: jsonRes.message,
+        type: 'success',
+        duration: 3000,
+      });
+      setIndicator(false);
+    } else {
+      //  console.log('data', jsonRes);
+      setIndicator(false);
+    }
+  };
+  const UpdateEnrollment = async (
+    whereBurried,
+    relative_involve_fund,
+    pay_annually,
+    relative_passportNo,
+  ) => {
+    setIndicator(true);
+    const formData = new FormData();
+
+    formData.append('user_id', user.id);
+    formData.append('api_token', token);
+
+    //step 1
+    formData.append('avatar', {
+      uri: imgPath,
+      name: 'image.png',
+      fileName: 'image',
+      type: 'image/png',
+    });
+    formData.append('application_id', appId);
+
+    formData.append('full_name', Form.fullName);
+    formData.append('father_name', Form.fatherName);
+    formData.append('surname', Form.surName);
+    formData.append('gender', gender);
+    formData.append('dob', dateUpload());
+    formData.append('passport_number', Form.passportNumber);
+    formData.append('nie', Form.europeResidenceCardNo);
+    formData.append('phone', Form.cellNumber);
+    formData.append('email', Form.email);
+    formData.append('country_id', location.country);
+    formData.append('community_id', location.community);
+    formData.append('province_id', location.province);
+    formData.append('city_id', location.city);
+    formData.append('native_country', Form.nativeCountry);
+    formData.append('native_id', Form.idCardNo_native);
+    formData.append('native_country_address', Form.completeAddress_native);
+    formData.append('area', Form.areaStreetHouse);
+
+    //step 2
+    formData.append('s_relative_1_name', Form.first_relative_fullName);
+    formData.append('s_relative_1_relation', Form.first_relative_relation);
+    formData.append('s_relative_1_phone', Form.first_relative_cellNo);
+    formData.append(
+      's_relative_1_address',
+      Form.first_relative_completeAddress,
+    );
+    formData.append('s_relative_2_name', Form.second_relative_fullName);
+    formData.append('s_relative_2_relation', Form.second_relative_relation);
+    formData.append('s_relative_2_phone', Form.second_relative_cellNo);
+    formData.append(
+      's_relative_2_address',
+      Form.second_relative_completeAddress,
+    );
+
+    //step 3
+    formData.append('n_relative_1_name', Form.first_relative_fullName_native);
+    formData.append(
+      'n_relative_1_relation',
+      Form.first_relative_relation_native,
+    );
+    formData.append('n_relative_1_phone', Form.first_relative_cellNo_native);
+    formData.append(
+      'n_relative_1_address',
+      Form.first_relative_completeAddress_native,
+    );
+    formData.append('n_relative_2_name', Form.second_relative_fullName_native);
+    formData.append(
+      'n_relative_2_relation',
+      Form.second_relative_relation_native,
+    );
+    formData.append('n_relative_2_phone', Form.second_relative_cellNo_native);
+    formData.append(
+      'n_relative_2_address',
+      Form.second_relative_completeAddress_native,
+    );
+
+    //step 4
+    // formData.append('rep_name', Form.representive_surName);
+    // formData.append('rep_surname', Form.representive_surName);
+    // formData.append('rep_passport_no', Form.representive_passportNo);
+    // formData.append('rep_phone', Form.representive_cellNo);
+    // formData.append('rep_address', Form.representive_completeAddress);
+    // formData.append('rep_confirmed', '1');
+
+    //step 5
+    formData.append('buried_location', whereBurried);
+    formData.append('registered_relatives', relative_involve_fund);
+    formData.append('registered_relative_passport_no', relative_passportNo);
+    formData.append('annually_fund_amount', pay_annually);
+    formData.append('user_signature', {
+      uri: `file://${sign}`,
+      name: 'image.png',
+      fileName: 'image',
+      type: 'image/png',
+    });
+    formData.append('declaration_confirm', '1');
+
+    const res = await fetch(
+      `https://fsfeu.org/es/fsf/api/application/update?`,
+      {
+        method: 'post',
+        body: formData,
+        headers: {
+          'content-type': 'multipart/form-data',
+        },
+      },
+    );
+    const jsonRes = await res.json();
+    console.log('resssssss+++', jsonRes);
+    if (jsonRes.status === 200) {
+      showMessage({
+        message: jsonRes.message,
+        type: 'success',
+        duration: 3000,
+      });
+      setIndicator(false);
+      setEnrolled(true);
+    } else {
+      //  console.log('data', jsonRes);
+      setIndicator(false);
+    }
+  };
+  searchItem = text => {
+    const newData = list.filter(item => {
+      const itemData = `${item.name.toUpperCase()}   
+        ${item.name.toUpperCase()} ${item.name.toUpperCase()}`;
+
+      const textData = text.toUpperCase();
+
+      return itemData.indexOf(textData) > -1;
+    });
+    if (forCountry == true) {
+      setFetchData({...fetchData, countries: newData});
+    } else if (forCommunity == true) {
+      setFetchData({...fetchData, communities: newData});
+    } else if (forProvince == true) {
+      setFetchData({...fetchData, provinces: newData});
+    } else if (forcity == true) {
+      setFetchData({...fetchData, cities: newData});
+    }
+  };
+
+  console.log('appid', updating, appId);
+
   return (
     <View style={{flex: 1}}>
       {step == 1 ? (
@@ -271,724 +723,2223 @@ export const Form = () => {
           </View>
         </>
       ) : null}
+      {step == 1 ? (
+        <Formik
+          initialValues={stepOneState}
+          validationSchema={stepOneSchema}
+          validateOnChange={false}
+          validateOnBlur={false}
+          onSubmit={(values, {setErrors}) => {
+            setForm({
+              ...Form,
+              fullName: values.fullName,
+              fatherName: values.fatherName,
+              surName: values.surName,
+              passportNumber: values.PassportNumber,
+              europeResidenceCardNo: values.europeResidenceCardNo,
+              cellNumber: values.cellNumber,
 
-      <Formik>
-        {() => (
-          <>
-            {step == 1 ? (
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                style={style.form_container}>
-                <TouchableOpacity onPress={() => refRBSheet.current.open()}>
-                  <FormImage fileName={filename} path={imgPath} img={img} />
-                </TouchableOpacity>
-                <FormField english={'Full Name:'} urdu={'name'} />
-                <TextInput
-                  style={style.input}
-                  placeholder={'Ahmed Ali'}
-                  placeholderTextColor={color.palette.lightgray}
+              email: values.email,
+
+              country: values.country,
+
+              community: values.community,
+
+              province: values.province,
+
+              city: values.city,
+
+              areaStreetHouse: values.areaStreetHouse,
+
+              nativeCountry: values.nativeCountry,
+
+              idCardNo_native: values.idCardNo_native,
+
+              completeAddress_native: values.completeAddress_native,
+            });
+            setStep(2);
+          }}>
+          {({
+            handleSubmit,
+            handleChange,
+            handleBlur,
+            errors,
+            touched,
+            isSubmitting,
+            validateField,
+            validateForm,
+            setErrors,
+            setFieldValue,
+          }) => (
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              style={style.form_container}>
+              <TouchableOpacity
+                onPress={() => {
+                  refRBSheet.current.open(), validateField('avatar');
+                }}
+                onPressIn={() => setFieldValue('avatar', 'ImagePicked')}
+                onPressOut={() => validateField('avatar')}>
+                <FormImage
+                  fileName={filename}
+                  path={imgPath}
+                  errr={errors.avatar == 'Required' ? 'red' : null}
+                  img={img}
                 />
-                <FormField english={'Father Name:'} urdu={'fatherName'} />
-                <TextInput
-                  style={style.input}
-                  placeholder={'Muhammad Azhar'}
+              </TouchableOpacity>
+              <FormField english={'Full Name:'} urdu={'name'} />
+              <TextInput
+                ref={step1ref}
+                style={[
+                  style.input,
+                  errors.fullName == 'Required' &&
+                    touched.fullName && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                placeholder={'Ahmed Ali'}
+                placeholderTextColor={color.palette.lightgray}
+                onChangeText={handleChange('fullName')}
+                onChange={() => validateField('fullName')}
+              />
+              <FormField english={'Father Name:'} urdu={'fatherName'} />
+              <TextInput
+                style={[
+                  style.input,
+                  errors.fatherName == 'Required' &&
+                    touched.fatherName && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                placeholder={'Muhammad Azhar'}
+                placeholderTextColor={color.palette.lightgray}
+                onChangeText={handleChange('fatherName')}
+                onChange={() => validateField('fatherName')}
+              />
+              <FormField english={'Sur Name:'} urdu={'surName'} />
+              <TextInput
+                style={[
+                  style.input,
+                  errors.surName == 'Required' &&
+                    touched.surName && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                placeholder={'Khokhar'}
+                placeholderTextColor={color.palette.lightgray}
+                onChangeText={handleChange('surName')}
+                onChange={() => validateField('surName')}
+              />
+
+              <FormField english={'Gender:'} urdu={'gender'} />
+              <TouchableOpacity
+                onPress={() => {
+                  setGenderoptionVisible(!GenderOptionsVisible);
+                  //  handleChange(gender);
+                }}>
+                <View style={[style.input, {justifyContent: 'center'}]}>
+                  <Text style={style.gender_input}>{gender}</Text>
+                </View>
+                <View style={[style.backDown]}>
+                  <BackDown width={'100%'} height={'100%'} />
+                </View>
+              </TouchableOpacity>
+              {GenderOptionsVisible ? GenderSelect() : null}
+              <FormField english={'Date Of Birth:'} urdu={'dateOfBirth'} />
+              <TouchableOpacity
+                onPress={() => {
+                  setOpen(true);
+                }}>
+                <View style={[style.input, {justifyContent: 'center'}]}>
+                  <Text style={style.gender_input}>
+                    {selectDate()}
+                  </Text>
+                </View>
+                <View style={[style.backDown, {width: 19, height: 19}]}>
+                  <Calender width={'100%'} height={'100%'} />
+                </View>
+              </TouchableOpacity>
+              <FormField english={'Passport No:'} urdu={'passport'} />
+              <TextInput
+                style={[
+                  style.input,
+                  errors.PassportNumber == 'Required' &&
+                    touched.PassportNumber && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                placeholder={'000515552'}
+                placeholderTextColor={color.palette.lightgray}
+                onChangeText={handleChange('PassportNumber')}
+                onChange={() => validateField('PassportNumber')}
+              />
+              <FormField english={'Europe Residence Card No:'} />
+              <FormField urdu={'euroCard'} />
+              <TextInput
+                placeholder={'000515552'}
+                placeholderTextColor={color.palette.lightgray}
+                style={[
+                  style.input,
+                  errors.europeResidenceCardNo == 'Required' &&
+                    touched.europeResidenceCardNo && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                onChangeText={handleChange('europeResidenceCardNo')}
+                onChange={() => validateField('europeResidenceCardNo')}
+              />
+              <FormField english={'Cell No:'} urdu={'cell'} />
+              <View
+                style={
+                  errors.cellNumber == 'Required' &&
+                  touched.cellNumber && {
+                    borderWidth: 1,
+                    borderColor: 'red',
+                    borderRadius: 10,
+                    borderBottomWidth: 1.5,
+                  }
+                }>
+                <IntlPhoneInput
+                  placeholder={'000515552'}
                   placeholderTextColor={color.palette.lightgray}
+                  phoneInputStyle={[
+                    style.input,
+                    {marginTop: 10, paddingLeft: 4},
+                  ]}
+                  onChangeText={e => {
+                    console.log('phone', e);
+
+                    if (e.isVerified == true) {
+                      setFieldValue(
+                        'cellNumber',
+                        e.dialCode.toString() +
+                          e.unmaskedPhoneNumber.toString(),
+                      );
+                      validateField('cellNumber');
+
+                    } else {
+                      setFieldValue('cellNumber', '');
+                    }
+                  }}
+                  containerStyle={{
+                    backgroundColor: color.palette.lightwhite,
+                    borderRadius: 10,
+                    fontSize: 16,
+                    height: 55,
+                    color: color.palette.black,
+                  }}
+                  flagStyle={{bottom:6,right:3}}
+                  dialCodeTextStyle={{fontSize: 16, color: color.palette.black,bottom:2}}
+                  defaultCountry={'PK'}
+                  modalCountryItemCountryNameStyle={{color:color.palette.black,fontFamily:typography.demi}}
                 />
-                <FormField english={'Sur Name:'} urdu={'surName'} />
-                <TextInput
-                  style={style.input}
-                  placeholder={'Khokhar'}
-                  placeholderTextColor={color.palette.lightgray}
-                />
-                <FormField english={'Gender:'} urdu={'gender'} />
+              </View>
+              {/* <TextInput
+                keyboardType="numeric"
+                placeholder={'000515552'}
+                placeholderTextColor={color.palette.lightgray}
+                style={[
+                  style.input,
+                  errors.cellNumber == 'Required' &&
+                    touched.cellNumber && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                onChangeText={handleChange('cellNumber')}
+                onChange={() => validateField('cellNumber')}
+              /> */}
+              <FormField english={'Email:'} urdu={'email'} />
+              <TextInput
+                placeholder={'dummy@gmail.com'}
+                placeholderTextColor={color.palette.lightgray}
+                style={[
+                  style.input,
+                  errors.email == 'Required' &&
+                    touched.email && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                onChangeText={handleChange('email')}
+                onChange={() => validateField('email')}
+              />
+              <FormField english={'Residence Country:'} urdu={'country'} />
+              <TouchableOpacity
+                onPress={() => {
+                  setSearchModel(true);
+                  setforCountry(true);
+                  setlist(fetchData.countries);
+                }}
+                onPressOut={() => setFieldValue('country', 'added')}>
+                <View
+                  style={[
+                    style.input,
+                    {justifyContent: 'center'},
+                    errors.country == 'Required' && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                  ]}>
+                  <Text
+                    style={[
+                      style.gender_input,
+                      country == 'Country'
+                        ? {color: color.palette.lightgray}
+                        : null,
+                    ]}>
+                    {country}
+                  </Text>
+                </View>
+                <View style={[style.backDown]}>
+                  <BackDown width={'100%'} height={'100%'} />
+                </View>
+              </TouchableOpacity>
+
+              <FormField english={'Community:'} urdu={'community'} />
+              <TouchableOpacity
+                onPress={() => {
+                  setSearchModel(true);
+                  setforcommunity(true);
+                  setlist(fetchData.communities);
+                }}
+                onPressOut={() => setFieldValue('community', 'added')}>
+                <View
+                  style={[
+                    style.input,
+                    {justifyContent: 'center'},
+                    errors.community == 'Required' && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                  ]}>
+                  <Text
+                    style={[
+                      style.gender_input,
+                      community == 'Community'
+                        ? {color: color.palette.lightgray}
+                        : null,
+                    ]}>
+                    {community}
+                  </Text>
+                </View>
+                <View style={[style.backDown]}>
+                  <BackDown width={'100%'} height={'100%'} />
+                </View>
+              </TouchableOpacity>
+
+              <FormField english={'Province:'} urdu={'province'} />
+              <TouchableOpacity
+                onPress={() => {
+                  setSearchModel(true);
+                  setforProvince(true);
+                  setlist(fetchData.provinces);
+                }}
+                onPressOut={() => setFieldValue('province', 'added')}>
+                <View
+                  style={[
+                    style.input,
+                    {justifyContent: 'center'},
+                    errors.province == 'Required' && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                  ]}>
+                  <Text
+                    style={[
+                      style.gender_input,
+                      province == 'Province'
+                        ? {color: color.palette.lightgray}
+                        : null,
+                    ]}>
+                    {province}
+                  </Text>
+                </View>
+                <View style={[style.backDown]}>
+                  <BackDown width={'100%'} height={'100%'} />
+                </View>
+              </TouchableOpacity>
+
+              <FormField english={'City:'} urdu={'city'} />
+              <TouchableOpacity
+                onPress={() => {
+                  setSearchModel(true);
+                  setforcity(true);
+                  setlist(fetchData.cities);
+                }}
+                onPressOut={() => setFieldValue('city', 'added')}>
+                <View
+                  style={[
+                    style.input,
+                    {justifyContent: 'center'},
+                    errors.city == 'Required' && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                  ]}>
+                  <Text
+                    style={[
+                      style.gender_input,
+                      city == 'City' ? {color: color.palette.lightgray} : null,
+                    ]}>
+                    {city}
+                  </Text>
+                </View>
+                <View style={[style.backDown]}>
+                  <BackDown width={'100%'} height={'100%'} />
+                </View>
+              </TouchableOpacity>
+
+              <FormField english={'Area/Street/House No:'} urdu={'area'} />
+              <TextInput
+                placeholder={'Area/Street/House No'}
+                placeholderTextColor={color.palette.lightgray}
+                style={[
+                  style.input,
+                  {height: 90, textAlignVertical: 'top'},
+                  errors.areaStreetHouse == 'Required' &&
+                    touched.areaStreetHouse && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                multiline={true}
+                numberOfLines={3}
+                onChangeText={handleChange('areaStreetHouse')}
+                onChange={() => validateField('areaStreetHouse')}
+              />
+              <FormField english={'Native Country:'} urdu={'nativeCountry'} />
+              <TextInput
+                placeholder={'Native Country'}
+                placeholderTextColor={color.palette.lightgray}
+                style={[
+                  style.input,
+                  errors.nativeCountry == 'Required' &&
+                    touched.nativeCountry && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                onChangeText={handleChange('nativeCountry')}
+                onChange={() => validateField('nativeCountry')}
+              />
+              <FormField english={'ID Card No.(native country):'} />
+              <FormField urdu={'CNIC'} />
+              <TextInput
+                placeholder={'000515552'}
+                placeholderTextColor={color.palette.lightgray}
+                style={[
+                  style.input,
+                  errors.idCardNo_native == 'Required' &&
+                    touched.idCardNo_native && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                onChangeText={handleChange('idCardNo_native')}
+                onChange={() => validateField('idCardNo_native')}
+              />
+              <FormField english={'Complete Address.(native country):'} />
+              <FormField urdu={'completeAddress'} />
+              <TextInput
+                placeholder={'Complete Address.(native country)'}
+                placeholderTextColor={color.palette.lightgray}
+                style={[
+                  style.input,
+                  {height: 90, textAlignVertical: 'top'},
+                  errors.completeAddress_native == 'Required' &&
+                    touched.completeAddress_native && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                multiline={true}
+                numberOfLines={3}
+                onChangeText={handleChange('completeAddress_native')}
+                onChange={() => validateField('completeAddress_native')}
+              />
+              <View style={style.log_btn_view}>
                 <TouchableOpacity
+                  style={{alignItems: 'flex-end'}}
                   onPress={() => {
-                    setGenderoptionVisible(!GenderOptionsVisible);
+                    console.log('errors', isSubmitting);
+
+                    handleSubmit();
+                    step1ref.current.focus();
+                    if (upload) {
+                      showMessage({
+                        message: 'please Upload Image',
+                        type: 'danger',
+                        duration: 3000,
+                      });
+                    }
                   }}>
-                  <View style={[style.input, {justifyContent: 'center'}]}>
-                    <Text style={style.gender_input}>{gender}</Text>
-                  </View>
-                  <View style={[style.backDown]}>
-                    <BackDown width={'100%'} height={'100%'} />
-                  </View>
+                  <LinearGradient
+                    useAngle={true}
+                    colors={[color.palette.darkblue, color.palette.lightBlue]}
+                    style={style.power_container}>
+                    <Text style={style.text}>Next</Text>
+                    <View style={style.powerIcon_view}>
+                      <RightArrow width={'100%'} height={'100%'} />
+                    </View>
+                  </LinearGradient>
                 </TouchableOpacity>
-                {GenderOptionsVisible ? GenderSelect() : null}
-                <FormField english={'Date Of Birth:'} urdu={'dateOfBirth'} />
-                <TouchableOpacity
-                  onPress={() => {
-                    setOpen(true);
-                  }}>
-                  <View style={[style.input, {justifyContent: 'center'}]}>
-                    <Text style={style.gender_input}>{selectDate()}</Text>
-                  </View>
-                  <View style={[style.backDown, {width: 19, height: 19}]}>
-                    <Calender width={'100%'} height={'100%'} />
-                  </View>
-                </TouchableOpacity>
-                <FormField english={'Passport NO:'} urdu={'passport'} />
-                <TextInput
-                  style={style.input}
-                  placeholder={'000515552'}
-                  placeholderTextColor={color.palette.lightgray}
+              </View>
+              <>
+                <DatePicker
+                  maximumDate={initialDate}
+                  modal
+                  mode="date"
+                  open={open}
+                  date={date}
+                  onConfirm={date => {
+                    setOpen(false);
+
+                    setDate(date);
+                  }}
+                  onCancel={() => {
+                    setOpen(false);
+                  }}
                 />
-                <FormField
-                  english={'Europe Residence Card No:'}
-                  urdu={'euroCard'}
-                />
-                <TextInput
-                  placeholder={'000515552'}
-                  placeholderTextColor={color.palette.lightgray}
-                  style={style.input}
-                />
-                <FormField english={'Cell No:'} urdu={'cell'} />
-                <TextInput
-                  placeholder={'000515552'}
-                  placeholderTextColor={color.palette.lightgray}
-                  style={style.input}
-                />
-                <FormField english={'Email:'} urdu={'email'} />
-                <TextInput
-                  placeholder={'dummy@gmail.com'}
-                  placeholderTextColor={color.palette.lightgray}
-                  style={style.input}
-                />
-                <FormField english={'Country:'} urdu={'country'} />
-                <View style={{justifyContent: 'center'}}>
-                  <TextInput
-                    placeholder={'Dummy Country'}
-                    placeholderTextColor={color.palette.lightgray}
-                    style={style.input}
-                  />
-                  <View style={style.input_icon}>
-                    <BackDown width={'100%'} height={'100%'} />
-                  </View>
-                </View>
-                <FormField english={'Community:'} urdu={'community'} />
-                <View style={{justifyContent: 'center'}}>
-                  <TextInput
-                    placeholder={'Dummy Community'}
-                    placeholderTextColor={color.palette.lightgray}
-                    style={style.input}
-                  />
-                  <View style={style.input_icon}>
-                    <BackDown width={'100%'} height={'100%'} />
-                  </View>
-                </View>
-                <FormField english={'Province:'} urdu={'province'} />
-                <View style={{justifyContent: 'center'}}>
-                  <TextInput
-                    placeholder={'Dummy province'}
-                    placeholderTextColor={color.palette.lightgray}
-                    style={style.input}
-                  />
-                  <View style={style.input_icon}>
-                    <BackDown width={'100%'} height={'100%'} />
-                  </View>
-                </View>
-                <FormField english={'City:'} urdu={'city'} />
-                <View style={{justifyContent: 'center'}}>
-                  <TextInput
-                    placeholder={'Dummy City'}
-                    placeholderTextColor={color.palette.lightgray}
-                    style={style.input}
-                  />
-                  <View style={style.input_icon}>
-                    <BackDown width={'100%'} height={'100%'} />
-                  </View>
-                </View>
-                <FormField english={'Area/Street/House No:'} urdu={'area'} />
-                <TextInput
-                  placeholder={'Area/Street/House No'}
-                  placeholderTextColor={color.palette.lightgray}
-                  style={[style.input, {height: 90, textAlignVertical: 'top'}]}
-                  multiline={true}
-                  numberOfLines={3}
-                />
-                <FormField english={'Native Country:'} urdu={'nativeCountry'} />
-                <TextInput
-                  placeholder={'000515552'}
-                  placeholderTextColor={color.palette.lightgray}
-                  style={style.input}
-                />
-                <FormField english={'ID Card No.(native country):'} />
-                <FormField urdu={'CNIC'} />
-                <TextInput
-                  placeholder={'000515552'}
-                  placeholderTextColor={color.palette.lightgray}
-                  style={style.input}
-                />
-                <FormField english={'Complete Address.(native country):'} />
-                <FormField urdu={'completeAddress'} />
-                <TextInput
-                  placeholder={'Complete Address.(native country)'}
-                  placeholderTextColor={color.palette.lightgray}
-                  style={[style.input, {height: 90, textAlignVertical: 'top'}]}
-                  multiline={true}
-                  numberOfLines={3}
-                />
-                <View style={style.log_btn_view}>
-                  <TouchableOpacity onPress={() => setStep(step + 1)}>
-                    <LinearGradient
-                      useAngle={true}
-                      colors={[color.palette.darkblue, color.palette.lightBlue]}
-                      style={style.power_container}>
-                      <Text style={style.text}>Next</Text>
-                      <View style={style.powerIcon_view}>
-                        <RightArrow width={'100%'} height={'100%'} />
-                      </View>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                </View>
                 <>
-                  <DatePicker
-                    modal
-                    mode="date"
-                    open={open}
-                    date={date}
-                    onConfirm={date => {
-                      setOpen(false);
+                  <Modal visible={searchModel} transparent animationType="fade">
+                    <View style={style.search_cont}>
+                      <LinearGradient
+                        colors={[
+                          color.palette.darkblue,
+                          color.palette.lightBlue,
+                        ]}
+                        style={style.search_Model}>
+                        <View style={style.search_bar_container}>
+                          <TextInput
+                            style={style.search_input}
+                            placeholder={'Search'}
+                            onChangeText={e => {
+                              searchItem(e);
+                            }}
+                          />
+                          <View style={style.search_icon_container}>
+                            <SearchIcon width={'100%'} height={'100%'} />
+                          </View>
+                        </View>
+                        <ScrollView style={style.search_item}>
+                          {forCountry ? (
+                            <>
+                              {fetchData.countries.map((item, index) => {
+                                return (
+                                  <TouchableOpacity
+                                    key={index}
+                                    style={{
+                                      height: 50,
+                                      borderBottomWidth: 1,
+                                    }}
+                                    onPress={() => {
+                                      setFieldValue('country', item.id);
+                                      setlocation({
+                                        ...location,
+                                        country: item.id,
+                                      });
+                                      setCountry(item.name),
+                                        setSearchModel(false);
+                                      setforCountry(false);
+                                      fetchCommunity(item.id);
+                                    }}
+                                    onPressOut={() => {
+                                      validateField('country');
+                                    }}>
+                                    <Text style={style.search_item_text}>
+                                      {item.name}
+                                    </Text>
+                                  </TouchableOpacity>
+                                );
+                              })}
+                            </>
+                          ) : null}
+                          {forCommunity ? (
+                            <>
+                              {fetchData.communities.map((item, index) => {
+                                return (
+                                  <TouchableOpacity
+                                    key={index}
+                                    style={{
+                                      height: 50,
+                                      borderBottomWidth: 1,
+                                    }}
+                                    onPress={() => {
+                                      setFieldValue('community', item.id);
+                                      setCommunity(item.name),
+                                        setlocation({
+                                          ...location,
+                                          community: item.id,
+                                        });
 
-                      setDate(date);
-                    }}
-                    onCancel={() => {
-                      setOpen(false);
-                    }}
-                  />
-                  <>
-                    <RBSheet
-                      ref={refRBSheet}
-                      closeOnDragDown={true}
-                      openDuration={500}
-                      closeOnPressMask={true}
-                      animationType={'fade'}
-                      customStyles={{
-                        wrapper: {
-                          backgroundColor: 'rgba(0,0,0,0.6)',
-                        },
-                        draggableIcon: {
-                          backgroundColor: 'white',
-                        },
-                        container: {
-                          borderTopRightRadius: 50,
-                          borderTopLeftRadius: 50,
-                          height: '30%',
-                        },
-                      }}>
-                      <View style={style.sheet_container}>
-                        <TouchableOpacity onPress={() => pickFromGallary()}>
-                          <LinearGradient
-                            useAngle={true}
-                            colors={[
-                              color.palette.darkblue,
-                              color.palette.lightBlue,
-                            ]}
-                            style={style.pick_camera_view}>
-                            <Text style={style.camera_text}>
-                              Pick Image From Gallary
+                                      setSearchModel(false);
+                                      setforcommunity(false);
+                                      fetchProvince(item.id);
+                                    }}
+                                    onPressOut={() => {
+                                      validateField('community');
+                                    }}>
+                                    <Text style={style.search_item_text}>
+                                      {item.name}
+                                    </Text>
+                                  </TouchableOpacity>
+                                );
+                              })}
+                            </>
+                          ) : null}
+                          {forProvince ? (
+                            <>
+                              {fetchData.provinces.map((item, index) => {
+                                return (
+                                  <TouchableOpacity
+                                    key={index}
+                                    style={{
+                                      height: 50,
+                                      borderBottomWidth: 1,
+                                    }}
+                                    onPress={() => {
+                                      setFieldValue('province', item.id);
+                                      setlocation({
+                                        ...location,
+                                        province: item.id,
+                                      });
+
+                                      setprovince(item.name),
+                                        setSearchModel(false);
+                                      setforProvince(false);
+                                      fetchCity(item.id);
+                                    }}
+                                    onPressOut={() => {
+                                      validateField('province');
+                                    }}>
+                                    <Text style={style.search_item_text}>
+                                      {item.name}
+                                    </Text>
+                                  </TouchableOpacity>
+                                );
+                              })}
+                            </>
+                          ) : null}
+                          {forcity ? (
+                            <>
+                              {fetchData.cities.map((item, index) => {
+                                return (
+                                  <TouchableOpacity
+                                    key={index}
+                                    style={{
+                                      height: 50,
+                                      borderBottomWidth: 1,
+                                    }}
+                                    onPress={() => {
+                                      setFieldValue('city', item.id);
+                                      setlocation({...location, city: item.id});
+
+                                      setcity(item.name), setSearchModel(false);
+                                      setforcity(false);
+                                      fetchCity(item.id);
+                                    }}
+                                    onPressOut={() => {
+                                      validateField('city');
+                                    }}>
+                                    <Text style={style.search_item_text}>
+                                      {item.name}
+                                    </Text>
+                                  </TouchableOpacity>
+                                );
+                              })}
+                            </>
+                          ) : null}
+                          {/* {arr
+                            .filter(item => {
+                              if (list === '') {
+                                return item;
+                              } else if (
+                                item
+                                  .toLowerCase()
+                                  .includes(list.toLowerCase())
+                              ) {
+                                return item;
+                              }
+                            })
+                            .map(item => (
+                              <Text style={style.search_item_text}>
+                              {item}
                             </Text>
-                          </LinearGradient>
+                            ))} */}
+                        </ScrollView>
+                        <TouchableOpacity
+                          style={[
+                            style.cross_view,
+                            {backgroundColor: color.palette.lightBlue},
+                          ]}
+                          onPress={() => setSearchModel(false)}>
+                          <Cross width={'100%'} height={'100%'} />
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => pickFromCamer()}>
-                          <LinearGradient
-                            useAngle={true}
-                            colors={[
-                              color.palette.darkblue,
-                              color.palette.lightBlue,
-                            ]}
-                            style={style.pick_gallery_view}>
-                            <Text style={style.gallary_text}>
-                              Pick Image from Camera
-                            </Text>
-                          </LinearGradient>
-                        </TouchableOpacity>
-                      </View>
-                    </RBSheet>
-                  </>
+                      </LinearGradient>
+                    </View>
+                  </Modal>
+                  <RBSheet
+                    ref={refRBSheet}
+                    closeOnDragDown={true}
+                    openDuration={500}
+                    closeOnPressMask={true}
+                    animationType={'fade'}
+                    customStyles={{
+                      wrapper: {
+                        backgroundColor: 'rgba(0,0,0,0.6)',
+                      },
+                      draggableIcon: {
+                        backgroundColor: 'white',
+                      },
+                      container: {
+                        borderTopRightRadius: 50,
+                        borderTopLeftRadius: 50,
+                        height: '30%',
+                      },
+                    }}>
+                    <View style={style.sheet_container}>
+                      <TouchableOpacity onPress={() => pickFromGallary()}>
+                        <LinearGradient
+                          useAngle={true}
+                          colors={[
+                            color.palette.darkblue,
+                            color.palette.lightBlue,
+                          ]}
+                          style={style.pick_camera_view}>
+                          <Text style={style.camera_text}>
+                            Pick Image From Gallary
+                          </Text>
+                        </LinearGradient>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => pickFromCamer()}>
+                        <LinearGradient
+                          useAngle={true}
+                          colors={[
+                            color.palette.darkblue,
+                            color.palette.lightBlue,
+                          ]}
+                          style={style.pick_gallery_view}>
+                          <Text style={style.gallary_text}>
+                            Pick Image from Camera
+                          </Text>
+                        </LinearGradient>
+                      </TouchableOpacity>
+                    </View>
+                  </RBSheet>
                 </>
-              </ScrollView>
-            ) : null}
-            {step == 2 ? (
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                style={style.form_container}>
-                <Text style={style.sub_heading}>1st Relative</Text>
+              </>
+            </ScrollView>
+          )}
+        </Formik>
+      ) : null}
+      {step == 2 ? (
+        <Formik
+          initialValues={stepTowState}
+          validationSchema={stepTwoSchema}
+          validateOnChange={false}
+          validateOnBlur={false}
+          onSubmit={(values, {setErrors}) => {
+            setForm({
+              ...Form,
+              first_relative_fullName: values.first_relative_fullName,
+              first_relative_relation: values.first_relative_relation,
+              first_relative_cellNo: values.first_relative_cellNo,
+              first_relative_completeAddress:
+                values.first_relative_completeAddress,
 
-                <FormField english={'Full Name:'} urdu={'name'} />
-                <TextInput
-                  style={style.input}
-                  placeholder={'Ahmed Ali'}
-                  placeholderTextColor={color.palette.lightgray}
-                />
-                <FormField english={'Relation:'} urdu={'relation'} />
-                <TextInput
-                  style={style.input}
-                  placeholder={'Brother'}
-                  placeholderTextColor={color.palette.lightgray}
-                />
-                <FormField english={'Cell No:'} urdu={'cell'} />
-                <TextInput
-                  placeholder={'000515552'}
-                  placeholderTextColor={color.palette.lightgray}
-                  style={style.input}
-                />
-                <FormField
-                  english={'Complete Address:'}
-                  urdu={'completeAddress2'}
-                />
-                <TextInput
-                  placeholder={'Complete Address'}
-                  placeholderTextColor={color.palette.lightgray}
-                  style={[style.input, {height: 90, textAlignVertical: 'top'}]}
-                  multiline={true}
-                  numberOfLines={3}
-                />
-                <Text style={style.sub_heading}>2nd Relative</Text>
-                <FormField english={'Full Name:'} urdu={'name'} />
-                <TextInput
-                  style={style.input}
-                  placeholder={'Ahmed Ali'}
-                  placeholderTextColor={color.palette.lightgray}
-                />
-                <FormField english={'Relation:'} urdu={'relation'} />
-                <TextInput
-                  style={style.input}
-                  placeholder={'Brother'}
-                  placeholderTextColor={color.palette.lightgray}
-                />
-                <FormField english={'Cell No:'} urdu={'cell'} />
-                <TextInput
-                  placeholder={'000515552'}
-                  placeholderTextColor={color.palette.lightgray}
-                  style={style.input}
-                />
-                <FormField
-                  english={'Complete Address:'}
-                  urdu={'completeAddress2'}
-                />
-                <TextInput
-                  placeholder={'Complete Address'}
-                  placeholderTextColor={color.palette.lightgray}
-                  style={[style.input, {height: 90, textAlignVertical: 'top'}]}
-                  multiline={true}
-                  numberOfLines={3}
-                />
-                <View style={style.log_btn_view2}>
-                  <TouchableOpacity onPress={() => setStep(step - 1)}>
-                    <LinearGradient
-                      useAngle={true}
-                      colors={[color.palette.darkblue, color.palette.lightBlue]}
-                      style={style.power_container}>
-                      <View style={style.powerIcon_view}>
-                        <LeftArrow width={'100%'} height={'100%'} />
-                      </View>
-                      <Text style={style.text}>Back</Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => setStep(step + 1)}>
-                    <LinearGradient
-                      useAngle={true}
-                      colors={[color.palette.darkblue, color.palette.lightBlue]}
-                      style={style.power_container}>
-                      <Text style={style.text}>Next</Text>
-                      <View style={style.powerIcon_view}>
-                        <RightArrow width={'100%'} height={'100%'} />
-                      </View>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                </View>
-              </ScrollView>
-            ) : null}
-            {step == 3 ? (
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                style={style.form_container}>
-                <Text style={style.sub_heading}>1st Relative</Text>
+              second_relative_fullName: values.second_relative_fullName,
+              second_relative_relation: values.second_relative_relation,
+              second_relative_cellNo: values.second_relative_cellNo,
+              second_relative_completeAddress:
+                values.second_relative_completeAddress,
+            });
 
-                <FormField english={'Full Name:'} urdu={'name'} />
-                <TextInput
-                  style={style.input}
-                  placeholder={'Ahmed Ali'}
-                  placeholderTextColor={color.palette.lightgray}
-                />
-                <FormField english={'Relation:'} urdu={'relation'} />
-                <TextInput
-                  style={style.input}
-                  placeholder={'Brother'}
-                  placeholderTextColor={color.palette.lightgray}
-                />
-                <FormField english={'Cell No:'} urdu={'cell'} />
-                <TextInput
+            setStep(step + 1);
+            console.log('values', values);
+          }}>
+          {({
+            handleSubmit,
+            handleChange,
+            handleBlur,
+            errors,
+            touched,
+            isSubmitting,
+            validateField,
+            validateForm,
+            setErrors,
+            setFieldValue,
+          }) => (
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              style={style.form_container}>
+              <Text style={style.sub_heading}>1st Relative</Text>
+              <FormField english={'Full Name:'} urdu={'name'} />
+              <TextInput
+                ref={step2ref}
+                style={[
+                  style.input,
+                  errors.first_relative_fullName == 'Required' &&
+                    touched.first_relative_fullName && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                placeholder={'Ahmed Ali'}
+                placeholderTextColor={color.palette.lightgray}
+                onChangeText={handleChange('first_relative_fullName')}
+                onChange={() => validateField('first_relative_fullName')}
+              />
+              <FormField english={'Relation:'} urdu={'relation'} />
+              <TextInput
+                style={[
+                  style.input,
+                  errors.first_relative_relation == 'Required' &&
+                    touched.first_relative_relation && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                placeholder={'Brother'}
+                placeholderTextColor={color.palette.lightgray}
+                onChangeText={handleChange('first_relative_relation')}
+                onChange={() => validateField('first_relative_relation')}
+              />
+              <FormField english={'Cell No:'} urdu={'cell'} />
+              <View
+                style={
+                  errors.first_relative_cellNo == 'Required' &&
+                  touched.first_relative_cellNo && {
+                    borderWidth: 1,
+                    borderColor: 'red',
+                    borderRadius: 10,
+                    borderBottomWidth: 1.5,
+                  }
+                }>
+                <IntlPhoneInput
                   placeholder={'000515552'}
                   placeholderTextColor={color.palette.lightgray}
-                  style={style.input}
+                  phoneInputStyle={[
+                    style.input,
+                    {marginTop: 10, paddingLeft: 4},
+                  ]}
+                  onChangeText={e => {
+                    console.log('phone', e);
+
+                    if (e.isVerified == true) {
+                      setFieldValue(
+                        'first_relative_cellNo',
+                        e.dialCode.toString() +
+                          e.unmaskedPhoneNumber.toString(),
+                      );
+                      validateField('first_relative_cellNo');
+
+                    } else {
+                      setFieldValue('first_relative_cellNo', '');
+                    }
+                  }}
+                  containerStyle={{
+                    backgroundColor: color.palette.lightwhite,
+                    borderRadius: 10,
+                    fontSize: 16,
+                    height: 55,
+                    color: color.palette.black,
+                  }}
+                  flagStyle={{bottom:6,right:3}}
+                  dialCodeTextStyle={{fontSize: 16, color: color.palette.black,bottom:2}}
+                  defaultCountry={'PK'}
+                  modalCountryItemCountryNameStyle={{color:color.palette.black,fontFamily:typography.demi}}
                 />
-                <FormField
-                  english={'Complete Address:'}
-                  urdu={'completeAddress2'}
-                />
-                <TextInput
-                  placeholder={'Complete Address'}
-                  placeholderTextColor={color.palette.lightgray}
-                  style={[style.input, {height: 90, textAlignVertical: 'top'}]}
-                  multiline={true}
-                  numberOfLines={3}
-                />
-                <Text style={style.sub_heading}>2nd Relative</Text>
-                <FormField english={'Full Name:'} urdu={'name'} />
-                <TextInput
-                  style={style.input}
-                  placeholder={'Ahmed Ali'}
-                  placeholderTextColor={color.palette.lightgray}
-                />
-                <FormField english={'Relation:'} urdu={'relation'} />
-                <TextInput
-                  style={style.input}
-                  placeholder={'Brother'}
-                  placeholderTextColor={color.palette.lightgray}
-                />
-                <FormField english={'Cell No:'} urdu={'cell'} />
-                <TextInput
+              </View>
+              {/* <TextInput
+                keyboardType="numeric"
+                placeholder={'000515552'}
+                placeholderTextColor={color.palette.lightgray}
+                style={[
+                  style.input,
+                  errors.first_relative_cellNo == 'Required' &&
+                    touched.first_relative_cellNo && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                onChangeText={handleChange('first_relative_cellNo')}
+                onChange={() => validateField('first_relative_cellNo')}
+              /> */}
+              <FormField
+                english={'Complete Address:'}
+                urdu={'completeAddress2'}
+              />
+              <TextInput
+                placeholder={'Complete Address'}
+                placeholderTextColor={color.palette.lightgray}
+                style={[
+                  style.input,
+                  {height: 90, textAlignVertical: 'top'},
+                  errors.first_relative_completeAddress == 'Required' &&
+                    touched.first_relative_completeAddress && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                multiline={true}
+                numberOfLines={3}
+                onChangeText={handleChange('first_relative_completeAddress')}
+                onChange={() => validateField('first_relative_completeAddress')}
+              />
+              <Text style={style.sub_heading}>2nd Relative</Text>
+              <FormField english={'Full Name:'} urdu={'name'} />
+              <TextInput
+                style={[
+                  style.input,
+                  errors.second_relative_fullName == 'Required' &&
+                    touched.second_relative_fullName && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                placeholder={'Ahmed Ali'}
+                placeholderTextColor={color.palette.lightgray}
+                onChangeText={handleChange('second_relative_fullName')}
+                onChange={() => validateField('second_relative_fullName')}
+              />
+              <FormField english={'Relation:'} urdu={'relation'} />
+              <TextInput
+                style={[
+                  style.input,
+                  errors.second_relative_relation == 'Required' &&
+                    touched.second_relative_relation && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                placeholder={'Brother'}
+                placeholderTextColor={color.palette.lightgray}
+                onChangeText={handleChange('second_relative_relation')}
+                onChange={() => validateField('second_relative_relation')}
+              />
+              <FormField english={'Cell No:'} urdu={'cell'} />
+              <View
+                style={
+                  errors.second_relative_cellNo == 'Required' &&
+                  touched.second_relative_cellNo && {
+                    borderWidth: 1,
+                    borderColor: 'red',
+                    borderRadius: 10,
+                    borderBottomWidth: 1.5,
+                  }
+                }>
+                <IntlPhoneInput
                   placeholder={'000515552'}
                   placeholderTextColor={color.palette.lightgray}
-                  style={style.input}
+                  phoneInputStyle={[
+                    style.input,
+                    {marginTop: 10, paddingLeft: 4},
+                  ]}
+                  onChangeText={e => {
+                    console.log('phone', e);
+
+                    if (e.isVerified == true) {
+                      setFieldValue(
+                        'second_relative_cellNo',
+                        e.dialCode.toString() +
+                          e.unmaskedPhoneNumber.toString(),
+                      );
+                      validateField('second_relative_cellNo');
+
+                    } else {
+                      setFieldValue('second_relative_cellNo', '');
+                    }
+                  }}
+                  containerStyle={{
+                    backgroundColor: color.palette.lightwhite,
+                    borderRadius: 10,
+                    fontSize: 16,
+                    height: 55,
+                    color: color.palette.black,
+                  }}
+                  flagStyle={{bottom:6,right:3}}
+                  dialCodeTextStyle={{fontSize: 16, color: color.palette.black,bottom:2}}
+                  defaultCountry={'PK'}
+                  modalCountryItemCountryNameStyle={{color:color.palette.black,fontFamily:typography.demi}}
                 />
-                <FormField
-                  english={'Complete Address:'}
-                  urdu={'completeAddress2'}
-                />
-                <TextInput
-                  placeholder={'Complete Address'}
+              </View>
+              {/* <TextInput
+                keyboardType="numeric"
+                placeholder={'000515552'}
+                placeholderTextColor={color.palette.lightgray}
+                style={[
+                  style.input,
+                  errors.second_relative_cellNo == 'Required' &&
+                    touched.second_relative_cellNo && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                onChangeText={handleChange('second_relative_cellNo')}
+                onChange={() => validateField('second_relative_cellNo')}
+              /> */}
+              <FormField
+                english={'Complete Address:'}
+                urdu={'completeAddress2'}
+              />
+              <TextInput
+                placeholder={'Complete Address'}
+                placeholderTextColor={color.palette.lightgray}
+                style={[
+                  style.input,
+                  {height: 90, textAlignVertical: 'top'},
+                  errors.second_relative_completeAddress == 'Required' &&
+                    touched.second_relative_completeAddress && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                multiline={true}
+                numberOfLines={3}
+                onChangeText={handleChange('second_relative_completeAddress')}
+                onChange={() =>
+                  validateField('second_relative_completeAddress')
+                }
+              />
+              <View style={style.log_btn_view2}>
+                <TouchableOpacity onPress={() => setStep(step - 1)}>
+                  <LinearGradient
+                    useAngle={true}
+                    colors={[color.palette.darkblue, color.palette.lightBlue]}
+                    style={style.power_container}>
+                    <View style={[style.powerIcon_view]}>
+                      <LeftArrow width={'100%'} height={'100%'} />
+                    </View>
+                    <Text style={[style.text, {marginLeft: 5}]}>Back</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    handleSubmit(), step2ref.current.focus();
+                  }}>
+                  <LinearGradient
+                    useAngle={true}
+                    colors={[color.palette.darkblue, color.palette.lightBlue]}
+                    style={style.power_container}>
+                    <Text style={style.text}>Next</Text>
+                    <View style={style.powerIcon_view}>
+                      <RightArrow width={'100%'} height={'100%'} />
+                    </View>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          )}
+        </Formik>
+      ) : null}
+      {step == 3 ? (
+        <Formik
+          initialValues={stepThreeState}
+          validationSchema={stepThreeSchma}
+          validateOnChange={false}
+          validateOnBlur={false}
+          onSubmit={(values, {setErrors}) => {
+            setForm({
+              ...Form,
+              first_relative_fullName_native:
+                values.first_relative_fullName_native,
+              first_relative_relation_native:
+                values.first_relative_relation_native,
+              first_relative_cellNo_native: values.first_relative_cellNo_native,
+              first_relative_completeAddress_native:
+                values.first_relative_completeAddress_native,
+
+              second_relative_fullName_native:
+                values.second_relative_fullName_native,
+              second_relative_relation_native:
+                values.second_relative_relation_native,
+              second_relative_cellNo_native:
+                values.second_relative_cellNo_native,
+              second_relative_completeAddress_native:
+                values.second_relative_completeAddress_native,
+            });
+
+            setStep(step + 1);
+
+            console.log('values', values);
+          }}>
+          {({
+            handleSubmit,
+            handleChange,
+            handleBlur,
+            errors,
+            touched,
+            isSubmitting,
+            validateField,
+            validateForm,
+            setErrors,
+            setFieldValue,
+          }) => (
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              style={style.form_container}>
+              <Text style={style.sub_heading}>1st Relative</Text>
+
+              <FormField english={'Full Name:'} urdu={'name'} />
+              <TextInput
+                ref={step3ref}
+                style={[
+                  style.input,
+                  errors.first_relative_fullName_native == 'Required' &&
+                    touched.first_relative_fullName_native && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                placeholder={'Ahmed Ali'}
+                placeholderTextColor={color.palette.lightgray}
+                onChangeText={handleChange('first_relative_fullName_native')}
+                onChange={() => validateField('first_relative_fullName_native')}
+              />
+              <FormField english={'Relation:'} urdu={'relation'} />
+              <TextInput
+                style={[
+                  style.input,
+                  errors.first_relative_relation_native == 'Required' &&
+                    touched.first_relative_relation_native && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                placeholder={'Brother'}
+                placeholderTextColor={color.palette.lightgray}
+                onChangeText={handleChange('first_relative_relation_native')}
+                onChange={() => validateField('first_relative_relation_native')}
+              />
+              <FormField english={'Cell No:'} urdu={'cell'} />
+              <View
+                style={
+                  errors.first_relative_cellNo_native == 'Required' &&
+                  touched.first_relative_cellNo_native && {
+                    borderWidth: 1,
+                    borderColor: 'red',
+                    borderRadius: 10,
+                    borderBottomWidth: 1.5,
+                  }
+                }>
+                <IntlPhoneInput
+                  placeholder={'000515552'}
                   placeholderTextColor={color.palette.lightgray}
-                  style={[style.input, {height: 90, textAlignVertical: 'top'}]}
-                  multiline={true}
-                  numberOfLines={3}
+                  phoneInputStyle={[
+                    style.input,
+                    {marginTop: 10, paddingLeft: 4},
+                  ]}
+                  onChangeText={e => {
+                    console.log('phone', e);
+
+                    if (e.isVerified == true) {
+                      setFieldValue(
+                        'first_relative_cellNo_native',
+                        e.dialCode.toString() +
+                          e.unmaskedPhoneNumber.toString(),
+                      );
+                      validateField('first_relative_cellNo_native');
+
+                    } else {
+                      setFieldValue('first_relative_cellNo_native', '');
+                    }
+                  }}
+                  containerStyle={{
+                    backgroundColor: color.palette.lightwhite,
+                    borderRadius: 10,
+                    fontSize: 16,
+                    height: 55,
+                    color: color.palette.black,
+                  }}
+                  flagStyle={{bottom:6,right:3}}
+                  dialCodeTextStyle={{fontSize: 16, color: color.palette.black,bottom:2}}
+                  defaultCountry={'PK'}
+                  modalCountryItemCountryNameStyle={{color:color.palette.black,fontFamily:typography.demi}}
                 />
-                <View style={style.log_btn_view2}>
-                  <TouchableOpacity onPress={() => setStep(step - 1)}>
-                    <LinearGradient
-                      useAngle={true}
-                      colors={[color.palette.darkblue, color.palette.lightBlue]}
-                      style={style.power_container}>
-                      <View style={style.powerIcon_view}>
-                        <LeftArrow width={'100%'} height={'100%'} />
+              </View>
+              {/* <TextInput
+                keyboardType="numeric"
+                placeholder={'000515552'}
+                placeholderTextColor={color.palette.lightgray}
+                style={[
+                  style.input,
+                  errors.first_relative_cellNo_native == 'Required' &&
+                    touched.first_relative_cellNo_native && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                onChangeText={handleChange('first_relative_cellNo_native')}
+                onChange={() => validateField('first_relative_cellNo_native')}
+              /> */}
+              <FormField
+                english={'Complete Address:'}
+                urdu={'completeAddress2'}
+              />
+              <TextInput
+                placeholder={'Complete Address'}
+                placeholderTextColor={color.palette.lightgray}
+                style={[
+                  style.input,
+                  {height: 90, textAlignVertical: 'top'},
+                  errors.first_relative_completeAddress_native == 'Required' &&
+                    touched.first_relative_completeAddress_native && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                multiline={true}
+                numberOfLines={3}
+                onChangeText={handleChange(
+                  'first_relative_completeAddress_native',
+                )}
+                onChange={() =>
+                  validateField('first_relative_completeAddress_native')
+                }
+              />
+              <Text style={style.sub_heading}>2nd Relative</Text>
+              <FormField english={'Full Name:'} urdu={'name'} />
+              <TextInput
+                style={[
+                  style.input,
+                  errors.second_relative_fullName_native == 'Required' &&
+                    touched.second_relative_fullName_native && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                placeholder={'Ahmed Ali'}
+                placeholderTextColor={color.palette.lightgray}
+                onChangeText={handleChange('second_relative_fullName_native')}
+                onChange={() =>
+                  validateField('second_relative_fullName_native')
+                }
+              />
+              <FormField english={'Relation:'} urdu={'relation'} />
+              <TextInput
+                style={[
+                  style.input,
+                  errors.second_relative_relation_native == 'Required' &&
+                    touched.second_relative_relation_native && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                placeholder={'Brother'}
+                placeholderTextColor={color.palette.lightgray}
+                onChangeText={handleChange('second_relative_relation_native')}
+                onChange={() =>
+                  validateField('second_relative_relation_native')
+                }
+              />
+              <FormField english={'Cell No:'} urdu={'cell'} />
+              <View
+                style={
+                  errors.second_relative_cellNo_native == 'Required' &&
+                  touched.second_relative_cellNo_native && {
+                    borderWidth: 1,
+                    borderColor: 'red',
+                    borderRadius: 10,
+                    borderBottomWidth: 1.5,
+                  }
+                }>
+                <IntlPhoneInput
+                  placeholder={'000515552'}
+                  placeholderTextColor={color.palette.lightgray}
+                  phoneInputStyle={[
+                    style.input,
+                    {marginTop: 10, paddingLeft: 4},
+                  ]}
+                  onChangeText={e => {
+                    console.log('phone', e);
+
+                    if (e.isVerified == true) {
+                      setFieldValue(
+                        'second_relative_cellNo_native',
+                        e.dialCode.toString() +
+                          e.unmaskedPhoneNumber.toString(),
+                      );
+                      validateField('second_relative_cellNo_native');
+
+                    } else {
+                      setFieldValue('second_relative_cellNo_native', '');
+                    }
+                  }}
+                  containerStyle={{
+                    backgroundColor: color.palette.lightwhite,
+                    borderRadius: 10,
+                    fontSize: 16,
+                    height: 55,
+                    color: color.palette.black,
+                  }}
+                  flagStyle={{bottom:6,right:3}}
+                  dialCodeTextStyle={{fontSize: 16, color: color.palette.black,bottom:2}}
+                  defaultCountry={'PK'}
+                  modalCountryItemCountryNameStyle={{color:color.palette.black,fontFamily:typography.demi}}
+                />
+              </View>
+              {/* <TextInput
+                keyboardType="numeric"
+                placeholder={'000515552'}
+                placeholderTextColor={color.palette.lightgray}
+                onChangeText={handleChange('second_relative_cellNo_native')}
+                onChange={() => validateField('second_relative_cellNo_native')}
+                style={[
+                  style.input,
+                  errors.second_relative_cellNo_native == 'Required' &&
+                    touched.second_relative_cellNo_native && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+              /> */}
+              <FormField
+                english={'Complete Address:'}
+                urdu={'completeAddress2'}
+              />
+              <TextInput
+                placeholder={'Complete Address'}
+                placeholderTextColor={color.palette.lightgray}
+                style={[
+                  style.input,
+                  {height: 90, textAlignVertical: 'top'},
+                  errors.second_relative_completeAddress_native == 'Required' &&
+                    touched.second_relative_completeAddress_native && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                multiline={true}
+                onChangeText={handleChange(
+                  'second_relative_completeAddress_native',
+                )}
+                onChange={() =>
+                  validateField('second_relative_completeAddress_native')
+                }
+                numberOfLines={3}
+              />
+              <View style={style.log_btn_view2}>
+                <TouchableOpacity onPress={() => setStep(step - 1)}>
+                  <LinearGradient
+                    useAngle={true}
+                    colors={[color.palette.darkblue, color.palette.lightBlue]}
+                    style={style.power_container}>
+                    <View style={style.powerIcon_view}>
+                      <LeftArrow width={'100%'} height={'100%'} />
+                    </View>
+                    <Text style={[style.text, {marginLeft: 5}]}>Back</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    handleSubmit(), step3ref.current.focus();
+                  }}>
+                  <LinearGradient
+                    useAngle={true}
+                    colors={[color.palette.darkblue, color.palette.lightBlue]}
+                    style={style.power_container}>
+                    <Text style={style.text}>Next</Text>
+                    <View style={style.powerIcon_view}>
+                      <RightArrow width={'100%'} height={'100%'} />
+                    </View>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          )}
+        </Formik>
+      ) : null}
+      {step == 4 ? (
+        <>
+          {updating == true ? (
+            <Formik
+              initialValues={stepFourState}
+              validationSchema={stepFourSchema}
+              validateOnChange={false}
+              validateOnBlur={false}
+              onSubmit={(values, {setErrors}) => {
+                setForm({
+                  ...Form,
+                  representive_fullName: values.representive_fullName,
+                  representive_surName: values.representive_surName,
+                  representive_passportNo: values.representive_passportNo,
+
+                  representive_cellNo: values.representive_cellNo,
+
+                  representive_completeAddress:
+                    values.representive_completeAddress,
+                  step4_agree: values.step4_agree,
+                });
+
+                setStep(step + 1);
+                setchecked(false);
+              }}>
+              {({
+                handleSubmit,
+                handleChange,
+                handleBlur,
+                errors,
+                touched,
+                isSubmitting,
+                validateField,
+                validateForm,
+                setErrors,
+                setFieldValue,
+              }) => (
+                <>
+                  <View
+                    showsVerticalScrollIndicator={false}
+                    style={style.form_container}>
+                    <View style={{width: '80%', alignSelf: 'center'}}>
+                      <FormField english={'Full Name:'} urdu={'name'} />
+                      <TextInput
+                        style={[
+                          style.input,
+                          errors.representive_fullName == 'Required' &&
+                            touched.representive_fullName && {
+                              borderWidth: 1,
+                              borderColor: 'red',
+                            },
+                        ]}
+                        placeholder={'Ahmed Ali'}
+                        placeholderTextColor={color.palette.lightgray}
+                        onChangeText={handleChange('representive_fullName')}
+                        onChange={() => validateField('representive_fullName')}
+                      />
+                      <FormField english={'Sur Name:'} urdu={'surName'} />
+                      <TextInput
+                        style={[
+                          style.input,
+                          errors.representive_surName == 'Required' &&
+                            touched.representive_surName && {
+                              borderWidth: 1,
+                              borderColor: 'red',
+                            },
+                        ]}
+                        placeholder={'Khokhar'}
+                        placeholderTextColor={color.palette.lightgray}
+                        onChangeText={handleChange('representive_surName')}
+                        onChange={() => validateField('representive_surName')}
+                      />
+                      <FormField english={'Passport No:'} urdu={'passport'} />
+                      <TextInput
+                        style={[
+                          style.input,
+                          errors.representive_passportNo == 'Required' &&
+                            touched.representive_passportNo && {
+                              borderWidth: 1,
+                              borderColor: 'red',
+                            },
+                        ]}
+                        placeholder={'000515552'}
+                        placeholderTextColor={color.palette.lightgray}
+                        onChangeText={handleChange('representive_passportNo')}
+                        onChange={() =>
+                          validateField('representive_passportNo')
+                        }
+                      />
+                      <FormField english={'Cell No:'} urdu={'cell'} />
+                      <View
+                style={
+                  errors.representive_cellNo == 'Required' &&
+                  touched.representive_cellNo && {
+                    borderWidth: 1,
+                    borderColor: 'red',
+                    borderRadius: 10,
+                    borderBottomWidth: 1.5,
+                  }
+                }>
+                <IntlPhoneInput
+                  placeholder={'000515552'}
+                  placeholderTextColor={color.palette.lightgray}
+                  phoneInputStyle={[
+                    style.input,
+                    {marginTop: 10, paddingLeft: 4},
+                  ]}
+                  onChangeText={e => {
+                    console.log('phone', e);
+
+                    if (e.isVerified == true) {
+                      setFieldValue(
+                        'representive_cellNo',
+                        e.dialCode.toString() +
+                          e.unmaskedPhoneNumber.toString(),
+                      );
+                      validateField('representive_cellNo');
+
+                    } else {
+                      setFieldValue('representive_cellNo', '');
+                    }
+                  }}
+                  containerStyle={{
+                    backgroundColor: color.palette.lightwhite,
+                    borderRadius: 10,
+                    fontSize: 16,
+                    height: 55,
+                    color: color.palette.black,
+                  }}
+                  flagStyle={{bottom:6,right:3}}
+                  dialCodeTextStyle={{fontSize: 16, color: color.palette.black,bottom:2}}
+                  defaultCountry={'PK'}
+                  modalCountryItemCountryNameStyle={{color:color.palette.black,fontFamily:typography.demi}}
+                />
+              </View>
+                      {/* <TextInput
+                        keyboardType="numeric"
+                        placeholder={'000515552'}
+                        placeholderTextColor={color.palette.lightgray}
+                        style={[
+                          style.input,
+                          errors.representive_cellNo == 'Required' &&
+                            touched.representive_cellNo && {
+                              borderWidth: 1,
+                              borderColor: 'red',
+                            },
+                        ]}
+                        onChangeText={handleChange('representive_cellNo')}
+                        onChange={() => validateField('representive_cellNo')}
+                      /> */}
+                      <FormField
+                        english={'Complete Address:'}
+                        urdu={'completeAddress2'}
+                      />
+                      <TextInput
+                        placeholder={'Complete Address'}
+                        placeholderTextColor={color.palette.lightgray}
+                        style={[
+                          style.input,
+                          {height: 90, textAlignVertical: 'top'},
+                          errors.representive_completeAddress == 'Required' &&
+                            touched.representive_completeAddress && {
+                              borderWidth: 1,
+                              borderColor: 'red',
+                            },
+                        ]}
+                        multiline={true}
+                        onChangeText={handleChange(
+                          'representive_completeAddress',
+                        )}
+                        onChange={() =>
+                          validateField('representive_completeAddress')
+                        }
+                        numberOfLines={3}
+                      />
+                      <View style={style.agree_conatiner}>
+                        <TouchableOpacity
+                          onPress={() => {
+                            setchecked(true);
+                            validateField('step4_agree');
+                          }}
+                          onPressIn={() => setFieldValue('step4_agree', 'true')}
+                          onPressOut={() => validateField('step4_agree')}
+                          style={style.tick_square}>
+                          {checked ? (
+                            <View style={{width: 23, height: 23, bottom: 7}}>
+                              <SquareCheck width={'100%'} height={'100%'} />
+                            </View>
+                          ) : (
+                            <TickSquare width={'100%'} height={'100%'} />
+                          )}
+                        </TouchableOpacity>
+                        <View style={style.agree_text_view}>
+                          <Text
+                            style={[
+                              style.agree_text,
+                              errors.step4_agree == 'Required'
+                                ? {color: 'red'}
+                                : null,
+                            ]}>
+                            Have you informed him that you are appointing this
+                            person as your Representative in FSF and this person
+                            will be authorized to collect your remaining amount?
+                          </Text>
+                        </View>
                       </View>
-                      <Text style={style.text}>Back</Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => setStep(step + 1)}>
-                    <LinearGradient
-                      useAngle={true}
-                      colors={[color.palette.darkblue, color.palette.lightBlue]}
-                      style={style.power_container}>
-                      <Text style={style.text}>Next</Text>
-                      <View style={style.powerIcon_view}>
-                        <RightArrow width={'100%'} height={'100%'} />
-                      </View>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                </View>
-              </ScrollView>
-            ) : null}
-            {step == 4 ? (
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                style={style.form_container}>
-                <FormField english={'Full Name:'} urdu={'name'} />
-                <TextInput
-                  style={style.input}
-                  placeholder={'Ahmed Ali'}
-                  placeholderTextColor={color.palette.lightgray}
-                />
-                <FormField english={'Sur Name:'} urdu={'surName'} />
-                <TextInput
-                  style={style.input}
-                  placeholder={'Khokhar'}
-                  placeholderTextColor={color.palette.lightgray}
-                />
-                <FormField english={'Passport No:'} urdu={'passport'} />
-                <TextInput
-                  style={style.input}
-                  placeholder={'000515552'}
-                  placeholderTextColor={color.palette.lightgray}
-                />
-                <FormField english={'Cell No:'} urdu={'cell'} />
-                <TextInput
-                  placeholder={'000515552'}
-                  placeholderTextColor={color.palette.lightgray}
-                  style={style.input}
-                />
-                <FormField
-                  english={'Complete Address:'}
-                  urdu={'completeAddress2'}
-                />
-                <TextInput
-                  placeholder={'Complete Address'}
-                  placeholderTextColor={color.palette.lightgray}
-                  style={[style.input, {height: 90, textAlignVertical: 'top'}]}
-                  multiline={true}
-                  numberOfLines={3}
-                />
-                <View style={style.agree_conatiner}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      setchecked(!checked);
-                    }}
-                    style={style.tick_square}>
-                    {checked ? (
-                      <TickSquare width={'100%'} height={'100%'} />
-                    ) : (
-                      <View style={{width: 23, height: 23, bottom: 7}}>
-                        <SquareCheck width={'100%'} height={'100%'} />
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                  <View style={style.agree_text_view}>
-                    <Text style={style.agree_text}>
-                      Have you informed him that you are appointing this person
-                      as your Representative in FSF and this person will be
-                      authorized to collect your remaining amount?
-                    </Text>
+                      <FormField urdu={'agreement'} />
+                    </View>
+                    <CustomAlert />
                   </View>
-                </View>
-                <FormField urdu={'agreement'} />
-                <View style={style.log_btn_view2}>
-                  <TouchableOpacity onPress={() => setStep(step - 1)}>
-                    <LinearGradient
-                      useAngle={true}
-                      colors={[color.palette.darkblue, color.palette.lightBlue]}
-                      style={style.power_container}>
-                      <View style={style.powerIcon_view}>
-                        <LeftArrow width={'100%'} height={'100%'} />
-                      </View>
-                      <Text style={style.text}>Back</Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => setStep(step + 1)}>
-                    <LinearGradient
-                      useAngle={true}
-                      colors={[color.palette.darkblue, color.palette.lightBlue]}
-                      style={style.power_container}>
-                      <Text style={style.text}>Next</Text>
-                      <View style={style.powerIcon_view}>
-                        <RightArrow width={'100%'} height={'100%'} />
-                      </View>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                </View>
-              </ScrollView>
-            ) : null}
-            {step == 5 ? (
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                style={style.form_container}>
-                <FormField english={'Where do you want to buried?'} />
-                <FormField urdu={'buried'} />
-                <View style={style.radio_container}>
-                  <RadioGroup
-                    layout="row"
-                    radioButtons={buriedRadio}
-                    onPress={e => setburied(e)}
-                    containerStyle={{width: '100%'}}
-                  />
-                </View>
-                <FormField
-                  english={'Do you have any relative registered in this fund?'}
-                />
-                <FormField urdu={'relativeInvolve'} />
-                <View style={style.radio_container}>
-                  <RadioGroup
-                    layout="row"
-                    radioButtons={relativeInvolveRadio}
-                    onPress={e => [
-                      setRelativeInvovleRadio(e),
-                      e[0].selected ? setrealtive(true) : setrealtive(false),
-                    ]}
-                  />
-                </View>
-                {relative ? (
-                  <View>
-                    <FormField english={'Passport No:'} urdu={'passport'} />
-                    <TextInput
-                      style={style.input}
-                      placeholder={'000515552'}
-                      placeholderTextColor={color.palette.lightgray}
-                    />
-                    <TouchableOpacity
-                      style={{alignSelf: 'flex-end'}}
-                      onPress={() => setData(true)}>
+
+                  <View
+                    style={[
+                      style.log_btn_view2,
+                      {width: '80%', alignSelf: 'center'},
+                    ]}>
+                    <TouchableOpacity onPress={() => setStep(step - 1)}>
                       <LinearGradient
                         useAngle={true}
                         colors={[
                           color.palette.darkblue,
                           color.palette.lightBlue,
                         ]}
-                        style={[
-                          style.power_container,
-                          {justifyContent: 'center', alignContent: 'center'},
-                        ]}>
-                        <Text style={style.text}>Submit</Text>
-                        <View style={[style.powerIcon_view, {padding: 1}]}>
+                        style={style.power_container}>
+                        <View style={style.powerIcon_view}>
+                          <LeftArrow width={'100%'} height={'100%'} />
+                        </View>
+                        <Text style={style.text}>Back</Text>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => setStep(step + 1)}>
+                      <LinearGradient
+                        useAngle={true}
+                        colors={[
+                          color.palette.darkblue,
+                          color.palette.lightBlue,
+                        ]}
+                        style={style.power_container}>
+                        <Text style={style.text}>Next</Text>
+                        <View style={style.powerIcon_view}>
                           <RightArrow width={'100%'} height={'100%'} />
                         </View>
                       </LinearGradient>
                     </TouchableOpacity>
-                    {data ? (
-                      <View style={style.data_conianer}>
-                        <View style={style.data_view}>
-                          <Text style={style.data_text}>Name:</Text>
-                          <Text style={style.data_text}>Muhammad Akbar</Text>
-                        </View>
-                        <View style={style.data_view}>
-                          <Text style={style.data_text}>Father Name:</Text>
-                          <Text style={style.data_text}>M. Junaid</Text>
-                        </View>
-                        <View style={style.data_view}>
-                          <Text style={style.data_text}>Registration No:</Text>
-                          <Text style={style.data_text}>000031564</Text>
-                        </View>
-                        <View
-                          style={[style.data_view, {flexDirection: 'column'}]}>
-                          <Text style={style.data_text}>Address:</Text>
-                          <View style={style.data_address_view}>
-                            <Text style={style.data_address_text}>
-                              Street No.
-                            </Text>
-                            <Text style={style.data_address_text}>
-                              Dummy Area
-                            </Text>
-                            <Text style={style.data_address_text}>
-                              Barcelona Spain
-                            </Text>
-                          </View>
-                        </View>
-                      </View>
-                    ) : null}
                   </View>
-                ) : null}
-                <FormField
-                  english={'How much will you pay annaully in this fund?'}
-                />
-                <FormField urdu={'payFund'} />
+                </>
+              )}
+            </Formik>
+          ) : (
+            <Formik
+              initialValues={stepFourState}
+              validationSchema={stepFourSchema}
+              validateOnChange={false}
+              validateOnBlur={false}
+              onSubmit={(values, {setErrors, setSubmitting}) => {
+                setForm({
+                  ...Form,
+                  representive_fullName: values.representive_fullName,
+                  representive_surName: values.representive_surName,
+                  representive_passportNo: values.representive_passportNo,
 
-                <View
-                  style={[
-                    style.radio_container,
-                    {flexDirection: 'column', alignItems: 'flex-start'},
-                  ]}>
-                  <RadioGroup
-                    onPress={e => {
-                      setPayRadio(e),
-                        e[5].selected ? setOtherPay(true) : setOtherPay(false);
-                    }}
-                    radioButtons={payRadio}
-                    containerStyle={{
-                      width: '100%',
-                      alignItems: 'flex-start',
-                    }}
+                  representive_cellNo: values.representive_cellNo,
+
+                  representive_completeAddress:
+                    values.representive_completeAddress,
+                  step4_agree: values.step4_agree,
+                });
+
+                setStep(step + 1);
+                setchecked(false);
+              }}>
+              {({
+                handleSubmit,
+                handleChange,
+                handleBlur,
+                errors,
+                touched,
+                isSubmitting,
+                validateField,
+                validateForm,
+                setErrors,
+                setFieldValue,
+              }) => (
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                  style={style.form_container}>
+                  <FormField english={'Full Name:'} urdu={'name'} />
+                  <TextInput
+                    style={[
+                      style.input,
+                      errors.representive_fullName == 'Required' &&
+                        touched.representive_fullName && {
+                          borderWidth: 1,
+                          borderColor: 'red',
+                        },
+                    ]}
+                    ref={step4ref}
+                    placeholder={'Ahmed Ali'}
+                    placeholderTextColor={color.palette.lightgray}
+                    onChangeText={handleChange('representive_fullName')}
+                    onChange={() => validateField('representive_fullName')}
                   />
+                  <FormField english={'Sur Name:'} urdu={'surName'} />
+                  <TextInput
+                    style={[
+                      style.input,
+                      errors.representive_surName == 'Required' &&
+                        touched.representive_surName && {
+                          borderWidth: 1,
+                          borderColor: 'red',
+                        },
+                    ]}
+                    placeholder={'Khokhar'}
+                    placeholderTextColor={color.palette.lightgray}
+                    onChangeText={handleChange('representive_surName')}
+                    onChange={() => validateField('representive_surName')}
+                  />
+                  <FormField english={'Passport No:'} urdu={'passport'} />
+                  <TextInput
+                    style={[
+                      style.input,
+                      errors.representive_passportNo == 'Required' &&
+                        touched.representive_passportNo && {
+                          borderWidth: 1,
+                          borderColor: 'red',
+                        },
+                    ]}
+                    placeholder={'000515552'}
+                    placeholderTextColor={color.palette.lightgray}
+                    onChangeText={handleChange('representive_passportNo')}
+                    onChange={() => validateField('representive_passportNo')}
+                  />
+                  <FormField english={'Cell No:'} urdu={'cell'} />
                   <View
-                    style={{
-                      position: 'absolute',
-                      alignSelf: 'flex-end',
-                      paddingTop: 25,
-                    }}>
-                    <FormField urdu={'notPay'} />
-                  </View>
-
-                  {otherPay ? (
-                    <View style={style.ammount_container}>
-                      <View style={style.rupee_view}>
-                        <RupeeSign width={'100%'} height={'100%'} />
-                      </View>
-                      <TextInput
-                        keyboardType="numeric"
-                        style={style.rupee_input}
-                      />
-                    </View>
-                  ) : null}
-                </View>
-                <View style={{marginTop: 10}}>
-                  <FormField english={'Your Signature:'} urdu={'signature'} />
-                </View>
-                <View style={{marginTop: 5}}>
-                  <View style={style.sign_view}>
-                    <SignatureCapture
-                      ref={singRef}
-                      onTouchEnd={() => singRef.current.saveImage()}
-                      style={style.sign}
-                      saveImageFileInExtStorage={false}
-                      showNativeButtons={false}
-                      showTitleLabel={true}
-                      onSaveEvent={img => setSign(img.encoded)}
-                      backgroundColor={color.palette.white}
-                      strokeColor="black"
-                      minStrokeWidth={4}
-                      maxStrokeWidth={4}
-                      viewMode={'portrait'}
+                    style={
+                      errors.representive_cellNo == 'Required' &&
+                      touched.representive_cellNo && {
+                        borderWidth: 1,
+                        borderColor: 'red',
+                        borderRadius: 10,
+                        borderBottomWidth: 1.5,
+                      }
+                    }>
+                    <IntlPhoneInput
+                      placeholder={'000515552'}
+                      placeholderTextColor={color.palette.lightgray}
+                      phoneInputStyle={[
+                        style.input,
+                        {marginTop: 10, paddingLeft: 4},
+                      ]}
+                      onChangeText={e => {
+                        setFieldValue(
+                          'representive_cellNo',
+                          e.dialCode.toString() +
+                            e.unmaskedPhoneNumber.toString(),
+                        );
+                        validateField('representive_cellNo');
+                      }}
+                      containerStyle={{
+                        backgroundColor: color.palette.lightwhite,
+                        borderRadius: 10,
+                        fontSize: 16,
+                        height: 50,
+                        color: color.palette.black,
+                      }}
+                      flagStyle={{bottom: 5, right: 2}}
+                      dialCodeTextStyle={{
+                        fontSize: 16,
+                        color: color.palette.black,
+                      }}
+                      defaultCountry={'PK'}
                     />
                   </View>
-                  <TouchableOpacity
-                    onPress={() => singRef.current.resetImage()}
-                    style={style.clear_sign_view}>
-                    <Text style={style.clear_sign_text}>Clear</Text>
-                  </TouchableOpacity>
-                </View>
-                {/* <View style={{width:"100%",height:200,borderWidth:1}}>
-                    <Image style={{width:"80%",height:80,borderWidth:1,}}  source={{uri: `data:image/png;base64,${sign}`}} />
-                </View> */}
-                <View style={[style.agree_conatiner, {paddingBottom: 30}]}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      setchecked(!checked);
-                    }}
-                    style={style.tick_square}>
-                    {checked ? (
-                      <TickSquare width={'100%'} height={'100%'} />
-                    ) : (
-                      <View style={{width: 23, height: 23, bottom: 7}}>
-                        <SquareCheck width={'100%'} height={'100%'} />
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                  <View style={style.agree_text_view}>
-                    <Text style={style.agree_text}>
-                      Have you read carefully to all the conditions and
-                      regulations on this funeral service fund?
-                    </Text>
+                  {/* <TextInput
+                    keyboardType="numeric"
+                    placeholder={'000515552'}
+                    placeholderTextColor={color.palette.lightgray}
+                    style={[
+                      style.input,
+                      errors.representive_cellNo == 'Required' &&
+                        touched.representive_cellNo && {
+                          borderWidth: 1,
+                          borderColor: 'red',
+                        },
+                    ]}
+                    onChangeText={handleChange('representive_cellNo')}
+                    onChange={() => validateField('representive_cellNo')}
+                  /> */}
+                  <FormField
+                    english={'Complete Address:'}
+                    urdu={'completeAddress2'}
+                  />
+                  <TextInput
+                    placeholder={'Complete Address'}
+                    placeholderTextColor={color.palette.lightgray}
+                    style={[
+                      style.input,
+                      {height: 90, textAlignVertical: 'top'},
+                      errors.representive_completeAddress == 'Required' &&
+                        touched.representive_completeAddress && {
+                          borderWidth: 1,
+                          borderColor: 'red',
+                        },
+                    ]}
+                    multiline={true}
+                    onChangeText={handleChange('representive_completeAddress')}
+                    onChange={() =>
+                      validateField('representive_completeAddress')
+                    }
+                    numberOfLines={3}
+                  />
+                  <View style={style.agree_conatiner}>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setchecked(!checked);
+                        validateField('step4_agree');
+                      }}
+                      onPressIn={() => setFieldValue('step4_agree', 'true')}
+                      onPressOut={() => validateField('step4_agree')}
+                      style={style.tick_square}>
+                      {checked ? (
+                        <View style={{width: 23, height: 23, bottom: 7}}>
+                          <SquareCheck width={'100%'} height={'100%'} />
+                        </View>
+                      ) : (
+                        <TickSquare width={'100%'} height={'100%'} />
+                      )}
+                    </TouchableOpacity>
+                    <View style={style.agree_text_view}>
+                      <Text
+                        style={[
+                          style.agree_text,
+                          errors.step4_agree == 'Required'
+                            ? {color: 'red'}
+                            : null,
+                        ]}>
+                        Have you informed him that you are appointing this
+                        person as your Representative in FSF and this person
+                        will be authorized to collect your remaining amount?
+                      </Text>
+                    </View>
                   </View>
-                </View>
-                <View style={style.log_btn_view2}>
-                  <TouchableOpacity onPress={() => setStep(step - 1)}>
-                    <LinearGradient
-                      useAngle={true}
-                      colors={[color.palette.darkblue, color.palette.lightBlue]}
-                      style={style.power_container}>
-                      <View style={style.powerIcon_view}>
-                        <LeftArrow width={'100%'} height={'100%'} />
-                      </View>
-                      <Text style={style.text}>Back</Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
+                  <FormField urdu={'agreement'} />
+                  <View style={style.log_btn_view2}>
+                    <TouchableOpacity onPress={() => setStep(step - 1)}>
+                      <LinearGradient
+                        useAngle={true}
+                        colors={[
+                          color.palette.darkblue,
+                          color.palette.lightBlue,
+                        ]}
+                        style={style.power_container}>
+                        <View style={style.powerIcon_view}>
+                          <LeftArrow width={'100%'} height={'100%'} />
+                        </View>
+                        <Text style={[style.text, {marginLeft: 5}]}>Back</Text>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => {
+                        handleSubmit(), step4ref.current.focus();
+                      }}>
+                      <LinearGradient
+                        useAngle={true}
+                        colors={[
+                          color.palette.darkblue,
+                          color.palette.lightBlue,
+                        ]}
+                        style={style.power_container}>
+                        <Text style={style.text}>Next</Text>
+                        <View style={style.powerIcon_view}>
+                          <RightArrow width={'100%'} height={'100%'} />
+                        </View>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                  </View>
+                </ScrollView>
+              )}
+            </Formik>
+          )}
+        </>
+      ) : null}
+      {step == 5 ? (
+        <Formik
+          initialValues={stepFiveState}
+          validationSchema={stepFiveSchema}
+          validateOnChange={false}
+          validateOnBlur={false}
+          onSubmit={(values, {setErrors, isSubmitting}) => {
+            // setForm({
+            //   ...Form,
+            //   whereBurried: values.whereBurried,
+            //   relative_involve_fund: values.relative_involve_fund,
+            //   pay_annually: values.pay_annually,
+            //   signature: values.signature,
+            //   step5_agree: values.step5_agree,
+            //   passportNumber: values.relative_passportNo,
+            // });
+            console.log('first', isSubmitting);
+            if (updating == true) {
+              UpdateEnrollment(
+                values.whereBurried,
+                values.relative_involve_fund,
+                values.pay_annually,
+                values.relative_passportNo,
+              );
+            } else {
+              SubmitCompleteForm(
+                values.whereBurried,
+                values.relative_involve_fund,
+                values.pay_annually,
+                values.relative_passportNo,
+              );
+            }
+          }}>
+          {({
+            handleSubmit,
+            handleChange,
+            handleBlur,
+            errors,
+            touched,
+            isSubmitting,
+            validateField,
+            setFieldValue,
+            validateForm,
+            setErrors,
+          }) => (
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              style={style.form_container}>
+              <FormField english={'Where do you want to buried?'} />
+              <FormField urdu={'buried'} />
+              <View style={style.radio_container}>
+                <RadioGroup
+                  layout="row"
+                  radioButtons={buriedRadio}
+                  onPress={e => {
+                    if (e[0].id == 0 && e[0].selected == true) {
+                      setFieldValue('whereBurried', 'NATIVE');
+                      console.log('first');
+                    } else {
+                      setFieldValue('whereBurried', 'RESIDENTIAL');
+                      console.log('second');
+                    }
+                    setTimeout(() => {
+                      validateField('whereBurried');
+                    }, 1000);
+                  }}
+                  containerStyle={[
+                    {width: '100%'},
+                    errors.whereBurried == 'Required' ? {} : null,
+                  ]}
+                />
+                <Text>
+                  {errors.whereBurried == 'Required'
+                    ? ((buriedRadio[0].color = 'red'),
+                      (buriedRadio[1].color = 'red'))
+                    : ((buriedRadio[0].color = color.palette.darkblue),
+                      (buriedRadio[1].color = color.palette.darkblue))}
+                </Text>
+              </View>
+
+              <FormField
+                english={'Do you have any relative registered in this fund?'}
+              />
+              <FormField urdu={'relativeInvolve'} />
+              <View style={style.radio_container}>
+                <RadioGroup
+                  layout="row"
+                  radioButtons={relativeInvolveRadio}
+                  onPress={e => {
+                    e[0].selected ? setrealtive(true) : setrealtive(false);
+                    if (e[0].id == 0 && e[0].selected == true) {
+                      setFieldValue('relative_involve_fund', '0');
+                      setFieldValue('relative_passportNo', 'null');
+
+                      console.log('first');
+                    } else {
+                      setFieldValue('relative_involve_fund', '0');
+                      setFieldValue('relative_passportNo', 'null');
+
+                      console.log('second');
+                    }
+                    setTimeout(() => {
+                      validateField('relative_involve_fund');
+                    }, 1000);
+                  }}
+                />
+                <Text style={{color: 'white'}}>
+                  {errors.relative_involve_fund == 'Required'
+                    ? ((relativeInvolveRadio[0].color = 'red'),
+                      (relativeInvolveRadio[1].color = 'red'))
+                    : ((relativeInvolveRadio[0].color = color.palette.darkblue),
+                      (relativeInvolveRadio[1].color = color.palette.darkblue))}
+                </Text>
+              </View>
+              {relativeInvolveRadio[0].selected ? (
+                <View>
+                  <FormField english={'Passport No:'} urdu={'passport'} />
+                  <TextInput
+                    style={[
+                      style.input,
+                      errors.relative_passportNo == 'Required' &&
+                        relativeInvolveRadio[0].selected && {
+                          borderWidth: 1,
+                          borderColor: 'red',
+                        },
+                    ]}
+                    onChangeText={e => setRelPassport(e)}
+                    placeholder={'000515552'}
+                    placeholderTextColor={color.palette.lightgray}
+                  />
                   <TouchableOpacity
-                    onPress={() => {
-                      setEnrolled(true);
+                    style={{alignSelf: 'flex-end'}}
+                    onPress={async () => {
+                      setIndicator(true);
+                      const res = await fetch(
+                        `https://fsfeu.org/es/fsf/api/get_passport/info/${relPassport}/${user.id}/${token}`,
+                        {
+                          method: 'get',
+                          headers: {
+                            'content-type': 'application/json',
+                          },
+                        },
+                      );
+                      const jsonRes = await res.json();
+                      console.log('resss', jsonRes);
+                      if (jsonRes.status == 200) {
+                        setIndicator(false);
+                        setPassportInfo(true);
+                        setpassportData(jsonRes.user);
+                        setFieldValue('relative_passportNo', relPassport);
+                        setFieldValue('relative_involve_fund', '1');
+                      } else {
+                        setFieldValue('relative_passportNo', 'null');
+                        setFieldValue('relative_involve_fund', '0');
+
+                        showMessage({
+                          message: jsonRes.message,
+                          type: 'danger',
+                          duration: 3000,
+                        });
+                        console.log(jsonRes);
+                        setIndicator(false);
+                      }
                     }}>
                     <LinearGradient
                       useAngle={true}
                       colors={[color.palette.darkblue, color.palette.lightBlue]}
-                      style={style.power_container}>
-                      <Text style={style.text}>Enroll</Text>
-                      <View style={style.powerIcon_view}>
+                      style={[
+                        style.power_container,
+                        {justifyContent: 'center', alignContent: 'center'},
+                      ]}>
+                      <Text style={style.text}>Submit</Text>
+                      <View style={[style.powerIcon_view, {padding: 1}]}>
                         <RightArrow width={'100%'} height={'100%'} />
                       </View>
                     </LinearGradient>
                   </TouchableOpacity>
+                  {PassportInfo ? (
+                    <View style={style.data_conianer}>
+                      <View style={style.data_view}>
+                        <Text style={style.data_text}>Name:</Text>
+                        <Text style={style.data_text}>
+                          {passportData.full_name}
+                        </Text>
+                      </View>
+                      <View style={style.data_view}>
+                        <Text style={style.data_text}>Father Name:</Text>
+                        <Text style={style.data_text}>
+                          {passportData.father_name}
+                        </Text>
+                      </View>
+                      <View style={style.data_view}>
+                        <Text style={style.data_text}>Registration No:</Text>
+                        <Text style={style.data_text}>
+                          {passportData.registeration_number}
+                        </Text>
+                      </View>
+                      <View
+                        style={[style.data_view, {flexDirection: 'column'}]}>
+                        <Text style={style.data_text}>Address:</Text>
+                        <View style={style.data_address_view}>
+                          <Text style={style.data_address_text}>
+                            {passportData.area}
+                          </Text>
+                          <Text style={style.data_address_text}>
+                            {passportData.city}
+                          </Text>
+                          <Text style={style.data_address_text}>
+                            {passportData.country}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  ) : null}
                 </View>
-              </ScrollView>
-            ) : null}
-          </>
-        )}
-      </Formik>
+              ) : null}
+              <FormField
+                english={'How much will you pay annaully in this fund?'}
+              />
+              <FormField urdu={'payFund'} />
+
+              <View
+                style={[
+                  style.radio_container,
+                  {flexDirection: 'column', alignItems: 'flex-start'},
+                ]}>
+                <RadioGroup
+                  onPress={e => {
+                    setPayRadio(e);
+                    if (e[0].id == 0 && e[0].selected == true) {
+                      setFieldValue('pay_annually', '0');
+                      console.log('first');
+                    } else if (e[1].id == 1 && e[1].selected == true) {
+                      setFieldValue('pay_annually', '30');
+                      console.log('second');
+                    } else if (e[2].id == 2 && e[2].selected == true) {
+                      setFieldValue('pay_annually', '50');
+                      console.log('third');
+                    } else if (e[3].id == 3 && e[3].selected == true) {
+                      setFieldValue('pay_annually', '70');
+                      console.log('fourth');
+                    } else if (e[4].id == 4 && e[4].selected == true) {
+                      setFieldValue('pay_annually', '100');
+                      console.log('fifth');
+                    } else if (e[5].id == 5 && e[5].selected == true) {
+                      e[5].selected ? setOtherPay(true) : setOtherPay(false);
+                      setFieldValue('pay_annually', 'other');
+
+                      console.log('sixth');
+                    }
+                    setTimeout(() => {
+                      validateField('pay_annually');
+                    }, 1000);
+                  }}
+                  radioButtons={payRadio}
+                  containerStyle={{
+                    width: '100%',
+                    alignItems: 'flex-start',
+                  }}
+                />
+                <Text
+                  style={{
+                    color: 'white',
+                    left: 100,
+                    bottom: 30,
+                    position: 'absolute',
+                  }}>
+                  {errors.pay_annually == 'Required'
+                    ? ((payRadio[0].color = 'red'),
+                      (payRadio[1].color = 'red'),
+                      (payRadio[2].color = 'red'),
+                      (payRadio[3].color = 'red'),
+                      (payRadio[4].color = 'red'),
+                      (payRadio[5].color = 'red'))
+                    : ((payRadio[0].color = color.palette.darkblue),
+                      (payRadio[1].color = color.palette.darkblue),
+                      (payRadio[2].color = color.palette.darkblue),
+                      (payRadio[3].color = color.palette.darkblue),
+                      (payRadio[4].color = color.palette.darkblue),
+                      (payRadio[5].color = color.palette.darkblue))}
+                </Text>
+                <View
+                  style={{
+                    position: 'absolute',
+                    alignSelf: 'flex-end',
+                    paddingTop: 25,
+                  }}>
+                  <FormField urdu={'notPay'} />
+                </View>
+
+                {payRadio[5].selected ? (
+                  <View style={style.ammount_container}>
+                    <View style={style.rupee_view}>
+                      <RupeeSign width={'100%'} height={'100%'} />
+                    </View>
+                    <TextInput
+                      keyboardType="numeric"
+                      style={style.rupee_input}
+                      onChangeText={handleChange('pay_annually')}
+                    />
+                  </View>
+                ) : null}
+              </View>
+              <View style={{marginTop: 10}}>
+                <FormField english={'Your Signature:'} urdu={'signature'} />
+              </View>
+              <View style={{marginTop: 5}}>
+                <View
+                  style={[
+                    style.sign_view,
+                    errors.signature == 'Required'
+                      ? {borderColor: 'red', borderWidth: 2}
+                      : null,
+                  ]}>
+                  <SignatureCapture
+                    ref={singRef}
+                    onTouchStart={() =>
+                      setFieldValue('signature', 'SignPicked')
+                    }
+                    onTouchEnd={() => {
+                      singRef.current.saveImage(), validateField('signature');
+                    }}
+                    style={style.sign}
+                    saveImageFileInExtStorage={true}
+                    showNativeButtons={false}
+                    showTitleLabel={true}
+                    onSaveEvent={img => {
+                      setSign(img.pathName), validateField('signature');
+                    }}
+                    backgroundColor={color.palette.white}
+                    strokeColor="black"
+                    minStrokeWidth={4}
+                    maxStrokeWidth={4}
+                    viewMode={'portrait'}
+                  />
+                </View>
+                <TouchableOpacity
+                  onPress={() => singRef.current.resetImage()}
+                  style={style.clear_sign_view}>
+                  <Text style={style.clear_sign_text}>Clear</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={[style.agree_conatiner, {paddingBottom: 30}]}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setchecked1(!checked1);
+                    validateField('step5_agree');
+                  }}
+                  onPressIn={() => setFieldValue('step5_agree', 'true')}
+                  onPressOut={() => validateField('step5_agree')}
+                  style={style.tick_square}>
+                  {checked1 ? (
+                    <View style={{width: 23, height: 23, bottom: 7}}>
+                      <SquareCheck width={'100%'} height={'100%'} />
+                    </View>
+                  ) : (
+                    <TickSquare width={'100%'} height={'100%'} />
+                  )}
+                </TouchableOpacity>
+                <View style={style.agree_text_view}>
+                  <Text
+                    style={[
+                      style.agree_text,
+                      errors.step5_agree == 'Required' ? {color: 'red'} : null,
+                    ]}>
+                    Have you read carefully to all the conditions and
+                    regulations on this funeral service fund?
+                  </Text>
+                </View>
+              </View>
+              <View style={style.log_btn_view2}>
+                <TouchableOpacity onPress={() => setStep(step - 1)}>
+                  <LinearGradient
+                    useAngle={true}
+                    colors={[color.palette.darkblue, color.palette.lightBlue]}
+                    style={style.power_container}>
+                    <View style={style.powerIcon_view}>
+                      <LeftArrow width={'100%'} height={'100%'} />
+                    </View>
+                    <Text style={[style.text, {marginLeft: 5}]}>Back</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    handleSubmit();
+                  }}>
+                  <LinearGradient
+                    useAngle={true}
+                    colors={[color.palette.darkblue, color.palette.lightBlue]}
+                    style={style.power_container}>
+                    <Text style={style.text}>Enroll</Text>
+                    <View style={style.powerIcon_view}>
+                      <RightArrow width={'100%'} height={'100%'} />
+                    </View>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          )}
+        </Formik>
+      ) : null}
+
       <Modal visible={enrolled} transparent={true} animationType="fade">
         <View style={style.modal_view}>
           <View style={style.view}>
@@ -1018,10 +2969,16 @@ export const Form = () => {
               style={style.cross_view}
               onPress={() => {
                 navigate.navigate(RoutNames.HomeScreen), setEnrolled(false);
+                dispatch(SetHomeRefresh(!homeRefresh));
               }}>
               <Cross width={'100%'} height={'100%'} />
             </TouchableOpacity>
           </View>
+        </View>
+      </Modal>
+      <Modal visible={indicator} transparent>
+        <View style={{flex: 1, backgroundColor: 'rgba(0,0,0,0.4)'}}>
+          <SkypeIndicator color="white" size={50} />
         </View>
       </Modal>
     </View>
@@ -1042,11 +2999,12 @@ const style = StyleSheet.create({
     paddingRight: '8%',
     marginBottom: 10,
     color: color.palette.black,
-   
+    fontFamily: typography.Regular,
   },
   gender_input: {
     color: color.palette.black,
     fontSize: 16,
+    fontFamily: typography.Regular,
   },
   backDown: {
     width: 16,
@@ -1057,9 +3015,7 @@ const style = StyleSheet.create({
     right: '5%',
   },
   log_btn_view: {
-    flex: 1,
     justifyContent: 'center',
-    alignItems: 'flex-end',
     marginTop: 20,
     marginBottom: 10,
   },
@@ -1069,20 +3025,24 @@ const style = StyleSheet.create({
     marginTop: 20,
     marginBottom: 10,
   },
+
   power_container: {
-    width: 90,
-    height: 35,
+    height: 34,
     borderRadius: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingLeft: 18,
+    paddingLeft: 12,
     paddingRight: 12,
-    
+  },
+  text: {
+    color: color.palette.white,
+    marginLeft: 8,
+    fontFamily: typography.medium,
   },
   powerIcon_view: {
-    alignSelf: 'center',
-    width: '25%',
+    width: 17,
+    height: 17,
+    marginLeft: 5,
   },
   input_icon: {
     width: 16,
@@ -1104,8 +3064,8 @@ const style = StyleSheet.create({
   },
   form_title: {
     color: color.palette.black,
-    fontWeight: fontWeights.bold,
     fontSize: 18,
+    fontFamily: typography.demi,
   },
   sub_heading: {
     color: color.palette.black,
@@ -1210,7 +3170,6 @@ const style = StyleSheet.create({
     marginTop: 15,
     marginBottom: 15,
     margin: 5,
-    
   },
   data_view: {
     flexDirection: 'row',
@@ -1333,4 +3292,115 @@ const style = StyleSheet.create({
     color: color.palette.darkblue,
     fontWeight: fontWeights.bold,
   },
+  search_cont: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  search_Model: {
+    width: '80%',
+    height: 380,
+    borderRadius: 25,
+    top: '10%',
+  },
+
+  search_bar_container: {
+    backgroundColor: color.palette.white,
+    width: '80%',
+    alignSelf: 'center',
+    borderRadius: 17,
+    top: '7%',
+    height: 50,
+  },
+  search_input: {
+    paddingLeft: '20%',
+    borderColor: 'red',
+    fontSize: 18,
+  },
+
+  search_icon_container: {
+    width: 25,
+    height: 25,
+    position: 'absolute',
+    marginTop: 12,
+    marginLeft: 12,
+  },
+  search_item: {
+    flex: 0.9,
+    alignSelf: 'center',
+    width: '80%',
+    top: '7%',
+  },
+  search_item_text: {
+    fontSize: 20,
+    color: color.palette.white,
+    paddingLeft: 15,
+    top: 10,
+  },
 });
+
+const stepOneState = {
+  //step 1
+  avatar: '',
+  fullName: '',
+  fatherName: '',
+  surName: '',
+  gender: '',
+  dateOfBirth: '',
+  PassportNumber: '',
+  europeResidenceCardNo: '',
+  cellNumber: '',
+  email: '',
+  country: '',
+  community: '',
+  province: '',
+  city: '',
+  areaStreetHouse: '',
+  nativeCountry: '',
+  idCardNo_native: '',
+  completeAddress_native: '',
+};
+const stepTowState = {
+  // //step 2
+  first_relative_fullName: '',
+  first_relative_relation: '',
+  first_relative_cellNo: '',
+  first_relative_completeAddress: '',
+
+  second_relative_fullName: '',
+  second_relative_relation: '',
+  second_relative_cellNo: '',
+  second_relative_completeAddress: '',
+};
+const stepThreeState = {
+  // //step 3
+
+  first_relative_fullName_native: '',
+  first_relative_relation_native: '',
+  first_relative_cellNo_native: '',
+  first_relative_completeAddress_native: '',
+
+  second_relative_fullName_native: '',
+  second_relative_relation_native: '',
+  second_relative_cellNo_native: '',
+  second_relative_completeAddress_native: '',
+};
+const stepFourState = {
+  // //step 4
+
+  representive_fullName: '',
+  representive_surName: '',
+  representive_passportNo: '',
+  representive_cellNo: '',
+  representive_completeAddress: '',
+  step4_agree: '',
+};
+const stepFiveState = {
+  // // step 5
+  whereBurried: '',
+  relative_involve_fund: '',
+  relative_passportNo: '',
+  pay_annually: '',
+  signature: '',
+  step5_agree: '',
+};

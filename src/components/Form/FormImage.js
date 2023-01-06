@@ -1,11 +1,10 @@
 import {View, Text, StyleSheet, Image} from 'react-native';
 import React from 'react';
 import ImagePicker from '../../assets/EnrolmentAssets/imgPickerIcon.svg';
-import {color} from '../../theme';
+import {color, typography} from '../../theme';
 import {fontSizes, fontWeights} from '../../theme/styles';
 import {TouchableOpacity} from 'react-native-gesture-handler';
-export const FormImage = ({path,fileName, img}) => {
-  console.log('object', path);
+export const FormImage = ({path,fileName, img,errr}) => {
   const select = () => {
     if (img == true) {
       return (
@@ -18,7 +17,7 @@ export const FormImage = ({path,fileName, img}) => {
       );
     } else {
       return (
-        <TouchableOpacity style={style.imag_view}>
+        <TouchableOpacity style={[style.imag_view,errr=="red"&&{borderColor:"red"}]}>
           <ImagePicker width={'100%'} height={'100%'} />
         </TouchableOpacity>
       );
@@ -61,8 +60,10 @@ const style = StyleSheet.create({
   },
   text: {
     color: color.palette.black,
-    fontSize: 12,
-    fontWeight: fontWeights.bold,
+    fontSize: 13,
+    fontFamily:typography.medium,
+    marginTop:3,
+
   },
   sub_text: {
     color: color.palette.lightwhite2,

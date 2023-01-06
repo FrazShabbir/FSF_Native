@@ -5,10 +5,12 @@ import {
   TouchableOpacity,
   Linking,
   Platform,
+  PermissionsAndroid,
+  useWindowDimensions,
 } from 'react-native';
-import React, {useRef} from 'react';
-import {HomeComponent, NearBtn} from '../../components';
-import {color} from '../../theme';
+import React, {useRef, useEffect} from 'react';
+import {HomeComponent, Loader, NearBtn} from '../../components';
+import {color, typography} from '../../theme';
 import HomeIcon from '../../assets/HomeAssets/Svgs/homeblack.svg';
 import AboutIcon from '../../assets/HomeAssets/Svgs/aboutIcon.svg';
 import SettingIcon from '../../assets/HomeAssets/Svgs/settingIcon.svg';
@@ -23,43 +25,140 @@ import Cell from '../../assets/HomeAssets/Svgs/cellIconWhite.svg';
 import BackDown from '../../assets/HomeAssets/Svgs/backDown.svg';
 import LocIcon from '../../assets/HomeAssets/Svgs/locationIcon.svg';
 import LocDot from '../../assets/HomeAssets/Svgs/locationDot.svg';
+import PrivacyIcon from '../../assets/HomeAssets/Svgs/privacyIcon.svg';
+
+import RNFetchBlob from 'rn-fetch-blob';
 
 import LinearGradient from 'react-native-linear-gradient';
+import {useState} from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { SetLoading } from '../../Reduxs/Reducers';
+import { ScrollView } from 'react-native-gesture-handler';
+import RenderHTML from 'react-native-render-html';
 export const EnrolAgreement = () => {
+  const [data, setdata] = useState('');
+  const [urduUrl, setUrduUrl] = useState('');
+  const [englishUrl, setEnglishUrl] = useState('');
+  const dispatch=useDispatch()
+  const {
+    loading
+  } = useSelector(state => state.UserReducer);
+  useEffect(() => {
+    dispatch(SetLoading(true))
+    fetch('https://fsfeu.org/es/fsf/api/terms-and-conditions')
+      .then(res => res.json())
+      .then(data => {setdata(data.terms),    dispatch(SetLoading(false))
+      })
+      .catch(err => console.log('error', err));
+    fetch('https://fsfeu.org/es/fsf/api/terms-and-conditions/download')
+      .then(res => res.json())
+      .then(data => {
+        setUrduUrl(data.urdu), setEnglishUrl(data.english);
+      })
+      .catch(err => console.log('error', err));
+  }, []);
+
+  const checkPermission = async url => {
+    // Function to check the platform
+    // If Platform is Android then check for permissions.
+
+    if (Platform.OS === 'ios') {
+      downloadFile(url);
+    } else {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          {
+            title: 'Storage Permission Required',
+            message:
+              'Application needs access to your storage to download File',
+          },
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          // Start downloading
+          console.log('url', url);
+          downloadFile(url);
+          console.log('Storage Permission Granted.');
+        } else {
+          // If permission denied then show alert
+          Alert.alert('Error', 'Storage Permission Not Granted');
+        }
+      } catch (err) {
+        // To handle permission related exception
+        console.log('++++' + err);
+      }
+    }
+  };
+
+  const downloadFile = url => {
+    // Get today's date to add the time suffix in filename
+    let date = new Date();
+    // File URL which we want to download
+    // let FILE_URL = url;
+    // Function to get extention of the file url
+    let file_ext = getFileExtention(url);
+
+    file_ext = '.' + file_ext[0];
+
+    // config: To get response by passing the downloading related options
+    // fs: Root directory path to download
+    const {config, fs} = RNFetchBlob;
+    let RootDir = fs.dirs.DownloadDir;
+    let options = {
+      fileCache: true,
+      addAndroidDownloads: {
+        path:
+          RootDir +
+          '/file_' +
+          Math.floor(date.getTime() + date.getSeconds() / 2) +
+          file_ext,
+        description: 'downloading file...',
+        notification: true,
+        // useDownloadManager works with Android only
+        useDownloadManager: true,
+      },
+    };
+    config(options)
+      .fetch('GET', url)
+      .then(res => {
+        // Alert after successful downloading
+        console.log('res -> ', JSON.stringify(res));
+        // alert('File Downloaded Successfully.');
+      });
+  };
+  const getFileExtention = url => {
+    // To get the file extension
+    return /[.]/.exec(url) ? /[^.]+$/.exec(url) : undefined;
+  };
+  const {width}=useWindowDimensions()
+  const source = {
+    html:loading?``: `${data?.value}`
+  };
   const refRBSheet = useRef();
   const navigate = useNavigation();
   return (
     <View style={style.container}>
       <HomeComponent title={'Terms & Conditions'} backIcon={true} />
       <View style={style.bottom_container}>
-        <View style={style.text_container}>
-          <Text style={style.haeding}>User's Privacy</Text>
-          <Text style={style.paragraph}>
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry. Lorem Ipsum has been the industry's standard dummy text
-            ever since the 1500s, when an unknown printer took a galley of type
-            and scrambled it to make a type specimen book. It has survived not
-            only five centuries, but also the leap into electronic typesetting,
-            remaining essentially unchanged. It was popularised in the 1960s
-            with the release of Letraset sheets containing Lorem Ipsum passages,
-            and more recently with desktop publishing software like Aldus
-            PageMaker including versions of Lorem Ipsum.
-          </Text>
-          <Text style={style.haeding}>What is Funeral services Fund?</Text>
-          <Text style={style.paragraph}>
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry. Lorem Ipsum has been the industry's standard dummy text
-            ever since the 1500s, when an unknown printer took a galley of type
-            and scrambled it to make a type specimen book. It has survived not
-            only five centuries, but also the leap into electronic typesetting,
-            remaining essentially unchanged. It was popularised in the 1960s
-            with the release of Letraset sheets containing Lorem Ipsum passages,
-            and more recently with desktop publishing software like Aldus
-            PageMaker including versions of Lorem Ipsum.
-          </Text>
-        </View>
+        <ScrollView showsVerticalScrollIndicator={false} style={style.text_container}>
+          {/* <Text style={style.haeding}>{data?.key}</Text>
+          <Text style={style.paragraph}>{data?.value}</Text> */}
+          <RenderHTML tagsStyles={{
+              p: {
+                whiteSpace: 'normal',
+                color: 'black',
+              },
+              li:{
+                whiteSpace: 'normal',
+                color: 'black',
+              }
+            }} contentWidth={width} source={source} />
+          
+        </ScrollView>
         <View style={style.download_conatainer}>
-          <TouchableOpacity style={style.manual_view}>
+          <TouchableOpacity
+            onPress={() => checkPermission(urduUrl)}
+            style={style.manual_view}>
             <View style={style.download_icon_view}>
               <DownloadIcon width="100%" height="100%" />
             </View>
@@ -69,7 +168,9 @@ export const EnrolAgreement = () => {
               </Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity style={style.manual_view}>
+          <TouchableOpacity
+            onPress={() => checkPermission(englishUrl)}
+            style={style.manual_view}>
             <View style={style.download_icon_view}>
               <DownloadIcon width="100%" height="100%" />
             </View>
@@ -82,7 +183,10 @@ export const EnrolAgreement = () => {
         </View>
         <View style={style.agree_container}>
           <TouchableOpacity
-            onPress={() => navigate.navigate(RoutNames.EnrollmentScreen)}>
+          style={{alignItems:"flex-start"}}
+            onPress={() => {
+              navigate.navigate(RoutNames.EnrollmentScreen);
+            }}>
             <LinearGradient
               useAngle={true}
               colors={[color.palette.darkblue, color.palette.lightBlue]}
@@ -107,113 +211,19 @@ export const EnrolAgreement = () => {
             onPress={() => navigate.navigate(RoutNames.AboutScreen)}>
             <AboutIcon width={'100%'} />
           </TouchableOpacity>
-          <View style={style.icons}>
-            <PrivacyHower width={'100%'} />
-          </View>
+          <TouchableOpacity
+            style={style.icons}
+            onPress={() => navigate.navigate(RoutNames.PrivacyScreen)}>
+            <PrivacyIcon width={'100%'} />
+          </TouchableOpacity>
           <TouchableOpacity
             style={style.icons}
             onPress={() => navigate.navigate(RoutNames.SettingScreen)}>
             <SettingIcon width={'100%'} />
           </TouchableOpacity>
         </View>
-        <RBSheet
-          ref={refRBSheet}
-          closeOnDragDown={true}
-          openDuration={500}
-          closeOnPressMask={true}
-          animationType={'fade'}
-          customStyles={{
-            wrapper: {
-              backgroundColor: 'rgba(0,0,0,0.6)',
-            },
-            draggableIcon: {
-              backgroundColor: 'white',
-            },
-            container: {
-              borderTopRightRadius: 50,
-              borderTopLeftRadius: 50,
-              height: '40%',
-            },
-          }}>
-          <View style={style.sheet_container}>
-            <View style={[style.edit_container, {}]}>
-              <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
-                <View style={style.loc_icon_container}>
-                  <LocIcon width={22} height={40} />
-                  <View style={style.loc_icon}>
-                    <LocDot width="100%" height="100%" />
-                  </View>
-                </View>
-                <Text style={style.personal_text}> Near Service Center</Text>
-              </View>
-              <TouchableOpacity
-                style={[style.edit_icon_view, {}]}
-                onPress={() => refRBSheet.current.close()}>
-                <BackDown width={'100%'} height={'100%'} />
-              </TouchableOpacity>
-            </View>
-            <View style={style.office_container}>
-              <View style={style.office_info_view}>
-                <View style={style.info_view}>
-                  <Text
-                    style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                    Office Name:
-                  </Text>
-                  <Text style={style.office_text}>Ali Ahmad</Text>
-                </View>
-                <View style={style.info_view}>
-                  <Text
-                    style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                    Officer Cell No:
-                  </Text>
-                  <Text style={style.office_text}>031551548515</Text>
-                </View>
-                <View style={style.info_view}>
-                  <Text
-                    style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                    State:
-                  </Text>
-                  <Text style={style.office_text}>Dummy</Text>
-                </View>
-                <View style={style.info_view}>
-                  <Text
-                    style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                    City:
-                  </Text>
-                  <Text style={style.office_text}>Dummy City</Text>
-                </View>
-                <View style={style.info_view}>
-                  <Text
-                    style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                    Area:
-                  </Text>
-                  <Text style={style.office_text}>Dummy Area</Text>
-                </View>
-                <View style={style.info_view}>
-                  <Text
-                    style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                    Street:
-                  </Text>
-                  <Text style={style.office_text}>Street Dummy A-3</Text>
-                </View>
-              </View>
-              <View style={style.log_btn_view}>
-                <TouchableOpacity onPress={() => dialCall('000000000')}>
-                  <LinearGradient
-                    useAngle={true}
-                    colors={[color.palette.darkblue, color.palette.lightBlue]}
-                    style={style.power_container}>
-                    <View style={style.powerIcon_view}>
-                      <Cell width={'100%'} height={'100%'} />
-                    </View>
-                    <Text style={style.text}>Call Us Now</Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </RBSheet>
       </View>
+      <Loader />
     </View>
   );
 };
@@ -252,20 +262,25 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   text_container: {
+    marginTop:"5%",
     height: '75%',
     width: '80%',
     alignSelf: 'center',
-    paddingTop:20
+    paddingTop: 20,
   },
   haeding: {
-    fontSize: 17,
-    fontWeight: fontWeights.bold,
+    fontSize: 18,
     color: color.palette.black,
     paddingBottom: 7,
+    fontFamily:typography.demi
+
   },
   paragraph: {
-    fontSize: 12,
+    fontSize: 13,
     color: color.palette.black,
+    fontFamily:typography.Regular,
+    textAlign:'justify'
+
   },
 
   NearBtn: {
@@ -359,21 +374,23 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   power_container: {
-    width: 130,
-    height: "100%",
+    height: 34,
     borderRadius: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
     paddingLeft: 12,
     paddingRight: 12,
   },
   text: {
     color: color.palette.white,
-    fontWeight: fontWeights.bold,
+    fontFamily:typography.medium,
+
+    marginLeft:8,
   },
   powerIcon_view: {
-    width: 17,
+    width: 18,
+    height:18,
+    marginLeft:6
   },
   loc_icon_container: {
     top: '3%',
@@ -407,11 +424,14 @@ const style = StyleSheet.create({
     left: 3,
     borderBottomWidth: 1,
     borderBottomColor: color.palette.black,
+    fontFamily:typography.demi
+
   },
-  agree_container:{
-    alignItems:"flex-end",
-    width:"80%",
-    alignSelf:"center",
-    height:"5%",
-  }
+  agree_container: {
+    alignItems: 'flex-end',
+    width: '80%',
+    alignSelf: 'center',
+    // height: '5%',
+    justifyContent: 'center',
+  },
 });

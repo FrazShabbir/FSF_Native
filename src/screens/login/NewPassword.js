@@ -9,7 +9,7 @@ import {
   Modal,
 } from 'react-native';
 import React, {useState} from 'react';
-import {color} from '../../theme';
+import {color, typography} from '../../theme';
 import {fontSizes, globalStyles} from '../../theme/styles';
 import {
   Login_signup_Component,
@@ -23,17 +23,22 @@ import Eye from '../../assets/svg/eye.svg';
 import LeftShape from '../../assets/svg/leftShape.svg';
 import Cross from '../../assets/svg/cross.svg';
 import Tick from '../../assets/svg/tick.svg';
-import { showMessage } from 'react-native-flash-message';
+import {showMessage} from 'react-native-flash-message';
 import {Formik} from 'formik';
+import CrossEye from '../../assets/svg/crossEye.svg'
+
 import * as Yup from 'yup';
 const initailState = {
   newPassword: '',
   confirmPassword: '',
 };
 const schema = Yup.object({
-  newPassword: Yup.string().min(8).max(64).required('*Required'),
+  newPassword: Yup.string()
+    .min(8, 'Password cannot less then 8 characters')
+    .max(64)
+    .required('*Required'),
   confirmPassword: Yup.string()
-    .min(8)
+    .min(8, 'Password cannot less then 8 characters')
     .max(64)
     .required('*Required')
     .oneOf([Yup.ref('newPassword'), null], 'Passwords must match'),
@@ -60,8 +65,7 @@ export const NewPassword = ({route}) => {
         onSubmit={async (values, action) => {
           //   console.log('values', values, otp, email);
           setIndicator(true);
-
-          const res = await fetch(
+            const res = await fetch(
             `https://fsfeu.org/es/fsf/api/auth/set-new-password?email=${email}&password=${values.newPassword}&otp=${otp}`,
             {
               method: 'Post',
@@ -84,10 +88,19 @@ export const NewPassword = ({route}) => {
             setIndicator(false);
           }
         }}>
-        {({handleSubmit, handleBlur, handleChange}) => (
+        {({handleSubmit, handleBlur, handleChange, touched, errors}) => (
           <>
             <View style={style.Allinputfeild_view}>
-              <View style={style.input_view}>
+              <View
+                style={[
+                  style.input_view,
+                  touched.newPassword &&
+                    errors.newPassword && {
+                      borderColor: 'red',
+                      borderWidth: 1,
+                      borderRadius: 15,
+                    },
+                ]}>
                 <View style={style.fix}>
                   <CustomTextInput icon={'lock'} />
                   <TextInput
@@ -102,10 +115,24 @@ export const NewPassword = ({route}) => {
                 <TouchableOpacity
                   onPress={() => setHidePassword1(!hidePassword1)}
                   style={style.eye}>
-                  <Eye width={22} height={25} />
+                    {hidePassword1?<CrossEye width={22} height={25} />:<Eye  width={22} height={25} /> }
                 </TouchableOpacity>
+                <View style={style.error_view}>
+                  <Text style={{color: 'red'}}>
+                    {touched.newPassword && errors.newPassword}
+                  </Text>
+                </View>
               </View>
-              <View style={style.input_view}>
+              <View
+                style={[
+                  style.input_view,
+                  touched.confirmPassword &&
+                    errors.confirmPassword && {
+                      borderColor: 'red',
+                      borderWidth: 1,
+                      borderRadius: 15,
+                    },
+                ]}>
                 <View style={style.fix}>
                   <CustomTextInput icon={'lock'} />
                   <TextInput
@@ -120,8 +147,13 @@ export const NewPassword = ({route}) => {
                 <TouchableOpacity
                   onPress={() => setHidePassword(!hidePassword)}
                   style={style.eye}>
-                  <Eye width={22} height={25} />
+                    {hidePassword?<CrossEye width={22} height={25} />:<Eye  width={22} height={25} /> }
                 </TouchableOpacity>
+                <View style={style.error_view}>
+                  <Text style={{color: 'red'}}>
+                    {touched.confirmPassword && errors.confirmPassword}
+                  </Text>
+                </View>
               </View>
             </View>
 
@@ -160,7 +192,7 @@ export const NewPassword = ({route}) => {
                     justifyContent: 'center',
                     alignItems: 'center',
                   }}>
-                  <Text style={{color: color.palette.black}}>
+                  <Text style={{color: color.palette.black,fontFamily:typography.Regular}}>
                     If you do not have account?
                   </Text>
                   <TouchableOpacity
@@ -168,7 +200,7 @@ export const NewPassword = ({route}) => {
                     <Text
                       style={{
                         color: color.palette.darkblue,
-                        fontWeight: 'bold',
+                        fontFamily:typography.demi
                       }}>
                       Sign In
                     </Text>
@@ -225,13 +257,20 @@ const style = StyleSheet.create({
     width: '80%',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 20,
   },
   input: {
     position: 'absolute',
     width: '73%',
     fontSize: 18,
     color: color.palette.black,
+    fontFamily:typography.Regular
+  },
+  error_view: {
+    position: 'absolute',
+    bottom: 50,
+    right: 10,
+    alignSelf: 'flex-end',
   },
   fix: {
     width: '100%',
@@ -258,9 +297,11 @@ const style = StyleSheet.create({
     width: '70%',
   },
   condition_text: {
-    marginLeft: 15,
-    fontSize: fontSizes.xxsmall,
+    marginLeft: 15, 
+    fontFamily:typography.medium,
     color: color.palette.black,
+    fontSize: 10,
+
   },
   cross: {
     width: 10,
@@ -322,6 +363,7 @@ const style = StyleSheet.create({
     fontSize: 20,
     textAlign: 'center',
     color: color.palette.black,
+    fontFamily:typography.demi
   },
   modal_btn_view: {
     width: 100,

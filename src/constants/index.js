@@ -8,3 +8,4 @@ export const STATUSBAR_HEIGHT =
 
 export const isDarkMode = useColorScheme() === 'dark';
 
+export const baseUrl=""

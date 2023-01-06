@@ -6,9 +6,9 @@ import {
   Linking,
   Platform,
 } from 'react-native';
-import React, {useRef, useState} from 'react';
-import {Announce, HomeComponent, NearBtn, NearOffice} from '../../components';
-import {color} from '../../theme';
+import React, {useRef, useState, useEffect} from 'react';
+import {Announce, HomeComponent, Loader, NearBtn, NearestOffice, NearOffice} from '../../components';
+import {color, typography} from '../../theme';
 import HomeIcon from '../../assets/HomeAssets/Svgs/homeblack.svg';
 import AboutIcon from '../../assets/HomeAssets/Svgs/aboutIcon.svg';
 import SettingIcon from '../../assets/HomeAssets/Svgs/settingIcon.svg';
@@ -16,28 +16,32 @@ import PrivacyIcon from '../../assets/HomeAssets/Svgs/privacyIcon.svg';
 import {useNavigation} from '@react-navigation/native';
 import {RoutNames} from '../../navigation/routeNames';
 import {fontWeights} from '../../theme/styles';
-import RBSheet from 'react-native-raw-bottom-sheet';
 
-import Cell from '../../assets/HomeAssets/Svgs/cellIconWhite.svg';
-import BackDown from '../../assets/HomeAssets/Svgs/backDown.svg';
-import LocIcon from '../../assets/HomeAssets/Svgs/locationIcon.svg';
-import LocDot from '../../assets/HomeAssets/Svgs/locationDot.svg';
-
-import LinearGradient from 'react-native-linear-gradient';
-import { ScrollView } from 'react-native-gesture-handler';
+import {ScrollView} from 'react-native-gesture-handler';
+import { useDispatch } from 'react-redux';
+import { SetLoading } from '../../Reduxs/Reducers';
 
 export const AnnouncementScreen = () => {
   const navigate = useNavigation();
-  const refRBSheet = useRef();
-  const dialCall = number => {
-    let phoneNumber = '';
-    if (Platform.OS === 'android') {
-      phoneNumber = `tel:${number}`;
-    } else {
-      phoneNumber = `telprompt:${number}`;
-    }
-    Linking.openURL(phoneNumber);
-  };
+  const [openNearOffice,setopenNearOffice]=useState()
+  const [data, setdata] = useState([]);
+  const dispatch=useDispatch()
+  const [indicator,setIndicator]=useState(false)
+  useEffect(() => {
+    dispatch(SetLoading(true))
+    fetch('https://fsfeu.org/es/fsf/api/notifications')
+      .then(res => res.json())
+      .then(data => {
+        
+        
+        setdata(data.notifications),    dispatch(SetLoading(false))
+        if (data.notifications.length === 0) {
+          setIndicator(true);
+        }
+      })
+      .catch(err => console.log('error', err));
+  }, []);
+  
   return (
     <View style={style.container}>
       <HomeComponent title={'Announcements'} backIcon={true} dot={false} />
@@ -45,36 +49,35 @@ export const AnnouncementScreen = () => {
         <View style={style.btn_view}>
           <TouchableOpacity
             style={style.NearBtn}
-            onPress={() => refRBSheet.current.open()}>
-            <NearBtn />
+            onPress={() => setopenNearOffice(!openNearOffice)}>
+            <NearBtn title={"Nearest Office"} />
           </TouchableOpacity>
         </View>
-        <ScrollView showsVerticalScrollIndicator={false} style={style.text_container}>
-          <TouchableOpacity onPress={()=>navigate.navigate(RoutNames.AnounceDetailScreen)} style={style.announce_container}>
-            <Announce />
-          </TouchableOpacity>
-          <TouchableOpacity  onPress={()=>navigate.navigate(RoutNames.AnounceDetailScreen)} style={style.announce_container}>
-            <Announce />
-          </TouchableOpacity>
-          <TouchableOpacity  onPress={()=>navigate.navigate(RoutNames.AnounceDetailScreen)} style={style.announce_container}>
-            <Announce />
-          </TouchableOpacity>
-          <TouchableOpacity  onPress={()=>navigate.navigate(RoutNames.AnounceDetailScreen)} style={style.announce_container}>
-            <Announce />
-          </TouchableOpacity>
-          <TouchableOpacity  onPress={()=>navigate.navigate(RoutNames.AnounceDetailScreen)} style={style.announce_container}>
-            <Announce />
-          </TouchableOpacity>
-          <TouchableOpacity  onPress={()=>navigate.navigate(RoutNames.AnounceDetailScreen)} style={style.announce_container}>
-            <Announce />
-          </TouchableOpacity>
-          <TouchableOpacity  onPress={()=>navigate.navigate(RoutNames.AnounceDetailScreen)} style={style.announce_container}>
-            <Announce />
-          </TouchableOpacity>
-          <TouchableOpacity  onPress={()=>navigate.navigate(RoutNames.AnounceDetailScreen)} style={style.announce_container}>
-            <Announce />
-          </TouchableOpacity>
-          
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          style={style.text_container}>
+            {indicator ? (
+            <Text
+              style={{
+                alignSelf: 'center',
+                marginTop: 50,
+                fontSize: 17,
+                color:color.palette.black,fontFamily:typography.demi
+
+              }}>
+              No notification Found
+            </Text>
+          ) : null}
+          {data.map((item, index) => {
+            return (
+              <TouchableOpacity
+              key={item.id}
+                onPress={() => navigate.navigate(RoutNames.AnounceDetailScreen,{title:item.title,description:item.description})}
+                style={style.announce_container}>
+                <Announce title={item?.title} shortDesc={item?.short_description} />
+              </TouchableOpacity>
+            );
+          })}
         </ScrollView>
       </View>
       <View style={style.bottom_tab_container}>
@@ -101,105 +104,8 @@ export const AnnouncementScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
-      <RBSheet
-        ref={refRBSheet}
-        closeOnDragDown={true}
-        openDuration={500}
-        closeOnPressMask={true}
-        animationType={'fade'}
-        customStyles={{
-          wrapper: {
-            backgroundColor: 'rgba(0,0,0,0.6)',
-
-            
-          },
-          draggableIcon: {
-            backgroundColor: 'white',
-          },
-          container: {
-            borderTopRightRadius: 50,
-            borderTopLeftRadius: 50,
-            height: '40%',
-          },
-        }}>
-        <View style={style.sheet_container}>
-          <View style={[style.edit_container, {}]}>
-            <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
-              <View style={style.loc_icon_container}>
-                <LocIcon width={23} height={40} />
-                <View style={style.loc_icon}>
-                  <LocDot width="100%" height="100%" />
-                </View>
-              </View>
-              <Text style={style.personal_text}> Near Service Center</Text>
-            </View>
-            <TouchableOpacity
-              style={[style.edit_icon_view, {}]}
-              onPress={() => refRBSheet.current.close()}>
-              <BackDown width={'100%'} height={'100%'} />
-            </TouchableOpacity>
-          </View>
-          <View style={style.office_container}>
-            <View style={style.office_info_view}>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  Office Name:
-                </Text>
-                <Text style={style.office_text}>Ali Ahmad</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  Officer Cell No:
-                </Text>
-                <Text style={style.office_text}>031551548515</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  State:
-                </Text>
-                <Text style={style.office_text}>Dummy</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  City:
-                </Text>
-                <Text style={style.office_text}>Dummy City</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  Area:
-                </Text>
-                <Text style={style.office_text}>Dummy Area</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  Street:
-                </Text>
-                <Text style={style.office_text}>Street Dummy A-3</Text>
-              </View>
-            </View>
-            <View style={style.log_btn_view}>
-              <TouchableOpacity onPress={() => dialCall('000000000')}>
-                <LinearGradient
-                  useAngle={true}
-                  colors={[color.palette.darkblue, color.palette.lightBlue]}
-                  style={style.power_container}>
-                  <View style={style.powerIcon_view}>
-                    <Cell width={'100%'} height={'100%'} />
-                  </View>
-                  <Text style={style.text}>Call Us Now</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </RBSheet>
+      <NearestOffice open={openNearOffice} />
+      <Loader />
     </View>
   );
 };
@@ -241,7 +147,7 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   text_container: {
-    flex:1,
+    flex: 1,
     width: '80%',
     alignSelf: 'center',
   },
@@ -270,120 +176,5 @@ const style = StyleSheet.create({
     color: color.palette.black,
     left: 3,
   },
-  sheet_container: {
-    flex: 1,
-  },
 
-  edit_container: {
-    height: '10%',
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    width: '80%',
-    alignSelf: 'center',
-    justifyContent: 'space-between',
-  },
-  personal_text: {
-    fontSize: 20,
-    fontWeight: fontWeights.extraBold,
-    color: color.palette.black,
-  },
-  edit_icon_view: {
-    width:22,
-    height: 22,
-  },
-  profile_container: {
-    height: '20%',
-    width: '80%',
-    alignSelf: 'center',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  profile: {
-    width: '60%',
-    height: '60%',
-  },
-  textInput_container: {
-    width: '80%',
-    alignSelf: 'center',
-    height: '25%',
-    justifyContent: 'space-around',
-    paddingBottom: 10,
-  },
-  text_view: {},
-  info_text: {
-    borderBottomColor: color.palette.black,
-    borderBottomWidth: 1,
-    paddingLeft: '13%',
-    color: color.palette.black,
-  },
-  input_icon: {
-    width: '10%',
-    height: 20,
-    position: 'absolute',
-    paddingLeft: 10,
-  },
-  office_container: {
-    alignSelf: 'center',
-    width: '80%',
-    flex: 1,
-  },
-  office_heading_view: {
-    height: '15%',
-  },
-  office_heading_text: {
-    fontWeight: fontWeights.extraBold,
-    color: color.palette.black,
-    fontSize: 20,
-  },
-  office_info_view: {
-    height: '70%',
-    paddingTop: 30,
-    paddingBottom: 10,
-  },
-  info_view: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingLeft: 20,
-    paddingRight: 20,
-
-    flexGrow: 1,
-  },
-  office_text: {
-    color: color.palette.black,
-    fontSize: 13,
-  },
-
-  log_btn_view: {
-    height: '30%',
-    justifyContent: 'center',
-  },
-  power_container: {
-    width: 130,
-    height: 34,
-    borderRadius: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingLeft: 12,
-    paddingRight: 12,
-  },
-  text: {
-    color: color.palette.white,
-    fontWeight:fontWeights.bold
-  },
-  powerIcon_view: {
-    width: '15%',
-  },
-  loc_icon_container: {
-    top: '3%',
-  },
-  loc_icon: {
-    width: '45%',
-    height: 30,
-    position: 'absolute',
-    alignSelf: 'center',
-  },
-  announce_container:{
-    paddingBottom:20,
-}
 });

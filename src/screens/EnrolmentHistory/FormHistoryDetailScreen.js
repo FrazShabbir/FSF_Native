@@ -1,7 +1,13 @@
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
-import React, {useRef} from 'react';
-import {FormStatus, HomeComponent, HomeEvent, NearBtn} from '../../components';
-import {color} from '../../theme';
+import React, {useRef, useState, useEffect} from 'react';
+import {
+  FormStatus,
+  HomeComponent,
+  HomeEvent,
+  NearBtn,
+  NearestOffice,
+} from '../../components';
+import {color, typography} from '../../theme';
 import AboutIcon from '../../assets/HomeAssets/Svgs/aboutIcon.svg';
 import SettingIcon from '../../assets/HomeAssets/Svgs/settingIcon.svg';
 import PrivacyIcon from '../../assets/HomeAssets/Svgs/privacyIcon.svg';
@@ -17,11 +23,42 @@ import {useNavigation} from '@react-navigation/native';
 import HomeIcon from '../../assets/HomeAssets/Svgs/homeblack.svg';
 import {ScrollView} from 'react-native-gesture-handler';
 import StatsIcon from '../../assets/HomeAssets/Svgs/appStatus.svg';
-import GreenDot from '../../assets/HomeAssets/Svgs/greenDot.svg'
+import GreenDot from '../../assets/HomeAssets/Svgs/greenDot.svg';
+import BlueDot from '../../assets/HomeAssets/Svgs/blueDot.svg';
+import RedDot from '../../assets/HomeAssets/Svgs/redDot.svg';
+import YellowDot from '../../assets/HomeAssets/Svgs/yellowDot.svg';
 
-export const FormHistoryDetailScreen = () => {
+
+import {useSelector} from 'react-redux';
+
+export const FormHistoryDetailScreen = ({route}) => {
   const refRBSheet = useRef();
   const navigate = useNavigation();
+  const [openSheet, setopenSheet] = useState();
+  const {appid} = route.params;
+  const {user, token} = useSelector(state => state.UserReducer);
+  const [comments, setcomments] = useState([]);
+
+  const [data, setData] = useState();
+
+  useEffect(() => {
+    fetch(
+      `https://fsfeu.org/es/fsf/api/application/${appid}/${user.id}/${token}`,
+    )
+      .then(res => res.json())
+      .then(data => {
+        setData(data.application),
+          setcomments(data.comments),
+          console.log('Applications', data);
+      });
+  }, []);
+  const FormatDate = date => {
+    
+    const year = date.slice(0, 4);
+    const mon = date.slice(5, 7);
+    const day = date.slice(8, 10);
+    return day + '-' + mon + '-' + year;
+  };
   return (
     <View style={style.container}>
       <HomeComponent backIcon={true} title={'Submit Enrolment'} />
@@ -32,8 +69,8 @@ export const FormHistoryDetailScreen = () => {
         <View style={style.btn_view}>
           <TouchableOpacity
             style={style.NearBtn}
-            onPress={() => refRBSheet.current.open()}>
-            <NearBtn />
+            onPress={() => setopenSheet(!openSheet)}>
+            <NearBtn title={'Nearest Office'} />
           </TouchableOpacity>
         </View>
         <View style={style.form_container}>
@@ -44,25 +81,72 @@ export const FormHistoryDetailScreen = () => {
               <StatsIcon width={'100%'} height={'100%'} />
             </LinearGradient>
           </View>
-          <View style={style.titles_container}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            style={style.titles_container}>
             <View style={style.title_view}>
-                <Text style={style.title_text}>Submission Date:</Text>
-                <Text style={style.date}>25-January-2022</Text>
+              <Text style={style.title_text}>Submission Date:</Text>
+              <Text style={style.date}>{data?.registeration_date.slice(0,10)}</Text>
             </View>
             <View style={style.title_view}>
-                <Text style={style.title_text}>Application Status:</Text>
-                <View style={{flexDirection:"row",alignItems:"center"}}>
+              <Text style={style.title_text}>Application Status:</Text>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+
+              {data?.status.toLowerCase() == 'pending' ? (
                   <View style={style.dot_view}>
-                    <GreenDot width={"100%"} height={"100%"} />
+                    <YellowDot width={'100%'} height={'100%'} />
                   </View>
-                <Text style={style.date}>Approved</Text>
+              ) : null}
+              {data?.status.toLowerCase() == 'approved' ? (
+                  <View style={style.dot_view}>
+                    <GreenDot width={'100%'} height={'100%'} />
+                  </View>
+              ) : null}
+              {data?.status.toLowerCase() == 'rejected' ? (
+                  <View style={style.dot_view}>
+                    <RedDot width={'100%'} height={'100%'} />
+                  </View>
+              ) : null}
+              <Text style={style.date}>{data?.status}</Text>
                 </View>
+              
             </View>
-            <View style={[style.title_view,{flexDirection:'column'}]}>
-                <Text style={style.title_text}>Description:</Text>
-                <Text style={[style.date]}>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec dictum lacinia urna, at pharetra nisi dapibus ac. Duis fringilla orci felis, aliquet pretium elit scelerisque quis. Sed bibendum suscipit porta. Ut eget ultrices orci. Aliquam ex lectus.</Text>
+            <Text
+              style={[
+                style.title_text,
+                {marginTop: 20,     fontFamily:typography.demi
+                  , fontSize: 20},
+              ]}>
+              Comments:
+            </Text>
+            <View style={style.comment_container}>
+              {comments.map((item, index) => {
+                return (
+                  <View
+                  key={item.id}
+                    style={{
+                      backgroundColor: color.palette.lightBlue,
+                      marginTop: 8,
+                      borderRadius: 20,
+                      justifyContent: 'center',
+                      padding:10,
+                      paddingLeft:20,
+                      paddingRight:20
+                      
+                    }}>
+                      <View
+                        style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <View style={[style.dot_view, {width: 10, height: 10,marginTop:0}]}>
+                          <BlueDot width={'100%'} height={'100%'} />
+                        </View>
+                        <Text style={[style.date,{marginTop:0}]}>{item?.status}</Text>
+                      </View>
+                      <Text style={style.comment}>{item.comment}</Text>
+                  </View>
+                );
+              })}
             </View>
-          </View>
+          </ScrollView>
         </View>
       </View>
       <View style={style.bottom_tab_container}>
@@ -89,122 +173,41 @@ export const FormHistoryDetailScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
-      <RBSheet
-        ref={refRBSheet}
-        closeOnDragDown={true}
-        openDuration={500}
-        closeOnPressMask={true}
-        animationType={'fade'}
-        customStyles={{
-          wrapper: {
-            backgroundColor: 'rgba(0,0,0,0.6)',
-          },
-          draggableIcon: {
-            backgroundColor: 'white',
-          },
-          container: {
-            borderTopRightRadius: 50,
-            borderTopLeftRadius: 50,
-            height: '40%',
-          },
-        }}>
-        <View style={style.sheet_container}>
-          <View style={[style.edit_container, {}]}>
-            <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
-              <View style={style.loc_icon_container}>
-                <LocIcon width={22} height={40} />
-                <View style={style.loc_icon}>
-                  <LocDot width="100%" height="100%" />
-                </View>
-              </View>
-              <Text style={style.personal_text}> Near Service Center</Text>
-            </View>
-            <TouchableOpacity
-              style={[style.edit_icon_view, {}]}
-              onPress={() => refRBSheet.current.close()}>
-              <BackDown width={'100%'} height={'100%'} />
-            </TouchableOpacity>
-          </View>
-          <View style={style.office_container}>
-            <View style={style.office_info_view}>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  Office Name:
-                </Text>
-                <Text style={style.office_text}>Ali Ahmad</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  Officer Cell No:
-                </Text>
-                <Text style={style.office_text}>031551548515</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  State:
-                </Text>
-                <Text style={style.office_text}>Dummy</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  City:
-                </Text>
-                <Text style={style.office_text}>Dummy City</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  Area:
-                </Text>
-                <Text style={style.office_text}>Dummy Area</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  Street:
-                </Text>
-                <Text style={style.office_text}>Street Dummy A-3</Text>
-              </View>
-            </View>
-            <View style={style.log_btn_view}>
-              <TouchableOpacity onPress={() => dialCall('000000000')}>
-                <LinearGradient
-                  useAngle={true}
-                  colors={[color.palette.darkblue, color.palette.lightBlue]}
-                  style={style.power_container}>
-                  <View style={style.powerIcon_view}>
-                    <Cell width={'100%'} height={'100%'} />
-                  </View>
-                  <Text style={style.text}>Call Us Now</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </RBSheet>
+      <NearestOffice open={openSheet} />
     </View>
   );
 };
 const style = StyleSheet.create({
+  comment_container: {
+    flex: 1,
+    paddingTop: 10,
+  },
+  comment_title: {
+    color: color.palette.black,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  comment: {
+    color: color.palette.black,
+    fontSize: 14,
+    left: 10,
+    fontFamily:typography.medium
+  },
+
   container: {
     flex: 1,
     backgroundColor: color.palette.lightBlue,
   },
-  status_text_view:{
-    height:40,
-    width:"80%",
-    alignSelf:'center',
-    bottom:20,
-    
+  status_text_view: {
+    height: 40,
+    width: '80%',
+    alignSelf: 'center',
+    bottom: 20,
   },
   status_text: {
     fontSize: 28,
-    fontWeight: fontWeights.extraBold,
     color: color.palette.black,
+    fontFamily:typography.bold
   },
   bottom_container: {
     flex: 0.76,
@@ -241,9 +244,6 @@ const style = StyleSheet.create({
   },
   NearBtn: {
     alignItems: 'flex-end',
-  },
-  sheet_container: {
-    flex: 1,
   },
 
   edit_container: {
@@ -294,67 +294,7 @@ const style = StyleSheet.create({
     position: 'absolute',
     paddingLeft: 10,
   },
-  office_container: {
-    alignSelf: 'center',
-    width: '80%',
-    flex: 1,
-  },
-  office_heading_view: {
-    height: '15%',
-  },
-  office_heading_text: {
-    fontWeight: fontWeights.extraBold,
-    color: color.palette.black,
-    fontSize: 20,
-  },
-  office_info_view: {
-    height: '70%',
-    paddingTop: 30,
-    paddingBottom: 10,
-  },
-  info_view: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingLeft: 20,
-    paddingRight: 20,
 
-    flexGrow: 1,
-  },
-  office_text: {
-    color: color.palette.black,
-    fontSize: 13,
-  },
-
-  log_btn_view: {
-    height: '30%',
-    justifyContent: 'center',
-  },
-  power_container: {
-    width: 130,
-    height: 34,
-    borderRadius: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingLeft: 12,
-    paddingRight: 12,
-  },
-  text: {
-    color: color.palette.white,
-    fontWeight: fontWeights.bold,
-  },
-  powerIcon_view: {
-    width: '15%',
-  },
-  loc_icon_container: {
-    top: '3%',
-  },
-  loc_icon: {
-    width: '45%',
-    height: 30,
-    position: 'absolute',
-    alignSelf: 'center',
-  },
   download_conatainer: {
     height: '15%',
     width: '80%',
@@ -362,39 +302,40 @@ const style = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'space-around',
   },
-  titles_container:{
-    flex:0.7
+  titles_container: {
+    flex: 0.7,
   },
-  title_view:{
-    flexDirection:"row",
-    justifyContent:"space-between"
+  title_view: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
-  title_text:{
-    fontSize:16,
-    color:color.palette.black,
-    fontWeight:fontWeights.bold,
-    marginTop:10
+  title_text: {
+    fontSize: 16,
+    color: color.palette.black,
+    marginTop: 10,
+    fontFamily:typography.demi
   },
-  status_logo_container:{
-    flex:0.3,
-    justifyContent:"center",
-    alignItems:"center"
+  status_logo_container: {
+    flex: 0.3,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  status_logo:{
-    width:80,
-    height:80,
-    padding:18,
-    borderRadius:50
+  status_logo: {
+    width: 80,
+    height: 80,
+    padding: 18,
+    borderRadius: 50,
   },
-  dot_view:{
-    width:12,
-    height:12,
-    right:4,
-    marginTop:10
+  dot_view: {
+    width: 12,
+    height: 12,
+    right: 4,
+    marginTop: 10,
   },
-  date:{
-    marginTop:10,
-    color:color.palette.black,
-    fontSize:15,
-  }
+  date: {
+    marginTop: 10,
+    color: color.palette.black,
+    fontSize: 15,
+    fontFamily:typography.demi
+  },
 });

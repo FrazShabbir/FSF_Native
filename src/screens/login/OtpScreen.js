@@ -8,7 +8,7 @@ import {
   Modal
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
-import {color} from '../../theme';
+import {color, typography} from '../../theme';
 import {fontSizes, fontWeights, globalStyles} from '../../theme/styles';
 import {
   Login_signup_Component,
@@ -129,6 +129,7 @@ export const OtpScreen = ({route}) => {
             <View style={style.Allinputfeild_view}>
               <View style={style.otp_input_view}>
                 <TextInput
+                keyboardType='numeric'
                   textAlign="center"
                   style={style.otp_input}
                   maxLength={1}
@@ -146,6 +147,8 @@ export const OtpScreen = ({route}) => {
 
                 <TextInput
                   style={style.otp_input}
+                  keyboardType='numeric'
+
                   maxLength={1}
                   ref={inp2}
                   onChangeText={handleChange('inp2')}
@@ -162,6 +165,8 @@ export const OtpScreen = ({route}) => {
                 <TextInput
                   style={style.otp_input}
                   maxLength={1}
+                  keyboardType='numeric'
+
                   ref={inp3}
                   onChangeText={handleChange('inp3')}
                   onBlur={handleBlur('inp3')}
@@ -177,6 +182,8 @@ export const OtpScreen = ({route}) => {
                 <TextInput
                   style={style.otp_input}
                   maxLength={1}
+                  keyboardType='numeric'
+
                   ref={inp4}
                   onChangeText={handleChange('inp4')}
                   onBlur={handleBlur('inp4')}
@@ -219,7 +226,7 @@ export const OtpScreen = ({route}) => {
                     alignItems: 'center',
                     top: '7%',
                   }}>
-                  <Text style={{color: color.palette.black}}>
+                  <Text style={{color: color.palette.black,fontFamily:typography.Regular}}>
                     If you do not have account?
                   </Text>
                   <TouchableOpacity
@@ -229,6 +236,7 @@ export const OtpScreen = ({route}) => {
                         color: color.palette.darkblue,
                         fontWeight: 'bold',
                         paddingLeft: 5,
+                        fontFamily:typography.demi
                       }}>
                       Sign In
                     </Text>
@@ -294,7 +302,7 @@ const style = StyleSheet.create({
     width: '15%',
     textAlign: 'center',
     fontSize: 30,
-    fontWeight: fontWeights.bold,
+    fontFamily:typography.demi,
     color: 'black',
   },
 
@@ -330,7 +338,7 @@ const style = StyleSheet.create({
   },
   otp_time_text: {
     color: color.palette.darkblue,
-    fontWeight: '600',
+    fontFamily:typography.demi
   },
   modal_view: {
     flex: 1,

@@ -1,7 +1,7 @@
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
-import React, {useRef} from 'react';
-import {FormStatus, HomeComponent, HomeEvent, NearBtn} from '../../components';
-import {color} from '../../theme';
+import React, {useRef,useState} from 'react';
+import {FormStatus, HomeComponent, HomeEvent, NearBtn, NearestOffice} from '../../components';
+import {color, typography} from '../../theme';
 import AboutIcon from '../../assets/HomeAssets/Svgs/aboutIcon.svg';
 import SettingIcon from '../../assets/HomeAssets/Svgs/settingIcon.svg';
 import PrivacyIcon from '../../assets/HomeAssets/Svgs/privacyIcon.svg';
@@ -18,11 +18,26 @@ import HomeIcon from '../../assets/HomeAssets/Svgs/homeblack.svg';
 import {ScrollView} from 'react-native-gesture-handler';
 import StatsIcon from '../../assets/HomeAssets/Svgs/appStatus.svg';
 import GreenDot from '../../assets/HomeAssets/Svgs/greenDot.svg'
+import RedDot from '../../assets/HomeAssets/Svgs/redDot.svg'
+import BlueDot from '../../assets/HomeAssets/Svgs/blueDot.svg'
+import YellowDot from '../../assets/HomeAssets/Svgs/yellowDot.svg';
+
 import RupeeIcon from '../../assets/HomeAssets/Svgs/rupeeSignSmall.svg'
 
-export const DonationHistoryDetailScreen = () => {
+export const DonationHistoryDetailScreen = ({
+  route
+}) => {
   const refRBSheet = useRef();
   const navigate = useNavigation();
+  const [openSheet,setopenSheet]=useState()
+  const {donate}=route.params;
+  const FormatDate = date => {
+    const year = date.slice(0, 4);
+    const mon = date.slice(5, 7);
+    const day = date.slice(8, 10);
+    return day + '-' + mon + '-' + year;
+  };
+  console.log("route",donate)
   return (
     <View style={style.container}>
       <HomeComponent backIcon={true} title={'Donation Form'} />
@@ -33,8 +48,8 @@ export const DonationHistoryDetailScreen = () => {
         <View style={style.btn_view}>
           <TouchableOpacity
             style={style.NearBtn}
-            onPress={() => refRBSheet.current.open()}>
-            <NearBtn />
+            onPress={() => setopenSheet(!openSheet)}>
+            <NearBtn title={"Nearest Office"} />
           </TouchableOpacity>
         </View>
         <View style={style.form_container}>
@@ -48,33 +63,45 @@ export const DonationHistoryDetailScreen = () => {
           <View style={style.titles_container}>
             <View style={style.title_view}>
                 <Text style={style.title_text}>Submission Date:</Text>
-                <Text style={style.date}>25-January-2022</Text>
+                <Text style={style.date}>{FormatDate(donate?.created_at.slice(0,10))}</Text>
             </View>
             <View style={style.title_view}>
                 <Text style={style.title_text}>Application Status:</Text>
+                {donate.status.toLowerCase()=="pending"?
+                <View style={{flexDirection:"row",alignItems:"center"}}>
+                  <View style={style.dot_view}>
+                  <YellowDot width={'100%'} height={'100%'} />
+                  </View>
+                <Text style={style.date}>Pending</Text>
+                </View>:null}
+                {donate.status.toLowerCase()=="approved"?
                 <View style={{flexDirection:"row",alignItems:"center"}}>
                   <View style={style.dot_view}>
                     <GreenDot width={"100%"} height={"100%"} />
                   </View>
                 <Text style={style.date}>Approved</Text>
-                </View>
+                </View>:null}
+                {donate.status.toLowerCase()=="rejected"?
+                <View style={{flexDirection:"row",alignItems:"center"}}>
+                  <View style={style.dot_view}>
+                    <RedDot width={"100%"} height={"100%"} />
+                  </View>
+                <Text style={style.date}>rejected</Text>
+                </View>:null}
             </View>
             <View style={style.title_view}>
                 <Text style={style.title_text}>Donation Amount:</Text>
-                <Text style={style.date}>€ 100</Text>
+                <Text style={style.date}>€ {donate?.amount}</Text>
             </View>
             <View style={style.title_view}>
                 <Text style={style.title_text}>Doner Bank Name:</Text>
-                <Text style={style.date}>Dummy Bank</Text>
+                <Text style={style.date}>{donate?.donor_bank_name}</Text>
             </View>
             <View style={style.title_view}>
                 <Text style={style.title_text}>Doner Bank AC No.</Text>
-                <Text style={style.date}>89349870493</Text>
+                <Text style={style.date}>{donate?.donor_bank_no}</Text>
             </View>
-            <View style={[style.title_view,{flexDirection:'column'}]}>
-                <Text style={style.title_text}>Description:</Text>
-                <Text style={[style.date]}>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec dictum lacinia urna, at pharetra nisi dapibus ac. Duis fringilla orci felis, aliquet pretium elit scelerisque quis. Sed bibendum suscipit porta. Ut eget ultrices orci. Aliquam ex lectus.</Text>
-            </View>
+            
           </View>
         </View>
       </View>
@@ -102,103 +129,7 @@ export const DonationHistoryDetailScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
-      <RBSheet
-        ref={refRBSheet}
-        closeOnDragDown={true}
-        openDuration={500}
-        closeOnPressMask={true}
-        animationType={'fade'}
-        customStyles={{
-          wrapper: {
-            backgroundColor: 'rgba(0,0,0,0.6)',
-          },
-          draggableIcon: {
-            backgroundColor: 'white',
-          },
-          container: {
-            borderTopRightRadius: 50,
-            borderTopLeftRadius: 50,
-            height: '40%',
-          },
-        }}>
-        <View style={style.sheet_container}>
-          <View style={[style.edit_container, {}]}>
-            <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
-              <View style={style.loc_icon_container}>
-                <LocIcon width={22} height={40} />
-                <View style={style.loc_icon}>
-                  <LocDot width="100%" height="100%" />
-                </View>
-              </View>
-              <Text style={style.personal_text}> Near Service Center</Text>
-            </View>
-            <TouchableOpacity
-              style={[style.edit_icon_view, {}]}
-              onPress={() => refRBSheet.current.close()}>
-              <BackDown width={'100%'} height={'100%'} />
-            </TouchableOpacity>
-          </View>
-          <View style={style.office_container}>
-            <View style={style.office_info_view}>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  Office Name:
-                </Text>
-                <Text style={style.office_text}>Ali Ahmad</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  Officer Cell No:
-                </Text>
-                <Text style={style.office_text}>031551548515</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  State:
-                </Text>
-                <Text style={style.office_text}>Dummy</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  City:
-                </Text>
-                <Text style={style.office_text}>Dummy City</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  Area:
-                </Text>
-                <Text style={style.office_text}>Dummy Area</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  Street:
-                </Text>
-                <Text style={style.office_text}>Street Dummy A-3</Text>
-              </View>
-            </View>
-            <View style={style.log_btn_view}>
-              <TouchableOpacity onPress={() => dialCall('000000000')}>
-                <LinearGradient
-                  useAngle={true}
-                  colors={[color.palette.darkblue, color.palette.lightBlue]}
-                  style={style.power_container}>
-                  <View style={style.powerIcon_view}>
-                    <Cell width={'100%'} height={'100%'} />
-                  </View>
-                  <Text style={style.text}>Call Us Now</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </RBSheet>
+      <NearestOffice />
     </View>
   );
 };
@@ -255,126 +186,7 @@ const style = StyleSheet.create({
   NearBtn: {
     alignItems: 'flex-end',
   },
-  sheet_container: {
-    flex: 1,
-  },
-
-  edit_container: {
-    height: '10%',
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    width: '80%',
-    alignSelf: 'center',
-    justifyContent: 'space-between',
-  },
-  personal_text: {
-    fontSize: 20,
-    fontWeight: fontWeights.extraBold,
-    color: color.palette.black,
-  },
-  edit_icon_view: {
-    width: 22,
-    height: 22,
-  },
-  profile_container: {
-    height: '20%',
-    width: '80%',
-    alignSelf: 'center',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  profile: {
-    width: '60%',
-    height: '60%',
-  },
-  textInput_container: {
-    width: '80%',
-    alignSelf: 'center',
-    height: '25%',
-    justifyContent: 'space-around',
-    paddingBottom: 10,
-  },
-  text_view: {},
-  info_text: {
-    borderBottomColor: color.palette.black,
-    borderBottomWidth: 1,
-    paddingLeft: '13%',
-    color: color.palette.black,
-  },
-  input_icon: {
-    width: '10%',
-    height: 20,
-    position: 'absolute',
-    paddingLeft: 10,
-  },
-  office_container: {
-    alignSelf: 'center',
-    width: '80%',
-    flex: 1,
-  },
-  office_heading_view: {
-    height: '15%',
-  },
-  office_heading_text: {
-    fontWeight: fontWeights.extraBold,
-    color: color.palette.black,
-    fontSize: 20,
-  },
-  office_info_view: {
-    height: '70%',
-    paddingTop: 30,
-    paddingBottom: 10,
-  },
-  info_view: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingLeft: 20,
-    paddingRight: 20,
-
-    flexGrow: 1,
-  },
-  office_text: {
-    color: color.palette.black,
-    fontSize: 13,
-  },
-
-  log_btn_view: {
-    height: '30%',
-    justifyContent: 'center',
-  },
-  power_container: {
-    width: 130,
-    height: 34,
-    borderRadius: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingLeft: 12,
-    paddingRight: 12,
-  },
-  text: {
-    color: color.palette.white,
-    fontWeight: fontWeights.bold,
-  },
-  powerIcon_view: {
-    width: '15%',
-  },
-  loc_icon_container: {
-    top: '3%',
-  },
-  loc_icon: {
-    width: '45%',
-    height: 30,
-    position: 'absolute',
-    alignSelf: 'center',
-  },
-  download_conatainer: {
-    height: '15%',
-    width: '80%',
-    alignSelf: 'center',
-    flexDirection: 'column',
-    justifyContent: 'space-around',
-  },
+  
   titles_container:{
     flex:0.7
   },
@@ -385,8 +197,9 @@ const style = StyleSheet.create({
   title_text:{
     fontSize:16,
     color:color.palette.black,
-    fontWeight:fontWeights.bold,
-    marginTop:10
+    marginTop:10,
+    fontFamily:typography.demi
+
   },
   status_logo_container:{
     flex:0.3,
@@ -410,5 +223,7 @@ const style = StyleSheet.create({
     marginTop:10,
     color:color.palette.black,
     fontSize:15,
+    fontFamily:typography.medium
+
   }
 });

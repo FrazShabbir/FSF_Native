@@ -11,7 +11,12 @@ export const typography = {
   /**
    * The primary font.  Used in most places.
    */
-   Avenir_Bold:'AvenirNextLTPro-Regular',
-   Avenir_Italic:'AvenirNextLTPro-It',
-   Avenir_Regular:'AvenirNextLTPro-Bold'
+   bold:'AvenirNextLTPro-Bold',
+   demi:'AvenirNextLTPro-Demi',
+   Regular:'AvenirNextLTPro-Regular',
+   heavy:'AvenirNextLTPro-Heavy',
+   medium:'AvenirNextLTPro-Medium',
+
+
+
 };

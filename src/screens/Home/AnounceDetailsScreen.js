@@ -1,7 +1,7 @@
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
-import React, {useRef} from 'react';
+import React, {useRef,useState,useEffect} from 'react';
 import {HomeComponent, NearBtn,DonationStatus} from '../../components';
-import {color} from '../../theme';
+import {color, typography} from '../../theme';
 import AboutIcon from '../../assets/HomeAssets/Svgs/aboutIcon.svg';
 import SettingIcon from '../../assets/HomeAssets/Svgs/settingIcon.svg';
 import PrivacyIcon from '../../assets/HomeAssets/Svgs/privacyIcon.svg';
@@ -17,9 +17,18 @@ import {useNavigation} from '@react-navigation/native';
 import HomeIcon from '../../assets/HomeAssets/Svgs/homeblack.svg';
 import { ScrollView } from 'react-native-gesture-handler';
 
-export const AnounceDetailsScreen = () => {
+export const AnounceDetailsScreen = ({route}) => {
   const refRBSheet = useRef();
   const navigate = useNavigation();
+  const {title,description}=route.params;
+  const [data, setdata] = useState('');
+
+  /* useEffect(() => {
+    fetch(`https://fsfeu.org/es/fsf/api/notification/${notificationId}`)
+      .then(res => res.json())
+      .then(data =>setdata(data.notification))
+      .catch(err => console.log('error', err));
+  }, []); */
   return (
     <View style={style.container}>
       <HomeComponent backIcon={true} title={'Update Privacy'} />
@@ -30,8 +39,8 @@ export const AnounceDetailsScreen = () => {
         
         <ScrollView showsVerticalScrollIndicator={false} style={style.form_container}>
         <Text style={style.texts}>From: CEO </Text>
-        <Text  style={style.texts}>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec dictum lacinia urna, at pharetra nisi dapibus ac. Duis fringilla orci felis, aliquet pretium elit scelerisque quis. Sed bibendum suscipit porta. Ut eget ultrices orci. Aliquam ex lectus, mollis at elementum id, scelerisque quis nulla. Duis nulla elit, mattis ut purus vitae, iaculis rutrum lectus. Aenean cursus, enim sed commodo dignissim, metus nisi tristique nulla, feugiat lacinia dui turpis ac justo. Aliquam congue, elit ac congue efficitur, nibh sem iaculis nisl, quis tincidunt ante massa ut dolor.</Text>
-        <Text  style={style.texts}>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec dictum lacinia urna, at pharetra nisi dapibus ac. Duis fringilla orci felis, aliquet pretium elit scelerisque quis. Sed bibendum suscipit porta. Ut eget ultrices orci. Aliquam ex lectus, mollis at elementum id, scelerisque quis nulla. Duis nulla elit, mattis ut purus vitae, iaculis rutrum lectus. Aenean cursus, enim sed commodo dignissim, metus nisi tristique nulla, feugiat lacinia dui turpis ac justo. Aliquam congue, elit ac congue efficitur, nibh sem iaculis nisl, quis tincidunt ante massa ut dolor.</Text>
+        <Text  style={style.title}>{title}</Text>
+        <Text  style={style.texts}>{description}</Text>
         </ScrollView>
       </View>
       <View style={style.bottom_tab_container}>
@@ -58,103 +67,7 @@ export const AnounceDetailsScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
-      <RBSheet
-        ref={refRBSheet}
-        closeOnDragDown={true}
-        openDuration={500}
-        closeOnPressMask={true}
-        animationType={'fade'}
-        customStyles={{
-          wrapper: {
-            backgroundColor: 'rgba(0,0,0,0.6)',
-          },
-          draggableIcon: {
-            backgroundColor: 'white',
-          },
-          container: {
-            borderTopRightRadius: 50,
-            borderTopLeftRadius: 50,
-            height: '40%',
-          },
-        }}>
-        <View style={style.sheet_container}>
-          <View style={[style.edit_container, {}]}>
-            <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
-              <View style={style.loc_icon_container}>
-                <LocIcon width={22} height={40} />
-                <View style={style.loc_icon}>
-                  <LocDot width="100%" height="100%" />
-                </View>
-              </View>
-              <Text style={style.personal_text}> Near Service Center</Text>
-            </View>
-            <TouchableOpacity
-              style={[style.edit_icon_view, {}]}
-              onPress={() => refRBSheet.current.close()}>
-              <BackDown width={'100%'} height={'100%'} />
-            </TouchableOpacity>
-          </View>
-          <View style={style.office_container}>
-            <View style={style.office_info_view}>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  Office Name:
-                </Text>
-                <Text style={style.office_text}>Ali Ahmad</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  Officer Cell No:
-                </Text>
-                <Text style={style.office_text}>031551548515</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  State:
-                </Text>
-                <Text style={style.office_text}>Dummy</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  City:
-                </Text>
-                <Text style={style.office_text}>Dummy City</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  Area:
-                </Text>
-                <Text style={style.office_text}>Dummy Area</Text>
-              </View>
-              <View style={style.info_view}>
-                <Text
-                  style={[style.office_text, {fontWeight: fontWeights.bold}]}>
-                  Street:
-                </Text>
-                <Text style={style.office_text}>Street Dummy A-3</Text>
-              </View>
-            </View>
-            <View style={style.log_btn_view}>
-              <TouchableOpacity onPress={() => dialCall('000000000')}>
-                <LinearGradient
-                  useAngle={true}
-                  colors={[color.palette.darkblue, color.palette.lightBlue]}
-                  style={style.power_container}>
-                  <View style={style.powerIcon_view}>
-                    <Cell width={'100%'} height={'100%'} />
-                  </View>
-                  <Text style={style.text}>Call Us Now</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </RBSheet>
+    
     </View>
   );
 };
@@ -169,6 +82,15 @@ const style = StyleSheet.create({
     alignSelf:'center',
     bottom:20,
     
+  },
+  title:{
+    fontSize:17,
+    color:color.palette.black,
+   // fontWeight:fontWeights.extraBold,
+    paddingBottom:10
+    ,
+    fontFamily:typography.demi
+
   },
   status_text:{
     fontSize: 28,
@@ -190,6 +112,7 @@ const style = StyleSheet.create({
   texts:{
     color:color.palette.black,
     marginBottom:10,
+    fontFamily:typography.Regular
     
   },
   bottom_tab_container: {

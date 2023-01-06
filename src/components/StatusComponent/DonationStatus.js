@@ -1,7 +1,7 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import LinearGradient from 'react-native-linear-gradient';
-import {color} from '../../theme';
+import {color, typography} from '../../theme';
 import StatsIcon from '../../assets/HomeAssets/Svgs/appStatus.svg';
 import GreenDot from '../../assets/HomeAssets/Svgs/greenDot.svg';
 import {fontWeights} from '../../theme/styles';
@@ -9,14 +9,15 @@ import RedDot from '../../assets/HomeAssets/Svgs/redDot.svg';
 import YellowDot from '../../assets/HomeAssets/Svgs/yellowDot.svg';
 import RupeeSign from '../../assets/HomeAssets/Svgs/rupeeSignSmall.svg';
 
-export const DonationStatus = ({icon, status, title, date}) => {
+export const DonationStatus = ({icon, status, title, date, amount}) => {
   const selectIcon = () => {
     if (icon == 'rupee') {
       return <RupeeSign width={'100%'} height={'100%'} />;
     }
-  };
+  }; 
+
   const selectStatus = () => {
-    if (status == 'accepted') {
+    if (status == 'approved') {
       return (
         <>
           <View style={style.dotView}>
@@ -36,7 +37,7 @@ export const DonationStatus = ({icon, status, title, date}) => {
           </Text>
         </>
       );
-    } else if (status == 'pendding') {
+    } else if (status == 'pending') {
       return (
         <>
           <View style={style.dotView}>
@@ -46,6 +47,12 @@ export const DonationStatus = ({icon, status, title, date}) => {
             Pendding
           </Text>
         </>
+      );
+    } else {
+      return (
+        <Text style={[style.status_text, {color: color.palette.darkblue}]}>
+          {status}
+        </Text>
       );
     }
   };
@@ -64,7 +71,7 @@ export const DonationStatus = ({icon, status, title, date}) => {
         <View style={style.status_view}>{selectStatus()}</View>
       </View>
       <View style={style.amount_view}>
-        <Text style={style.amount}>€ 100</Text>
+        <Text style={style.amount}>€ {amount}</Text>
       </View>
     </View>
   );
@@ -75,43 +82,45 @@ const style = StyleSheet.create({
     borderBottomWidth: 1,
     height: 70,
     flexDirection: 'row',
-    paddingBottom:3
+    paddingBottom: 3,
   },
   title_container: {
     flex: 1,
+    justifyContent:"center"
   },
   logo_view: {
-    width: 35,
-    height: 35,
+    width:"13%",
+    
     borderRadius: 10,
-    padding: 6,
-    marginTop: 5,
-    marginBottom: 5,
+    padding: 8,
+    marginTop: 10,
+    marginBottom: 10,
     alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'center',
+    
   },
   title_view: {
     flex: 1,
-    left: 8,
+    marginLeft: 8,
     justifyContent: 'center',
-    
+    paddingTop:4,
+
   },
   title: {
-    fontWeight: fontWeights.extraBold,
-    fontSize: 13,
+    fontSize: 14,
     color: color.palette.black,
+    fontFamily:typography.demi,
   },
   date: {
-    fontWeight: fontWeights.bold,
-    fontSize: 11,
+    fontSize: 12,
     color: color.palette.black,
-    top:2,
+    fontFamily:typography.Regular
   },
   status_view: {
     flexDirection: 'row',
     alignItems: 'center',
-    left: 8,
+    marginLeft: 8,
   },
   dotView: {
     width: 10,
@@ -119,17 +128,18 @@ const style = StyleSheet.create({
   },
   status_text: {
     color: color.palette.green,
-    fontWeight: fontWeights.bold,
+    fontFamily:typography.demi,
     left: 3,
     fontSize: 12,
   },
-  amount_view:{
-    width:"15%",
-    justifyContent:"center",
-    alignItems:"center"
+  amount_view: {
+    width: '15%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  amount:{
-    fontWeight:fontWeights.extraBold,
-    color:color.palette.black
-  }
+  amount: {
+    fontSize:14,
+    color: color.palette.black,
+    fontFamily:typography.demi
+  },
 });

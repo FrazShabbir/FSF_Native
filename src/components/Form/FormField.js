@@ -1,6 +1,6 @@
 import {View, Text, StyleSheet} from 'react-native';
 import React from 'react';
-import {color} from '../../theme';
+import {color, typography} from '../../theme';
 import { fontWeights } from '../../theme/styles';
 export const FormField = ({urdu, english}) => {
   const select = () => {
@@ -166,6 +166,8 @@ export const FormField = ({urdu, english}) => {
 const style = StyleSheet.create({
   container: {
     marginTop:10,
+    paddingLeft:5,
+    paddingRight:5
   },
   field_view: {},
   title_view: {
@@ -175,10 +177,13 @@ const style = StyleSheet.create({
   urdu:{
     color: color.palette.black,
     fontSize:15,
+    fontFamily:typography.medium
   },
   english: {
     color: color.palette.black,
-    fontSize:15
+    fontSize:15,
+    fontFamily:typography.medium,
+
   },
   english_heading:{
     color: color.palette.black,

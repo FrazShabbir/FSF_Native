@@ -39,6 +39,7 @@ const style = StyleSheet.create({
   title: {
     color: color.palette.white,
     fontSize: 16,
+    fontFamily:typography.medium
   },
   btn: {
     width: '100%',

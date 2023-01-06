@@ -20,6 +20,11 @@ export const RoutNames={
     AnounceDetailScreen:"AnnounceDetailScreen",
     EnrollmentHistory:'EnrollmentHistory',
     FormHistoryDetailScreen:'FormHistoryDetailScreen',
-    DonationHistoryDetailScreen:"DonationHistoryDetailScreen"
+    DonationHistoryDetailScreen:"DonationHistoryDetailScreen",
+    RenewEnrollment:"RenewEnrollment",
+    AllApplications:"AllApplications",
+    UpdateApplication:"UpdateApplication",
+    Application:'Application',
+    EnrollAgreementForEdit:"EnrollAgreementForEdit"
     
 }

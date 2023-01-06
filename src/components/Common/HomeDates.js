@@ -1,12 +1,21 @@
 import { View, Text, StyleSheet } from 'react-native'
 import React from 'react'
-import { color } from '../../theme'
+import { color, typography } from '../../theme'
+import { useSelector } from 'react-redux'
 
 export const HomeDates = () => {
+  const {HomeStats}=useSelector((state)=>state.UserReducer)
+  const FormatDate=(date)=>{
+    
+   const year= date.slice(0,4);
+   const mon=date.slice(5,7);
+   const day=date.slice(8,10)
+   return day+"-"+mon+"-"+year;
+  }
   return (
     <View style={style.constainer}>
-      <Text style={style.date}>Registration Date:10-January-22</Text>
-      <Text style={style.date}>Expire Date:10-january-2022</Text>
+      <Text style={style.date}>Registration Date: {FormatDate(HomeStats.regDate)}</Text>
+      <Text style={style.date}>Expire Date: {FormatDate(HomeStats.expDate)}</Text>
     </View>
   )
 }
@@ -20,8 +29,9 @@ const style=StyleSheet.create({
         
     },
     date:{
-        fontSize:9,
+        fontSize:10,
         color:color.palette.black,
+        fontFamily:typography.medium
 
     }
 })

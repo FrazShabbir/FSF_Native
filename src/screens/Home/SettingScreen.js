@@ -5,10 +5,11 @@ import {
   TouchableOpacity,
   TextInput,
   Image,
+  Modal,
 } from 'react-native';
-import React, {useRef, useState} from 'react';
+import React, {useRef, useState, useEffect} from 'react';
 import {HomeComponent, NearBtn} from '../../components';
-import {color} from '../../theme';
+import {color, typography} from '../../theme';
 import HomeIcon from '../../assets/HomeAssets/Svgs/homeblack.svg';
 import AboutIcon from '../../assets/HomeAssets/Svgs/aboutIcon.svg';
 import SettingIcon from '../../assets/HomeAssets/Svgs/settingHower.svg';
@@ -28,15 +29,30 @@ import WhiteTick from '../../assets/HomeAssets/Svgs/whiteTIck.svg';
 import EditIconWhite from '../../assets/EnrolmentAssets/EditIconWhite.svg';
 import Cellicon from '../../assets/HomeAssets/Svgs/cellIcon.svg';
 import ImagePicker from 'react-native-image-crop-picker';
-import { useDispatch, useSelector } from 'react-redux';
-import {Logout } from '../../Reduxs/Reducers';
+import {useDispatch, useSelector} from 'react-redux';
+import {Logout, UpdateProfile} from '../../Reduxs/Reducers';
+import {showMessage} from 'react-native-flash-message';
+import {SkypeIndicator} from 'react-native-indicators';
+import IntlPhoneInput from 'react-native-intl-phone-input';
 export const SettingScreen = () => {
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
   const refRBSheet = useRef();
   const profileRBsheet = useRef();
-  const [imgPath, setimgPath] = useState('');
   const [img, setimg] = useState(false);
-  const {user}=useSelector((state)=>state.UserReducer)
+  const [indicator, setIndicator] = useState(false);
+  const {user, token, Enrollstatus, NearOffice} = useSelector(
+    state => state.UserReducer,
+  );
+  const [valid, setValid] = useState('');
+  const [profile, setprofile] = useState({
+    id: user.id,
+    fullName: user.full_name,
+    email: user.email,
+    phoneNumber: user.phone,
+    avatar: user.avatar,
+  });
+  const [data, setdata] = useState(NearOffice);
+
   const pickFromGallary = () => {
     ImagePicker.clean()
       .then(() => {})
@@ -48,10 +64,57 @@ export const SettingScreen = () => {
       height: 400,
       cropping: true,
     }).then(image => {
-      setimgPath(image.path);
+      setprofile({
+        ...profile,
+        avatar: image.path,
+      });
+
       setimg(true);
       profileRBsheet.current.close();
     });
+  };
+  const updateProfile = async () => {
+    setIndicator(true);
+    const formData = new FormData();
+    formData.append('avatar', {
+      uri: profile.avatar,
+      name: 'image.png',
+      fileName: 'image',
+      type: 'image/png',
+    });
+    formData.append('full_name', `${profile.fullName}`);
+    formData.append('email', `${profile.email}`);
+    formData.append('phone', `${profile.phoneNumber}`);
+    formData.append('api_token', `${token}`);
+    const res = await fetch(
+      `https://fsfeu.org/es/fsf/api/myprofile/${profile.id}/update`,
+      {
+        method: 'post',
+        body: formData,
+        headers: {
+          'content-type': 'multipart/form-data',
+        },
+      },
+    );
+    const jsonRes = await res.json();
+    if (jsonRes.status === 200) {
+      dispatch(UpdateProfile(jsonRes.user));
+      console.log('res', jsonRes);
+      showMessage({
+        message: jsonRes.message,
+        type: 'success',
+        duration: 3000,
+      });
+      setIndicator(false);
+    } else {
+      showMessage({
+        message: jsonRes.errors.email[0],
+        type: 'danger',
+        duration: 3000,
+      });
+      console.log('data', jsonRes);
+      setIndicator(false);
+    }
   };
   const pickFromCamer = () => {
     ImagePicker.clean()
@@ -64,32 +127,58 @@ export const SettingScreen = () => {
       height: 400,
       cropping: true,
     }).then(image => {
-      setimgPath(image.path);
+      setprofile({
+        ...profile,
+        avatar: image.path,
+      });
+
       setimg(true);
       profileRBsheet.current.close();
     });
   };
+  const UserLogout = async () => {
+    dispatch(Logout());
 
-  const select = () => {
-    if (img == true) {
-      return (
-        <Image
-          style={{width: '100%', height: '100%', borderRadius: 50}}
-          source={{uri: imgPath}}
-        />
-      );
-    } else {
-      return (
-        <Image
-          style={{width: '100%', height: '100%'}}
-          source={require('../../assets/images/profile.png')}
-        />
-      );
-    }
+    /*  setIndicator(true);
+    const res = await fetch(
+      `https://fsfeu.org/es/fsf/api/auth/logout?token=${token}&user_id=${profile.id}`,
+      {
+        method: 'Post',
+        headers: {
+          'content-type': 'application/json',
+        },
+      },
+    ).then((res)=>res.json())
+    .then((jsonRes)=>{
+      if (jsonRes.status === 200) {
+        dispatch(Logout({}));
+        setIndicator(false);
+        showMessage({
+          message: jsonRes.message,
+          type: 'success',
+          duration: 3000,
+        });
+      } else {
+        showMessage({
+          message: jsonRes.message,
+          type: 'danger',
+          duration: 3000,
+        });
+        console.log(jsonRes.message);
+        setIndicator(false);
+       
+      }
+    }).catch((error)=>{
+      showMessage({
+        message:"Please Make Sure you're connected to Internet",
+        type: 'danger',
+        duration: 3000,
+      });
+      setIndicator(false);
+
+    })
+     */
   };
-  console.log(
-
-  )
   const navigate = useNavigation();
   return (
     <View style={style.container}>
@@ -105,27 +194,30 @@ export const SettingScreen = () => {
         </View>
         <View style={style.profile_container}>
           <View style={style.profile}>
-            <Image style={{width:"100%",height:"100%",borderRadius:50}} source={{uri:user.user.avatar}} />
+            <Image
+              style={{width: '100%', height: '100%', borderRadius: 50}}
+              source={{uri: user.avatar}}
+            />
           </View>
         </View>
         <View style={style.textInput_container}>
           <View style={style.text_view}>
-            <Text style={style.info_text}>{user.user.full_name}</Text>
             <View style={style.input_icon}>
               <User width={'100%'} height={'100%'} />
             </View>
+            <Text style={style.info_text}>{profile.fullName}</Text>
           </View>
           <View style={style.text_view}>
-            <Text style={style.info_text}>{user.user.email}</Text>
             <View style={style.input_icon}>
               <Email width={'100%'} height={'100%'} />
             </View>
+            <Text style={style.info_text}>{profile.email}</Text>
           </View>
           <View style={style.text_view}>
-            <Text style={style.info_text}>0300153100534</Text>
             <View style={style.input_icon}>
               <Cellicon width={'100%'} height={'100%'} />
             </View>
+            <Text style={style.info_text}>{profile.phoneNumber}</Text>
           </View>
         </View>
         <View style={style.office_container}>
@@ -137,41 +229,45 @@ export const SettingScreen = () => {
               <Text style={[style.office_text, {fontWeight: fontWeights.bold}]}>
                 Office Name:
               </Text>
-              <Text style={style.office_text}>Ali Ahmad</Text>
+              <Text style={style.office_text}>{data[0]?.name}</Text>
             </View>
             <View style={style.info_view}>
               <Text style={[style.office_text, {fontWeight: fontWeights.bold}]}>
                 Officer Cell No:
               </Text>
-              <Text style={style.office_text}>031551548515</Text>
+              <Text selectable style={style.office_text}>
+                {data[0]?.phone}
+              </Text>
             </View>
             <View style={style.info_view}>
               <Text style={[style.office_text, {fontWeight: fontWeights.bold}]}>
                 State:
               </Text>
-              <Text style={style.office_text}>Dummy</Text>
+              <Text style={style.office_text}>{data[0]?.officehead}</Text>
             </View>
             <View style={style.info_view}>
               <Text style={[style.office_text, {fontWeight: fontWeights.bold}]}>
                 City:
               </Text>
-              <Text style={style.office_text}>Dummy City</Text>
+              <Text style={style.office_text}>{data[0]?.city_id}</Text>
             </View>
             <View style={style.info_view}>
               <Text style={[style.office_text, {fontWeight: fontWeights.bold}]}>
                 Area:
               </Text>
-              <Text style={style.office_text}>Dummy Area</Text>
+              <Text style={style.office_text}>{data[0]?.area}</Text>
             </View>
             <View style={style.info_view}>
               <Text style={[style.office_text, {fontWeight: fontWeights.bold}]}>
                 Street:
               </Text>
-              <Text style={style.office_text}>Street Dummy A-3</Text>
+              <Text style={style.office_text}>{data[0]?.street}</Text>
             </View>
           </View>
           <View style={style.log_btn_view}>
-            <TouchableOpacity onPress={()=>dispatch(Logout({}))}>
+            <TouchableOpacity
+              style={{alignItems: 'flex-start'}}
+              onPress={() => UserLogout()}>
               <LinearGradient
                 useAngle={true}
                 colors={[color.palette.darkblue, color.palette.lightBlue]}
@@ -209,6 +305,18 @@ export const SettingScreen = () => {
             <SettingIcon width={'100%'} />
           </View>
         </View>
+        {Enrollstatus == 'notRegister' ? (
+          <View
+            style={[
+              style.bottom_tab_container,
+              {
+                position: 'absolute',
+                backgroundColor: 'rgba(255,255,255,0.6)',
+                width: '50%',
+                height: '100%',
+              },
+            ]}></View>
+        ) : null}
       </View>
 
       <RBSheet
@@ -241,7 +349,10 @@ export const SettingScreen = () => {
           </View>
           <View style={[style.profile_container, {height: '35%'}]}>
             <View style={[style.profile, {width: 100, height: 100}]}>
-              {select()}
+              <Image
+                style={{width: '100%', height: '100%', borderRadius: 50}}
+                source={{uri: profile.avatar}}
+              />
               <TouchableOpacity
                 onPress={() => profileRBsheet.current.open()}
                 style={{
@@ -263,7 +374,8 @@ export const SettingScreen = () => {
             <View style={style.edit_profile_view}>
               <TextInput
                 style={style.profile_input}
-                placeholder={'Muhammad Ali Asghar'}
+                placeholder={profile.fullName}
+                onChangeText={e => setprofile({...profile, fullName: e})}
                 placeholderTextColor={color.palette.black}
               />
               <View style={style.profile_input_icon}>
@@ -274,7 +386,8 @@ export const SettingScreen = () => {
             <View style={style.edit_profile_view}>
               <TextInput
                 style={style.profile_input}
-                placeholder={'Dummy@gmail.com'}
+                placeholder={profile.email}
+                onChangeText={e => setprofile({...profile, email: e})}
                 placeholderTextColor={color.palette.black}
               />
               <View style={style.profile_input_icon}>
@@ -283,11 +396,53 @@ export const SettingScreen = () => {
               <View style={{borderWidth: 1, bottom: 8}}></View>
             </View>
             <View style={style.edit_profile_view}>
-              <TextInput
-                style={style.profile_input}
-                placeholder={'15151151551'}
-                placeholderTextColor={color.palette.black}
+              <IntlPhoneInput
+                placeholder={profile.phoneNumber}
+                placeholderTextColor={color.palette.lightgray}
+                phoneInputStyle={[style.profile_input, {paddingLeft: 10}]}
+                onChangeText={e => {
+                  console.log('phone', e);
+
+                  if (e.isVerified == true) {
+                    setprofile({
+                      ...profile,
+                      phoneNumber:
+                        e.dialCode.toString() +
+                        e.unmaskedPhoneNumber.toString(),
+                    });
+                    setValid(
+                      e.dialCode.toString() + e.unmaskedPhoneNumber.toString(),
+                    );
+                  } else {
+                    setValid('');
+                  }
+                }}
+                containerStyle={{
+                  borderRadius: 10,
+                  fontSize: 16,
+                  height: 50,
+                  color: color.palette.black,
+                  marginLeft: 25,
+                  top: 4,
+                }}
+                flagStyle={{width: 0, height: 0}}
+                dialCodeTextStyle={{
+                  fontSize: 16,
+                  color: color.palette.black,
+                  bottom: 2,
+                }}
+                defaultCountry={'PK'}
+                modalCountryItemCountryNameStyle={{
+                  color: color.palette.black,
+                  fontFamily: typography.demi,
+                }}
               />
+              {/* <TextInput
+                style={style.profile_input}
+                placeholder={profile.phoneNumber}
+                onChangeText={e => setprofile({...profile, phoneNumber: e})}
+                placeholderTextColor={color.palette.black}
+              /> */}
               <View style={style.profile_input_icon}>
                 <Cellicon width={'100%'} height={'100%'} />
               </View>
@@ -295,8 +450,23 @@ export const SettingScreen = () => {
             </View>
           </View>
           <View
-            style={[style.log_btn_view, {width: '80%', alignSelf: 'center'}]}>
-            <TouchableOpacity>
+            style={[
+              style.log_btn_view,
+              {width: '80%', alignSelf: 'center', marginTop: 15},
+            ]}>
+            <TouchableOpacity
+              onPress={() => {
+                if (valid == '') {
+                  showMessage({
+                    message: 'Enter Valid Phone Number',
+                    type: 'danger',
+                    duration: 3000,
+                  });
+                } else {
+                  updateProfile();
+                  setValid('');
+                }
+              }}>
               <LinearGradient
                 useAngle={true}
                 colors={[color.palette.darkblue, color.palette.lightBlue]}
@@ -354,6 +524,11 @@ export const SettingScreen = () => {
           </>
         </View>
       </RBSheet>
+      <Modal visible={indicator} transparent>
+        <View style={{flex: 1, backgroundColor: 'rgba(0,0,0,0.4)'}}>
+          <SkypeIndicator color="white" size={50} />
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -436,9 +611,10 @@ const style = StyleSheet.create({
     justifyContent: 'space-between',
   },
   personal_text: {
-    fontSize: 15,
-    fontWeight: fontWeights.extraBold,
+    fontSize: 18,
+    //fontWeight: fontWeights.extraBold,
     color: color.palette.black,
+    fontFamily: typography.demi,
   },
   edit_icon_view: {
     width: '10%',
@@ -462,19 +638,25 @@ const style = StyleSheet.create({
     justifyContent: 'space-around',
     paddingBottom: 10,
   },
-  text_view: {},
+  text_view: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    paddingBottom: 3,
+  },
   info_text: {
     borderBottomColor: color.palette.black,
-    borderBottomWidth: 1,
-    paddingLeft: '13%',
+    paddingLeft: 12,
     color: color.palette.black,
-    paddingBottom: 3,
+    fontFamily: typography.Regular,
+    fontSize: 16,
+    alignSelf: 'center',
   },
   input_icon: {
     width: 30,
     height: 20,
-    position: 'absolute',
+    //position: 'absolute',
     paddingLeft: 10,
+    alignSelf: 'center',
   },
   office_container: {
     alignSelf: 'center',
@@ -483,14 +665,16 @@ const style = StyleSheet.create({
   },
   office_heading_view: {
     height: '15%',
+    justifyContent: 'center',
   },
   office_heading_text: {
-    fontWeight: fontWeights.extraBold,
+    // fontWeight: fontWeights.extraBold,
     color: color.palette.black,
-    fontSize: 16,
+    fontSize: 17,
+    fontFamily: typography.demi,
   },
   office_info_view: {
-    height: '65%',
+    flex: 1,
   },
   info_view: {
     flexDirection: 'row',
@@ -501,34 +685,35 @@ const style = StyleSheet.create({
   },
   office_text: {
     color: color.palette.black,
+    fontFamily: typography.Regular,
+    fontSize: 15,
   },
 
   log_btn_view: {
-    flex: 1,
-    justifyContent: 'center',
     alignItems: 'flex-end',
-    
   },
   power_container: {
-    width: '30%',
     height: 32,
     borderRadius: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingLeft: 12,
     paddingRight: 12,
   },
   text: {
     color: color.palette.white,
+    fontFamily: typography.medium,
+    fontSize: 14,
+    marginLeft: 7,
   },
   powerIcon_view: {
-    width: '20%',
+    width: 18,
+    height: 18,
   },
   power_line: {
     position: 'absolute',
     alignSelf: 'center',
-    top: 4,
+    bottom: 10,
   },
   edit_white_container: {
     borderRadius: 50,
@@ -536,7 +721,7 @@ const style = StyleSheet.create({
     height: 35,
     justifyContent: 'center',
     alignItems: 'center',
-    top:4
+    top: 4,
   },
   edit_white_view: {
     width: 15,
@@ -556,8 +741,8 @@ const style = StyleSheet.create({
   },
   gallary_text: {
     color: color.palette.white,
-    fontSize: 18,
-    fontWeight: fontWeights.bold,
+    fontSize: 16,
+    fontFamily: typography.Bold,
   },
   pick_camera_view: {
     justifyContent: 'center',
@@ -570,13 +755,13 @@ const style = StyleSheet.create({
   },
   camera_text: {
     color: color.palette.white,
-    fontSize: 18,
-    fontWeight: fontWeights.bold,
+    fontSize: 16,
+    //fontWeight: fontWeights.bold,
+    fontFamily: typography.Bold,
   },
   Edit_profile_container: {
     width: '80%',
     alignSelf: 'center',
-    height: '35%',
   },
   edit_profile_view: {
     width: '100%',
@@ -586,6 +771,8 @@ const style = StyleSheet.create({
     textAlignVertical: 'bottom',
     paddingLeft: 40,
     color: color.palette.black,
+    fontFamily: typography.Regular,
+    fontSize: 15,
   },
   profile_input_icon: {
     width: 22,
@@ -593,6 +780,6 @@ const style = StyleSheet.create({
     position: 'absolute',
     top: '32%',
     left: 4,
-    alignSelf:"flex-end"
+    alignSelf: 'flex-end',
   },
 });

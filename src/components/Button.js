@@ -32,7 +32,8 @@ const style = StyleSheet.create({
     color: color.palette.white,
     position: 'absolute',
     fontSize: 20,
-    fontWeight: fontWeights.extraBold,
+    fontFamily:typography.demi
+
   },
   btn: {
     borderRadius: 50,

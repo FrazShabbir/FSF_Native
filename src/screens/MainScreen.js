@@ -55,12 +55,13 @@ const style = StyleSheet.create({
   },
   title: {
     paddingTop: 140,
-    fontSize: 45,
+    fontSize: 44,
     color: colors.white,
     position: 'absolute',
-    fontWeight: fontWeights.extraBold,
     width: '60%',
     paddingLeft: 20,
+    fontFamily:typography.bold
+
   },
   fix: {
     flex: 1,
