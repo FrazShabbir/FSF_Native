@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   Modal,
+  Linking
 } from 'react-native';
 import React, {useState} from 'react';
 import {fontSizes, globalStyles} from '../../theme/styles';
@@ -42,6 +43,11 @@ export const SignUp = () => {
   const navigate = useNavigation();
   const [hidePassword, setHidePassword] = useState(true);
   const [indicator, setIndicator] = useState(null);
+
+
+const openUrl=(url)=>{
+  Linking.openURL(url)
+}
 
   return (
     <View style={[globalStyles.fillAll, style.container]}>
@@ -212,7 +218,10 @@ export const SignUp = () => {
                       }}>
                       By sign up, I accept the
                     </Text>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={()=>{
+
+                      openUrl("https://fsfeu.org/terms-and-conditions")
+                    }}>
                       <Text
                         style={{
                           color: color.palette.darkblue,
@@ -243,7 +252,9 @@ export const SignUp = () => {
                       }}>
                       read the{' '}
                     </Text>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={()=>{
+                      openUrl('https://fsfeu.org/privacy-policies')
+                    }}>
                       <Text
                         style={{
                           color: color.palette.darkblue,

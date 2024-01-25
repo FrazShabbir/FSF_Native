@@ -4,7 +4,7 @@ const initialState = {
   user: {},
   token: '',
   userId: '',
-  Enrollstatus: "notRegister",
+  Enrollstatus: 'notRegister',
   notify: '',
   loading: '',
   NearOffice: [],
@@ -39,13 +39,18 @@ const UserReducer = createSlice({
       state.userId = id;
       state.initialModel = true;
       state.loginRequired = false;
-      state.allApplications=applications;
+      state.allApplications = applications;
+      if (applications.length > 0) {
+        state.HomeStats.id = applications[0].application_id;
+        state.HomeStats.name = applications[0].full_name;
+        state.HomeStats.status = applications[0].status.toLowerCase();
+        state.updateStatus = true;
 
-      state.HomeStats.id = applications[0].application_id;
-      state.HomeStats.name = applications[0].full_name;
-      state.HomeStats.status = applications[0].status.toLowerCase();
-      state.updateStatus = true;
-      
+      }else{
+        state.updateStatus = false;
+
+      }
+
     },
     GetProfile(state, {payload}) {
       state.user = payload;
@@ -120,7 +125,7 @@ export const {
   SetLoading,
   SetHomeStatus,
   SetinitialModel,
-  SetHomeRefresh
+  SetHomeRefresh,
 } = UserReducer.actions;
 export default UserReducer.reducer;
 

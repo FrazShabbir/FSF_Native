@@ -39,6 +39,9 @@ export const EnrolAgreement = () => {
   const [data, setdata] = useState('');
   const [urduUrl, setUrduUrl] = useState('');
   const [englishUrl, setEnglishUrl] = useState('');
+  const {user, token, Enrollstatus, NearOffice,allApplications} = useSelector(
+    state => state.UserReducer,
+  );
   const dispatch=useDispatch()
   const {
     loading
@@ -222,6 +225,18 @@ export const EnrolAgreement = () => {
             <SettingIcon width={'100%'} />
           </TouchableOpacity>
         </View>
+        {allApplications.length==0 ? (
+          <View
+            style={[
+              style.bottom_tab_container,
+              {
+                position: 'absolute',
+                backgroundColor: 'rgba(255,255,255,0.6)',
+                width: '50%',
+                height: '100%',
+              },
+            ]}></View>
+        ) : null}
       </View>
       <Loader />
     </View>

@@ -40,7 +40,7 @@ export const SettingScreen = () => {
   const profileRBsheet = useRef();
   const [img, setimg] = useState(false);
   const [indicator, setIndicator] = useState(false);
-  const {user, token, Enrollstatus, NearOffice} = useSelector(
+  const {user, token, Enrollstatus, NearOffice, allApplications} = useSelector(
     state => state.UserReducer,
   );
   const [valid, setValid] = useState('');
@@ -305,7 +305,7 @@ export const SettingScreen = () => {
             <SettingIcon width={'100%'} />
           </View>
         </View>
-        {Enrollstatus == 'notRegister' ? (
+        {allApplications.length == 0 ? (
           <View
             style={[
               style.bottom_tab_container,

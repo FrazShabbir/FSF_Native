@@ -33,6 +33,7 @@ import CicularArrow from '../../assets/HomeAssets/Svgs/circularArrow.svg';
 import {SkypeIndicator} from 'react-native-indicators';
 import LinearGradient from 'react-native-linear-gradient';
 import {ScrollView} from 'react-native-gesture-handler';
+import {showMessage} from 'react-native-flash-message';
 
 export const HomeScreen = () => {
   const {
@@ -44,7 +45,7 @@ export const HomeScreen = () => {
     notify,
     allApplications,
     initialModel,
-    homeRefresh
+    homeRefresh,
   } = useSelector(state => state.UserReducer);
   const [refresh, setrefresh] = useState();
   const [searchModel, setSearchModel] = useState(null);
@@ -68,14 +69,21 @@ export const HomeScreen = () => {
     if (updateStatus == true) {
       getappData();
     }
-  }, [refresh,homeRefresh]);
+  }, [refresh, homeRefresh]);
   useEffect(() => {
     fetch(`https://fsfeu.org/es/fsf/api/myprofile/${userId}/${token}`)
       .then(res => res.json())
       .then(data => {
-        dispatch(GetProfile(data.user)), console.log('user', data.user);
+        if (data.status == 404) {
+          dispatch(Logout());
+        } else {
+          dispatch(GetProfile(data.user)), console.log('user', data.user);
+        }
+      })
+      .catch(err => {
+        console.log('err', err);
       });
-  }, [refresh,homeRefresh]);
+  }, [refresh, homeRefresh]);
   useEffect(() => {
     fetch(
       `https://fsfeu.org/es/fsf/api/application/myapplication?user_id=${user.id}&api_token=${token}`,
@@ -83,30 +91,24 @@ export const HomeScreen = () => {
       .then(res => res.json())
       .then(data => {
         console.log('Applications', data);
-
-        if (data.applications == null) {
-          dispatch(SetEnrollstatus('notRegister'));
+        if (data.status == 404) {
+          dispatch(Logout());
         } else {
-          setIndicator(false);
-          dispatch(SetAllApplications(data.applications));
-          setTimeout(() => {
-            dispatch(SetinitialModel(false))
-
-          }, 1000);
-          // dispatch(setUpdateStatus(true))
-          ///setApplications(data.applications);
-          // setdate({
-          //   ...date,
-          //   regDate: data.applications[0].created_at.slice(0, 10),
-          //   expDate: data.applications[0].renewal_date.slice(0, 10),
-          //   name: data.applications[0].full_name,
-          //   status: data.applications[0].status.toLowerCase(),
-          // });
-          dispatch(SetEnrollstatus(data.applications[0].status.toLowerCase()));
-          //dispatch(SetEnrollstatus('approved'));
+          if (data.applications == null) {
+            dispatch(SetEnrollstatus('notRegister'));
+          } else {
+            setIndicator(false);
+            dispatch(SetAllApplications(data.applications));
+            setTimeout(() => {
+              dispatch(SetinitialModel(false));
+            }, 1000);
+          }
         }
+      })
+      .catch(err => {
+        console.log('err2', err);
       });
-  }, [refresh,homeRefresh]);
+  }, [refresh, homeRefresh]);
   useEffect(() => {
     fetch(
       `https://fsfeu.org/es/fsf/api/nearest-offices/all?api_token=${token}&user_id=${user.id}`,
@@ -120,24 +122,29 @@ export const HomeScreen = () => {
         }
       })
       .catch(err => console.log('error', err));
-  }, [refresh,homeRefresh]);
+  }, [refresh, homeRefresh]);
   const getappData = async () => {
     await fetch(
       `https://fsfeu.org/es/fsf/api/application/${HomeStats.id}/${user.id}/${token}`,
     )
       .then(re => re.json())
       .then(data => {
-        console.log('bbbbbbbbbbbbbbbbb', data);
-        dispatch(
-          SetHomeStatus({
-            id: data.application.application_id,
-            regDate: data.application.registeration_date.slice(0, 10),
-            expDate: data.application.expiration_date.slice(0, 10),
-            name: data.application.full_name,
-            status: data.application.status.toLowerCase(),
-          }),
-        );
-      });
+        console.log('bbbbbbbbbbbbbbbbb', data.application.status);
+        if (data.status == 400 || data.status==404) {
+          dispatch(Logout());
+        } else {
+          dispatch(
+            SetHomeStatus({
+              id: data.application.application_id,
+              regDate: data.application.registeration_date.slice(0, 10),
+              expDate: data.application.expiration_date.slice(0, 10),
+              name: data.application.full_name,
+              status: data.application.status.toLowerCase(),
+            }),
+          );
+        }
+      })
+      .catch(err => console.log('err3', err));
   };
   const handleApplications = useCallback(() => {
     setSearchModel(true);
@@ -339,7 +346,7 @@ export const HomeScreen = () => {
           <LinearGradient
             colors={[color.palette.darkblue, color.palette.lightBlue]}
             style={style.search_Model}>
-            <ScrollView>
+            <ScrollView showsVerticalScrollIndicator={false}>
               {allApplications.map((item, index) => {
                 return (
                   <TouchableOpacity
@@ -365,8 +372,6 @@ export const HomeScreen = () => {
                       }}>
                       {item.full_name}
                     </Text>
-                    
-                 
                   </TouchableOpacity>
                 );
               })}
@@ -379,12 +384,10 @@ export const HomeScreen = () => {
           </LinearGradient>
         </View>
       </Modal>
-      
     </View>
   );
 };
 const style = StyleSheet.create({
- 
   item_container: {
     backgroundColor: color.palette.white,
     width: '100%',
@@ -405,8 +408,8 @@ const style = StyleSheet.create({
     width: '80%',
     borderRadius: 25,
     padding: 30,
-    marginTop: "60%",
-    marginBottom: "60%",
+    marginTop: '60%',
+    marginBottom: '60%',
   },
   cross_view: {
     width: 25,

@@ -48,12 +48,12 @@ import {SkypeIndicator} from 'react-native-indicators';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
-import { SetHomeRefresh } from '../../Reduxs/Reducers';
+import {SetHomeRefresh} from '../../Reduxs/Reducers';
 export const UploadDonationScreen = () => {
   const refRBSheet = useRef();
   const navigate = useNavigation();
   const [formView, setFormView] = useState(true);
-  const {user, token,homeRefresh} = useSelector(state => state.UserReducer);
+  const {user, token, homeRefresh} = useSelector(state => state.UserReducer);
   const [date, setDate] = useState(new Date());
   const [open, setOpen] = useState(false);
   const [sure, setSure] = useState(false);
@@ -65,39 +65,36 @@ export const UploadDonationScreen = () => {
   const [AppOptionVisible, setAppOptionVisible] = useState(false);
   const [app, setapp] = useState('application');
   const [indicator, setIndicator] = useState(false);
-  const initialDate=new Date()
+  const initialDate = new Date();
   const [Acounts, setAcounts] = useState([]);
   const [bankid, setbankid] = useState();
   const [appid, setappid] = useState();
-  const [values,setvalues]=useState()
-  const dispatch=useDispatch();
+  const [values, setvalues] = useState();
+  const dispatch = useDispatch();
 
-  const FormatDate=(date="2022-22-2")=>{
-    console.log(
-      "date",date
-    )
-    const year= date.slice(0,4);
-    const mon=date.slice(5,7);
-    const day=date.slice(8,10)
-    return day+"-"+mon+"-"+year;
-   }
+  const FormatDate = (date = '2022-22-2') => {
+    console.log('date', date);
+    const year = date.slice(0, 4);
+    const mon = date.slice(5, 7);
+    const day = date.slice(8, 10);
+    return day + '-' + mon + '-' + year;
+  };
   const selectDate = () => {
     const day = date.getDate();
     const mon = date.getMonth();
     const year = date.getFullYear().toString();
-    return day + '-' + (mon + 1) + '-' +year ;
-  }; 
+    return day + '-' + (mon + 1) + '-' + year;
+  };
   const dateUpload = () => {
     const day = date.getDate();
     const mon = date.getMonth();
     const year = date.getFullYear().toString();
-    return year + '-' + (mon + 1) + '-' +day ;
-  }; 
-  console.log('token', token,"userId",user.id);
+    return year + '-' + (mon + 1) + '-' + day;
+  };
+  console.log('token', token, 'userId', user.id);
   useEffect(() => {
     fetch(
-      `https://fsfeu.org/es/fsf/api/donation/create?user_id=${user.id}&api_token=${token}`
-      
+      `https://fsfeu.org/es/fsf/api/donation/create?user_id=${user.id}&api_token=${token}`,
     )
       .then(res => res.json())
       .then(data => {
@@ -107,14 +104,24 @@ export const UploadDonationScreen = () => {
             data.accounts[0].bank + '-' + data.accounts[0].account_number,
           ),
           setbankid(data.accounts[0].id);
+        if (data.applications.length ==0) {
+          showMessage({
+            message: "You have atleast one Approved Application to Upload Donations",
+            type: 'danger',
+            duration: 3000,
+            titleStyle:{textAlign:"center"}
+          })
+          navigate.navigate(RoutNames.HomeScreen)
+        } else {
           setApplication(data.applications),
-          console.log('Applications', data),
-          setapp(
-            data.applications[0].application_id +
-              '-' +
-              data.applications[0].full_name,
-          );
-        setappid(data.applications[0].application_id);
+            console.log('Applications', data),
+            setapp(
+              data.applications[0].application_id +
+                '-' +
+                data.applications[0].full_name,
+            );
+          setappid(data.applications[0].application_id);
+        }
       })
       .catch(err =>
         showMessage({
@@ -125,7 +132,6 @@ export const UploadDonationScreen = () => {
       );
   }, []);
   const [application, setApplication] = useState([]);
-
 
   const uploadDonation = async () => {
     setIndicator(true);
@@ -151,24 +157,28 @@ export const UploadDonationScreen = () => {
       headers: {
         'content-type': 'multipart/form-data',
       },
-    });
-    const jsonRes = await res.json();
-    console.log('re================>', jsonRes);
-    if (jsonRes.status == 200) {
-      // dispatch(Loggin(jsonRes));
-      setConfirmDonate(true);
-      setIndicator(false);
-
-      console.log('status', jsonRes);
-    } else {
-      showMessage({
-        message: jsonRes.message,
-        type: 'danger',
-        duration: 3000,
-      });
-      console.log(jsonRes);
-      setIndicator(false);
-    }
+    }).then(res=>res.json()).then(jsonRes=>{
+      console.log('re================>', jsonRes);
+      if (jsonRes.status == 200) {
+        // dispatch(Loggin(jsonRes));
+        setConfirmDonate(true);
+        setIndicator(false);
+  
+        console.log('status', jsonRes);
+      } else {
+        showMessage({
+          message: jsonRes.message,
+          type: 'danger',
+          duration: 3000,
+        });
+        console.log(jsonRes);
+        setIndicator(false);
+      }
+    }).catch(err=>{
+      console.log("error",err)
+      setIndicator(false)
+  })
+   
   };
 
   const pickDocument = async () => {
@@ -222,7 +232,12 @@ export const UploadDonationScreen = () => {
                 borderBottomWidth: 1,
                 padding: 10,
               }}>
-              <Text style={{color: color.palette.black,    fontSize:14,fontFamily:typography.demi}}>
+              <Text
+                style={{
+                  color: color.palette.black,
+                  fontSize: 14,
+                  fontFamily: typography.demi,
+                }}>
                 {item.bank}-{item.account_number}
               </Text>
             </TouchableOpacity>
@@ -258,7 +273,12 @@ export const UploadDonationScreen = () => {
                 borderBottomWidth: 1,
                 padding: 10,
               }}>
-              <Text style={{color: color.palette.black,    fontSize:14,fontFamily:typography.demi}}>
+              <Text
+                style={{
+                  color: color.palette.black,
+                  fontSize: 14,
+                  fontFamily: typography.demi,
+                }}>
                 {item.application_id}-{item.full_name}
               </Text>
             </TouchableOpacity>
@@ -278,8 +298,7 @@ export const UploadDonationScreen = () => {
         console.log('values', values);
         setSure(true);
 
-        setvalues(values)
-        
+        setvalues(values);
       }}>
       {({
         handleChange,
@@ -471,22 +490,35 @@ export const UploadDonationScreen = () => {
                 </View>
                 <View style={style.upload_title_view}>
                   <Text style={style.uplaod_text}>Upload Donation Receipt</Text>
-                  <Text numberOfLines={2} style={style.uplaod_desc}>{file[0]?.name}</Text>
+                  <Text numberOfLines={2} style={style.uplaod_desc}>
+                    {file[0]?.name}
+                  </Text>
                 </View>
               </TouchableOpacity>
-              <Text style={{color: color.palette.black,fontFamily:typography.demi}}>Note:</Text>
-              <Text style={{color: color.palette.red,fontFamily:typography.demi}}>
+              <Text
+                style={{
+                  color: color.palette.black,
+                  fontFamily: typography.demi,
+                }}>
+                Note:
+              </Text>
+              <Text
+                style={{color: color.palette.red, fontFamily: typography.demi}}>
                 You can not donate from kid's personal amount.
               </Text>
-              <Text style={{color: color.palette.red, top: 4,fontFamily:typography.demi}}>
+              <Text
+                style={{
+                  color: color.palette.red,
+                  top: 4,
+                  fontFamily: typography.demi,
+                }}>
                 آپ نابالغ بچے کی ذاتی رقم سے ڈونیٹ نہیں کر سکتے.
               </Text>
 
               <View style={style.upload_btn_container}>
                 <TouchableOpacity
                   onPress={() => {
-                    handleSubmit()
-
+                    handleSubmit();
                   }}>
                   <LinearGradient
                     useAngle={true}
@@ -536,7 +568,6 @@ export const UploadDonationScreen = () => {
               date={date}
               onConfirm={date => {
                 setOpen(false);
-                
 
                 setDate(date);
               }}
@@ -567,7 +598,7 @@ export const UploadDonationScreen = () => {
                   <TouchableOpacity
                     onPress={() => {
                       setSure(false);
-                      uploadDonation()
+                      uploadDonation();
                     }}
                     style={style.yes_btn_container}>
                     <View style={style.yesbtn}>
@@ -627,7 +658,7 @@ export const UploadDonationScreen = () => {
                   onPress={() => {
                     navigate.navigate(RoutNames.HomeScreen),
                       setConfirmDonate(false);
-                     dispatch(SetHomeRefresh(!homeRefresh))
+                    dispatch(SetHomeRefresh(!homeRefresh));
                   }}>
                   <Cross width={'100%'} height={'100%'} />
                 </TouchableOpacity>
@@ -658,8 +689,7 @@ const style = StyleSheet.create({
   status_text: {
     fontSize: 28,
     color: color.palette.black,
-    fontFamily:typography.bold
-
+    fontFamily: typography.bold,
   },
   bottom_container: {
     flex: 0.76,
@@ -716,13 +746,12 @@ const style = StyleSheet.create({
     color: color.palette.black,
     top: 4,
     marginBottom: 25,
-    fontFamily:typography.medium
+    fontFamily: typography.medium,
   },
   gender_input: {
     color: color.palette.lightgray,
     fontSize: 15,
-    fontFamily:typography.medium
-
+    fontFamily: typography.medium,
   },
   backDown: {
     width: 16,
@@ -831,15 +860,15 @@ const style = StyleSheet.create({
   uplaod_text: {
     fontSize: 14,
     color: color.palette.black,
-    fontFamily:typography.demi
+    fontFamily: typography.demi,
   },
   uplaod_desc: {
     fontSize: 12,
     color: color.palette.lightgray,
-    fontFamily:typography.Regular,
-    marginLeft:10,
-    marginRight:10,
-    marginTop:4
+    fontFamily: typography.Regular,
+    marginLeft: 10,
+    marginRight: 10,
+    marginTop: 4,
   },
   upload_btn_container: {
     height: 50,
@@ -905,7 +934,7 @@ const style = StyleSheet.create({
   heading_text: {
     color: color.palette.black,
     fontSize: 18,
-    fontFamily:typography.demi
+    fontFamily: typography.demi,
   },
   paragraph_container: {
     width: '90%',
@@ -913,7 +942,7 @@ const style = StyleSheet.create({
   },
   paragraph_text: {
     color: color.palette.black,
-    fontFamily:typography.medium,
+    fontFamily: typography.medium,
   },
   cross_view: {
     width: 30,
@@ -958,7 +987,7 @@ const style = StyleSheet.create({
     left: 4,
     color: color.palette.white,
     fontSize: 15,
-    fontFamily:typography.medium
+    fontFamily: typography.medium,
   },
   modal_text_view: {
     marginBottom: 20,

@@ -1714,9 +1714,9 @@
     "@hapi/hoek" "^9.0.0"
 
 "@sideway/formula@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.npmjs.org/@sideway/formula/-/formula-3.0.0.tgz"
-  integrity sha512-vHe7wZ4NOXVfkoRb8T5otiENVlT7a3IAiw7H5M2+GO+9CDgcVUUsX1zalAztCmwyOr2RUTGJdgB+ZvSVqmdHmg==
+  version "3.0.1"
+  resolved "https://registry.npmjs.org/@sideway/formula/-/formula-3.0.1.tgz"
+  integrity sha512-/poHZJJVjx3L+zVD6g9KgHfYnb443oi7wLu/XKojDviHy6HOEOA6z1Trk5aR1dGcmPenJEgb2sK2I80LeS3MIg==
 
 "@sideway/pinpoint@^2.0.0":
   version "2.0.0"
@@ -7112,6 +7112,11 @@ rimraf@~2.6.2:
   integrity sha512-mwqeW5XsA2qAejG46gYdENaxXjx9onRNCfn7L0duuP4hCuTIi/QO7PDK07KJfp1d+izWPrzEJDcSqBa0OZQriA==
   dependencies:
     glob "^7.1.3"
+
+rn-country-picker@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.npmjs.org/rn-country-picker/-/rn-country-picker-1.0.1.tgz"
+  integrity sha512-qKfIGuH+9J0SaP9l32SbMIZj65YQa9Dj0Z8F6ZNKgaj1Eah8d06+GMH0YfmiYluEPoVanaZnJAuyW2Mbxr9UaA==
 
 rn-fetch-blob@^0.12.0:
   version "0.12.0"

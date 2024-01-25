@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 import React, {useRef, useState, useEffect} from 'react';
 import {Formik, useFormik, useFormikContext} from 'formik';
+import CountryPicker from 'rn-country-picker';
+
 import {ScrollView, TextInput} from 'react-native-gesture-handler';
 import {FormField} from './FormField';
 import {FormImage} from './FormImage';
@@ -46,6 +48,7 @@ import {SkypeIndicator} from 'react-native-indicators';
 import SearchIcon from '../../assets/EnrolmentAssets/searchIcon.svg';
 import {CustomAlert} from '../Common/CustomAlert';
 import IntlPhoneInput from 'react-native-intl-phone-input';
+import {values} from 'ramda';
 
 export const Form = ({updating = false, appId}) => {
   const [indicator, setIndicator] = useState(false);
@@ -77,11 +80,13 @@ export const Form = ({updating = false, appId}) => {
   const [community, setCommunity] = useState('Community');
   const [province, setprovince] = useState('Province');
   const [city, setcity] = useState('City');
+  const [native, setNative] = useState('Native Country');
   const [list, setlist] = useState([]);
   const [forCountry, setforCountry] = useState(null);
   const [forCommunity, setforcommunity] = useState(null);
   const [forProvince, setforProvince] = useState(null);
   const [forcity, setforcity] = useState(null);
+  const [forNative, setForNative] = useState(null);
   const initialDate = new Date();
   const [upload, setupload] = useState(true);
   const [fetchData, setFetchData] = useState({
@@ -89,6 +94,7 @@ export const Form = ({updating = false, appId}) => {
     countries: [],
     provinces: [],
     cities: [],
+    native: [],
   });
   const [location, setlocation] = useState({
     community: '',
@@ -255,15 +261,15 @@ export const Form = ({updating = false, appId}) => {
     const day = date.getDate();
     const mon = date.getMonth();
     const year = date.getFullYear().toString();
-    const fullDate =  day+ '-' + (mon + 1) + '-' + year;
+    const fullDate = day + '-' + (mon + 1) + '-' + year;
     return fullDate;
   };
   const dateUpload = () => {
     const day = date.getDate();
     const mon = date.getMonth();
     const year = date.getFullYear().toString();
-    return year + '-' + (mon + 1) + '-' +day ;
-  }; 
+    return year + '-' + (mon + 1) + '-' + day;
+  };
   const pickFromGallary = () => {
     ImagePicker.clean()
       .then(() => {})
@@ -509,27 +515,46 @@ export const Form = ({updating = false, appId}) => {
     });
     formData.append('declaration_confirm', '1');
 
-    const res = await fetch(`https://fsfeu.org/es/fsf/api/application/store?`, {
+    await fetch(`https://fsfeu.org/es/fsf/api/application/store?`, {
       method: 'post',
       body: formData,
       headers: {
         'content-type': 'multipart/form-data',
       },
-    });
-    const jsonRes = await res.json();
-    console.log('resssssss+++', jsonRes);
-    if (jsonRes.status === true) {
-      setEnrolled(true);
-      showMessage({
-        message: jsonRes.message,
-        type: 'success',
-        duration: 3000,
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === true) {
+          showMessage({
+            message: data.message,
+            type: 'success',
+            duration: 3000,
+          });
+          setIndicator(false);
+          setEnrolled(true);
+        } else if (data.status == 400) {
+          showMessage({
+            message: data.message,
+            type: 'danger',
+            duration: 3000,
+          });
+          setIndicator(false);
+        } else {
+          console.log('data', data);
+          setIndicator(false);
+        }
+      })
+      .catch(err => {
+        console.log('err', err);
+        setIndicator(false);
+      })
+      .catch(err => {
+        console.log('err', err);
+        setIndicator(false);
       });
-      setIndicator(false);
-    } else {
-      //  console.log('data', jsonRes);
-      setIndicator(false);
-    }
+
+    // res.catch(err=>{
+    // })
   };
   const UpdateEnrollment = async (
     whereBurried,
@@ -629,30 +654,43 @@ export const Form = ({updating = false, appId}) => {
     });
     formData.append('declaration_confirm', '1');
 
-    const res = await fetch(
-      `https://fsfeu.org/es/fsf/api/application/update?`,
-      {
-        method: 'post',
-        body: formData,
-        headers: {
-          'content-type': 'multipart/form-data',
-        },
+    await fetch(`https://fsfeu.org/es/fsf/api/application/update?`, {
+      method: 'post',
+      body: formData,
+      headers: {
+        'content-type': 'multipart/form-data',
       },
-    );
-    const jsonRes = await res.json();
-    console.log('resssssss+++', jsonRes);
-    if (jsonRes.status === 200) {
-      showMessage({
-        message: jsonRes.message,
-        type: 'success',
-        duration: 3000,
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === true) {
+          showMessage({
+            message: data.message,
+            type: 'success',
+            duration: 3000,
+          });
+          setIndicator(false);
+          setEnrolled(true);
+        } else if (data.status == 400) {
+          showMessage({
+            message: data.message,
+            type: 'danger',
+            duration: 3000,
+          });
+          setIndicator(false);
+        } else {
+          console.log('data', data);
+          setIndicator(false);
+        }
+      })
+      .catch(err => {
+        console.log('err', err);
+        setIndicator(false);
+      })
+      .catch(err => {
+        console.log('err', err);
+        setIndicator(false);
       });
-      setIndicator(false);
-      setEnrolled(true);
-    } else {
-      //  console.log('data', jsonRes);
-      setIndicator(false);
-    }
   };
   searchItem = text => {
     const newData = list.filter(item => {
@@ -671,10 +709,257 @@ export const Form = ({updating = false, appId}) => {
       setFetchData({...fetchData, provinces: newData});
     } else if (forcity == true) {
       setFetchData({...fetchData, cities: newData});
+    } else if (forNative == true) {
+      setFetchData({...fetchData, native: newData});
     }
   };
 
   console.log('appid', updating, appId);
+  const Nations = [
+    {name: 'Afghanistan', code: 'AF'},
+    {name: 'Åland Islands', code: 'AX'},
+    {name: 'Albania', code: 'AL'},
+    {name: 'Algeria', code: 'DZ'},
+    {name: 'American Samoa', code: 'AS'},
+    {name: 'AndorrA', code: 'AD'},
+    {name: 'Angola', code: 'AO'},
+    {name: 'Anguilla', code: 'AI'},
+    {name: 'Antarctica', code: 'AQ'},
+    {name: 'Antigua and Barbuda', code: 'AG'},
+    {name: 'Argentina', code: 'AR'},
+    {name: 'Armenia', code: 'AM'},
+    {name: 'Aruba', code: 'AW'},
+    {name: 'Australia', code: 'AU'},
+    {name: 'Austria', code: 'AT'},
+    {name: 'Azerbaijan', code: 'AZ'},
+    {name: 'Bahamas', code: 'BS'},
+    {name: 'Bahrain', code: 'BH'},
+    {name: 'Bangladesh', code: 'BD'},
+    {name: 'Barbados', code: 'BB'},
+    {name: 'Belarus', code: 'BY'},
+    {name: 'Belgium', code: 'BE'},
+    {name: 'Belize', code: 'BZ'},
+    {name: 'Benin', code: 'BJ'},
+    {name: 'Bermuda', code: 'BM'},
+    {name: 'Bhutan', code: 'BT'},
+    {name: 'Bolivia', code: 'BO'},
+    {name: 'Bosnia and Herzegovina', code: 'BA'},
+    {name: 'Botswana', code: 'BW'},
+    {name: 'Bouvet Island', code: 'BV'},
+    {name: 'Brazil', code: 'BR'},
+    {name: 'British Indian Ocean Territory', code: 'IO'},
+    {name: 'Brunei Darussalam', code: 'BN'},
+    {name: 'Bulgaria', code: 'BG'},
+    {name: 'Burkina Faso', code: 'BF'},
+    {name: 'Burundi', code: 'BI'},
+    {name: 'Cambodia', code: 'KH'},
+    {name: 'Cameroon', code: 'CM'},
+    {name: 'Canada', code: 'CA'},
+    {name: 'Cape Verde', code: 'CV'},
+    {name: 'Cayman Islands', code: 'KY'},
+    {name: 'Central African Republic', code: 'CF'},
+    {name: 'Chad', code: 'TD'},
+    {name: 'Chile', code: 'CL'},
+    {name: 'China', code: 'CN'},
+    {name: 'Christmas Island', code: 'CX'},
+    {name: 'Cocos (Keeling) Islands', code: 'CC'},
+    {name: 'Colombia', code: 'CO'},
+    {name: 'Comoros', code: 'KM'},
+    {name: 'Congo', code: 'CG'},
+    {name: 'Congo, The Democratic Republic of the', code: 'CD'},
+    {name: 'Cook Islands', code: 'CK'},
+    {name: 'Costa Rica', code: 'CR'},
+    {name: "Cote D'Ivoire", code: 'CI'},
+    {name: 'Croatia', code: 'HR'},
+    {name: 'Cuba', code: 'CU'},
+    {name: 'Cyprus', code: 'CY'},
+    {name: 'Czech Republic', code: 'CZ'},
+    {name: 'Denmark', code: 'DK'},
+    {name: 'Djibouti', code: 'DJ'},
+    {name: 'Dominica', code: 'DM'},
+    {name: 'Dominican Republic', code: 'DO'},
+    {name: 'Ecuador', code: 'EC'},
+    {name: 'Egypt', code: 'EG'},
+    {name: 'El Salvador', code: 'SV'},
+    {name: 'Equatorial Guinea', code: 'GQ'},
+    {name: 'Eritrea', code: 'ER'},
+    {name: 'Estonia', code: 'EE'},
+    {name: 'Ethiopia', code: 'ET'},
+    {name: 'Falkland Islands (Malvinas)', code: 'FK'},
+    {name: 'Faroe Islands', code: 'FO'},
+    {name: 'Fiji', code: 'FJ'},
+    {name: 'Finland', code: 'FI'},
+    {name: 'France', code: 'FR'},
+    {name: 'French Guiana', code: 'GF'},
+    {name: 'French Polynesia', code: 'PF'},
+    {name: 'French Southern Territories', code: 'TF'},
+    {name: 'Gabon', code: 'GA'},
+    {name: 'Gambia', code: 'GM'},
+    {name: 'Georgia', code: 'GE'},
+    {name: 'Germany', code: 'DE'},
+    {name: 'Ghana', code: 'GH'},
+    {name: 'Gibraltar', code: 'GI'},
+    {name: 'Greece', code: 'GR'},
+    {name: 'Greenland', code: 'GL'},
+    {name: 'Grenada', code: 'GD'},
+    {name: 'Guadeloupe', code: 'GP'},
+    {name: 'Guam', code: 'GU'},
+    {name: 'Guatemala', code: 'GT'},
+    {name: 'Guernsey', code: 'GG'},
+    {name: 'Guinea', code: 'GN'},
+    {name: 'Guinea-Bissau', code: 'GW'},
+    {name: 'Guyana', code: 'GY'},
+    {name: 'Haiti', code: 'HT'},
+    {name: 'Heard Island and Mcdonald Islands', code: 'HM'},
+    {name: 'Holy See (Vatican City State)', code: 'VA'},
+    {name: 'Honduras', code: 'HN'},
+    {name: 'Hong Kong', code: 'HK'},
+    {name: 'Hungary', code: 'HU'},
+    {name: 'Iceland', code: 'IS'},
+    {name: 'India', code: 'IN'},
+    {name: 'Indonesia', code: 'ID'},
+    {name: 'Iran, Islamic Republic Of', code: 'IR'},
+    {name: 'Iraq', code: 'IQ'},
+    {name: 'Ireland', code: 'IE'},
+    {name: 'Isle of Man', code: 'IM'},
+    {name: 'Israel', code: 'IL'},
+    {name: 'Italy', code: 'IT'},
+    {name: 'Jamaica', code: 'JM'},
+    {name: 'Japan', code: 'JP'},
+    {name: 'Jersey', code: 'JE'},
+    {name: 'Jordan', code: 'JO'},
+    {name: 'Kazakhstan', code: 'KZ'},
+    {name: 'Kenya', code: 'KE'},
+    {name: 'Kiribati', code: 'KI'},
+    {name: "Korea, Democratic People'S Republic of", code: 'KP'},
+    {name: 'Korea, Republic of', code: 'KR'},
+    {name: 'Kuwait', code: 'KW'},
+    {name: 'Kyrgyzstan', code: 'KG'},
+    {name: "Lao People'S Democratic Republic", code: 'LA'},
+    {name: 'Latvia', code: 'LV'},
+    {name: 'Lebanon', code: 'LB'},
+    {name: 'Lesotho', code: 'LS'},
+    {name: 'Liberia', code: 'LR'},
+    {name: 'Libyan Arab Jamahiriya', code: 'LY'},
+    {name: 'Liechtenstein', code: 'LI'},
+    {name: 'Lithuania', code: 'LT'},
+    {name: 'Luxembourg', code: 'LU'},
+    {name: 'Macao', code: 'MO'},
+    {name: 'Macedonia, The Former Yugoslav Republic of', code: 'MK'},
+    {name: 'Madagascar', code: 'MG'},
+    {name: 'Malawi', code: 'MW'},
+    {name: 'Malaysia', code: 'MY'},
+    {name: 'Maldives', code: 'MV'},
+    {name: 'Mali', code: 'ML'},
+    {name: 'Malta', code: 'MT'},
+    {name: 'Marshall Islands', code: 'MH'},
+    {name: 'Martinique', code: 'MQ'},
+    {name: 'Mauritania', code: 'MR'},
+    {name: 'Mauritius', code: 'MU'},
+    {name: 'Mayotte', code: 'YT'},
+    {name: 'Mexico', code: 'MX'},
+    {name: 'Micronesia, Federated States of', code: 'FM'},
+    {name: 'Moldova, Republic of', code: 'MD'},
+    {name: 'Monaco', code: 'MC'},
+    {name: 'Mongolia', code: 'MN'},
+    {name: 'Montserrat', code: 'MS'},
+    {name: 'Morocco', code: 'MA'},
+    {name: 'Mozambique', code: 'MZ'},
+    {name: 'Myanmar', code: 'MM'},
+    {name: 'Namibia', code: 'NA'},
+    {name: 'Nauru', code: 'NR'},
+    {name: 'Nepal', code: 'NP'},
+    {name: 'Netherlands', code: 'NL'},
+    {name: 'Netherlands Antilles', code: 'AN'},
+    {name: 'New Caledonia', code: 'NC'},
+    {name: 'New Zealand', code: 'NZ'},
+    {name: 'Nicaragua', code: 'NI'},
+    {name: 'Niger', code: 'NE'},
+    {name: 'Nigeria', code: 'NG'},
+    {name: 'Niue', code: 'NU'},
+    {name: 'Norfolk Island', code: 'NF'},
+    {name: 'Northern Mariana Islands', code: 'MP'},
+    {name: 'Norway', code: 'NO'},
+    {name: 'Oman', code: 'OM'},
+    {name: 'Pakistan', code: 'PK'},
+    {name: 'Palau', code: 'PW'},
+    {name: 'Palestinian Territory, Occupied', code: 'PS'},
+    {name: 'Panama', code: 'PA'},
+    {name: 'Papua New Guinea', code: 'PG'},
+    {name: 'Paraguay', code: 'PY'},
+    {name: 'Peru', code: 'PE'},
+    {name: 'Philippines', code: 'PH'},
+    {name: 'Pitcairn', code: 'PN'},
+    {name: 'Poland', code: 'PL'},
+    {name: 'Portugal', code: 'PT'},
+    {name: 'Puerto Rico', code: 'PR'},
+    {name: 'Qatar', code: 'QA'},
+    {name: 'Reunion', code: 'RE'},
+    {name: 'Romania', code: 'RO'},
+    {name: 'Russian Federation', code: 'RU'},
+    {name: 'RWANDA', code: 'RW'},
+    {name: 'Saint Helena', code: 'SH'},
+    {name: 'Saint Kitts and Nevis', code: 'KN'},
+    {name: 'Saint Lucia', code: 'LC'},
+    {name: 'Saint Pierre and Miquelon', code: 'PM'},
+    {name: 'Saint Vincent and the Grenadines', code: 'VC'},
+    {name: 'Samoa', code: 'WS'},
+    {name: 'San Marino', code: 'SM'},
+    {name: 'Sao Tome and Principe', code: 'ST'},
+    {name: 'Saudi Arabia', code: 'SA'},
+    {name: 'Senegal', code: 'SN'},
+    {name: 'Serbia and Montenegro', code: 'CS'},
+    {name: 'Seychelles', code: 'SC'},
+    {name: 'Sierra Leone', code: 'SL'},
+    {name: 'Singapore', code: 'SG'},
+    {name: 'Slovakia', code: 'SK'},
+    {name: 'Slovenia', code: 'SI'},
+    {name: 'Solomon Islands', code: 'SB'},
+    {name: 'Somalia', code: 'SO'},
+    {name: 'South Africa', code: 'ZA'},
+    {name: 'South Georgia and the South Sandwich Islands', code: 'GS'},
+    {name: 'Spain', code: 'ES'},
+    {name: 'Sri Lanka', code: 'LK'},
+    {name: 'Sudan', code: 'SD'},
+    {name: 'Suriname', code: 'SR'},
+    {name: 'Svalbard and Jan Mayen', code: 'SJ'},
+    {name: 'Swaziland', code: 'SZ'},
+    {name: 'Sweden', code: 'SE'},
+    {name: 'Switzerland', code: 'CH'},
+    {name: 'Syrian Arab Republic', code: 'SY'},
+    {name: 'Taiwan, Province of China', code: 'TW'},
+    {name: 'Tajikistan', code: 'TJ'},
+    {name: 'Tanzania, United Republic of', code: 'TZ'},
+    {name: 'Thailand', code: 'TH'},
+    {name: 'Timor-Leste', code: 'TL'},
+    {name: 'Togo', code: 'TG'},
+    {name: 'Tokelau', code: 'TK'},
+    {name: 'Tonga', code: 'TO'},
+    {name: 'Trinidad and Tobago', code: 'TT'},
+    {name: 'Tunisia', code: 'TN'},
+    {name: 'Turkey', code: 'TR'},
+    {name: 'Turkmenistan', code: 'TM'},
+    {name: 'Turks and Caicos Islands', code: 'TC'},
+    {name: 'Tuvalu', code: 'TV'},
+    {name: 'Uganda', code: 'UG'},
+    {name: 'Ukraine', code: 'UA'},
+    {name: 'United Arab Emirates', code: 'AE'},
+    {name: 'United Kingdom', code: 'GB'},
+    {name: 'United States', code: 'US'},
+    {name: 'United States Minor Outlying Islands', code: 'UM'},
+    {name: 'Uruguay', code: 'UY'},
+    {name: 'Uzbekistan', code: 'UZ'},
+    {name: 'Vanuatu', code: 'VU'},
+    {name: 'Venezuela', code: 'VE'},
+    {name: 'Viet Nam', code: 'VN'},
+    {name: 'Virgin Islands, British', code: 'VG'},
+    {name: 'Virgin Islands, U.S.', code: 'VI'},
+    {name: 'Wallis and Futuna', code: 'WF'},
+    {name: 'Western Sahara', code: 'EH'},
+    {name: 'Yemen', code: 'YE'},
+    {name: 'Zambia', code: 'ZM'},
+    {name: 'Zimbabwe', code: 'ZW'},
+  ];
 
   return (
     <View style={{flex: 1}}>
@@ -757,6 +1042,7 @@ export const Form = ({updating = false, appId}) => {
 
               completeAddress_native: values.completeAddress_native,
             });
+            console.log('step one====>', values);
             setStep(2);
           }}>
           {({
@@ -770,6 +1056,7 @@ export const Form = ({updating = false, appId}) => {
             validateForm,
             setErrors,
             setFieldValue,
+            values,
           }) => (
             <ScrollView
               showsVerticalScrollIndicator={false}
@@ -787,6 +1074,7 @@ export const Form = ({updating = false, appId}) => {
                   img={img}
                 />
               </TouchableOpacity>
+
               <FormField english={'Full Name:'} urdu={'name'} />
               <TextInput
                 ref={step1ref}
@@ -803,21 +1091,6 @@ export const Form = ({updating = false, appId}) => {
                 onChangeText={handleChange('fullName')}
                 onChange={() => validateField('fullName')}
               />
-              <FormField english={'Father Name:'} urdu={'fatherName'} />
-              <TextInput
-                style={[
-                  style.input,
-                  errors.fatherName == 'Required' &&
-                    touched.fatherName && {
-                      borderWidth: 1,
-                      borderColor: 'red',
-                    },
-                ]}
-                placeholder={'Muhammad Azhar'}
-                placeholderTextColor={color.palette.lightgray}
-                onChangeText={handleChange('fatherName')}
-                onChange={() => validateField('fatherName')}
-              />
               <FormField english={'Sur Name:'} urdu={'surName'} />
               <TextInput
                 style={[
@@ -832,6 +1105,21 @@ export const Form = ({updating = false, appId}) => {
                 placeholderTextColor={color.palette.lightgray}
                 onChangeText={handleChange('surName')}
                 onChange={() => validateField('surName')}
+              />
+              <FormField english={'Father Name:'} urdu={'fatherName'} />
+              <TextInput
+                style={[
+                  style.input,
+                  errors.fatherName == 'Required' &&
+                    touched.fatherName && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                ]}
+                placeholder={'Muhammad Azhar'}
+                placeholderTextColor={color.palette.lightgray}
+                onChangeText={handleChange('fatherName')}
+                onChange={() => validateField('fatherName')}
               />
 
               <FormField english={'Gender:'} urdu={'gender'} />
@@ -854,9 +1142,7 @@ export const Form = ({updating = false, appId}) => {
                   setOpen(true);
                 }}>
                 <View style={[style.input, {justifyContent: 'center'}]}>
-                  <Text style={style.gender_input}>
-                    {selectDate()}
-                  </Text>
+                  <Text style={style.gender_input}>{selectDate()}</Text>
                 </View>
                 <View style={[style.backDown, {width: 19, height: 19}]}>
                   <Calender width={'100%'} height={'100%'} />
@@ -921,7 +1207,6 @@ export const Form = ({updating = false, appId}) => {
                           e.unmaskedPhoneNumber.toString(),
                       );
                       validateField('cellNumber');
-
                     } else {
                       setFieldValue('cellNumber', '');
                     }
@@ -933,10 +1218,17 @@ export const Form = ({updating = false, appId}) => {
                     height: 55,
                     color: color.palette.black,
                   }}
-                  flagStyle={{bottom:6,right:3}}
-                  dialCodeTextStyle={{fontSize: 16, color: color.palette.black,bottom:2}}
+                  flagStyle={{bottom: 6, right: 3}}
+                  dialCodeTextStyle={{
+                    fontSize: 16,
+                    color: color.palette.black,
+                    bottom: 2,
+                  }}
                   defaultCountry={'PK'}
-                  modalCountryItemCountryNameStyle={{color:color.palette.black,fontFamily:typography.demi}}
+                  modalCountryItemCountryNameStyle={{
+                    color: color.palette.black,
+                    fontFamily: typography.demi,
+                  }}
                 />
               </View>
               {/* <TextInput
@@ -975,8 +1267,8 @@ export const Form = ({updating = false, appId}) => {
                   setSearchModel(true);
                   setforCountry(true);
                   setlist(fetchData.countries);
-                }}
-                onPressOut={() => setFieldValue('country', 'added')}>
+                  setFieldValue('country', 'added');
+                }}>
                 <View
                   style={[
                     style.input,
@@ -1007,8 +1299,8 @@ export const Form = ({updating = false, appId}) => {
                   setSearchModel(true);
                   setforcommunity(true);
                   setlist(fetchData.communities);
-                }}
-                onPressOut={() => setFieldValue('community', 'added')}>
+                  setFieldValue('community', 'added');
+                }}>
                 <View
                   style={[
                     style.input,
@@ -1039,8 +1331,8 @@ export const Form = ({updating = false, appId}) => {
                   setSearchModel(true);
                   setforProvince(true);
                   setlist(fetchData.provinces);
-                }}
-                onPressOut={() => setFieldValue('province', 'added')}>
+                  setFieldValue('province', 'added');
+                }}>
                 <View
                   style={[
                     style.input,
@@ -1071,8 +1363,8 @@ export const Form = ({updating = false, appId}) => {
                   setSearchModel(true);
                   setforcity(true);
                   setlist(fetchData.cities);
-                }}
-                onPressOut={() => setFieldValue('city', 'added')}>
+                  setFieldValue('city', 'added');
+                }}>
                 <View
                   style={[
                     style.input,
@@ -1114,7 +1406,41 @@ export const Form = ({updating = false, appId}) => {
                 onChange={() => validateField('areaStreetHouse')}
               />
               <FormField english={'Native Country:'} urdu={'nativeCountry'} />
-              <TextInput
+              <TouchableOpacity
+                onPress={() => {
+                  setSearchModel(true);
+                  setForNative(true);
+                  setFetchData({...fetchData, native: Nations});
+                  setlist(Nations);
+                  setFieldValue('nativeCountry', 'added');
+                }}
+                onPressOut={() => {
+                  //setFieldValue('country', 'added')
+                }}>
+                <View
+                  style={[
+                    style.input,
+                    {justifyContent: 'center'},
+                    errors.nativeCountry == 'Required' && {
+                      borderWidth: 1,
+                      borderColor: 'red',
+                    },
+                  ]}>
+                  <Text
+                    style={[
+                      style.gender_input,
+                      native == 'Native Country'
+                        ? {color: color.palette.lightgray}
+                        : null,
+                    ]}>
+                    {native}
+                  </Text>
+                </View>
+                <View style={[style.backDown]}>
+                  <BackDown width={'100%'} height={'100%'} />
+                </View>
+              </TouchableOpacity>
+              {/* <TextInput
                 placeholder={'Native Country'}
                 placeholderTextColor={color.palette.lightgray}
                 style={[
@@ -1127,7 +1453,7 @@ export const Form = ({updating = false, appId}) => {
                 ]}
                 onChangeText={handleChange('nativeCountry')}
                 onChange={() => validateField('nativeCountry')}
-              />
+              /> */}
               <FormField english={'ID Card No.(native country):'} />
               <FormField urdu={'CNIC'} />
               <TextInput
@@ -1218,6 +1544,7 @@ export const Form = ({updating = false, appId}) => {
                         <View style={style.search_bar_container}>
                           <TextInput
                             style={style.search_input}
+                            placeholderTextColor={color.palette.lightgray}
                             placeholder={'Search'}
                             onChangeText={e => {
                               searchItem(e);
@@ -1248,8 +1575,6 @@ export const Form = ({updating = false, appId}) => {
                                         setSearchModel(false);
                                       setforCountry(false);
                                       fetchCommunity(item.id);
-                                    }}
-                                    onPressOut={() => {
                                       validateField('country');
                                     }}>
                                     <Text style={style.search_item_text}>
@@ -1277,13 +1602,11 @@ export const Form = ({updating = false, appId}) => {
                                           ...location,
                                           community: item.id,
                                         });
+                                      validateField('community');
 
                                       setSearchModel(false);
                                       setforcommunity(false);
                                       fetchProvince(item.id);
-                                    }}
-                                    onPressOut={() => {
-                                      validateField('community');
                                     }}>
                                     <Text style={style.search_item_text}>
                                       {item.name}
@@ -1314,8 +1637,6 @@ export const Form = ({updating = false, appId}) => {
                                         setSearchModel(false);
                                       setforProvince(false);
                                       fetchCity(item.id);
-                                    }}
-                                    onPressOut={() => {
                                       validateField('province');
                                     }}>
                                     <Text style={style.search_item_text}>
@@ -1342,11 +1663,44 @@ export const Form = ({updating = false, appId}) => {
 
                                       setcity(item.name), setSearchModel(false);
                                       setforcity(false);
+                                      validateField('city');
+
                                       fetchCity(item.id);
                                     }}
-                                    onPressOut={() => {
-                                      validateField('city');
-                                    }}>
+                                    // onPressOut={() => {
+                                    //   validateField('city');
+                                    // }}
+                                  >
+                                    <Text style={style.search_item_text}>
+                                      {item.name}
+                                    </Text>
+                                  </TouchableOpacity>
+                                );
+                              })}
+                            </>
+                          ) : null}
+                          {forNative ? (
+                            <>
+                              {fetchData.native.map((item, index) => {
+                                return (
+                                  <TouchableOpacity
+                                    key={index}
+                                    style={{
+                                      height: 50,
+                                      borderBottomWidth: 1,
+                                    }}
+                                    onPress={() => {
+                                      setFieldValue('nativeCountry', item.name);
+                                      /// setlocation({...location, city: item.id});
+                                      setNative(item.name),
+                                        setSearchModel(false);
+                                      setForNative(false);
+                                      validateField('nativeCountry');
+                                    }}
+                                    // onPressOut={() => {
+                                    //  validateField('nativeCountry');
+                                    // }}
+                                  >
                                     <Text style={style.search_item_text}>
                                       {item.name}
                                     </Text>
@@ -1378,7 +1732,25 @@ export const Form = ({updating = false, appId}) => {
                             style.cross_view,
                             {backgroundColor: color.palette.lightBlue},
                           ]}
-                          onPress={() => setSearchModel(false)}>
+                          onPress={() => {
+                            setSearchModel(false);
+                            setForNative(false);
+                            setforCountry(false);
+                            setforProvince(false);
+                            setforcommunity(false);
+                            setforcity(false);
+                            if (values.nativeCountry == 'added') {
+                              setFieldValue('nativeCountry', '');
+                            } else if (values.country == 'added') {
+                              setFieldValue('country', '');
+                            } else if (values.community == 'added') {
+                              setFieldValue('community', '');
+                            } else if (values.province == 'added') {
+                              setFieldValue('province', '');
+                            } else if (values.city == 'added') {
+                              setFieldValue('city', '');
+                            }
+                          }}>
                           <Cross width={'100%'} height={'100%'} />
                         </TouchableOpacity>
                       </LinearGradient>
@@ -1538,7 +1910,6 @@ export const Form = ({updating = false, appId}) => {
                           e.unmaskedPhoneNumber.toString(),
                       );
                       validateField('first_relative_cellNo');
-
                     } else {
                       setFieldValue('first_relative_cellNo', '');
                     }
@@ -1550,10 +1921,17 @@ export const Form = ({updating = false, appId}) => {
                     height: 55,
                     color: color.palette.black,
                   }}
-                  flagStyle={{bottom:6,right:3}}
-                  dialCodeTextStyle={{fontSize: 16, color: color.palette.black,bottom:2}}
+                  flagStyle={{bottom: 6, right: 3}}
+                  dialCodeTextStyle={{
+                    fontSize: 16,
+                    color: color.palette.black,
+                    bottom: 2,
+                  }}
                   defaultCountry={'PK'}
-                  modalCountryItemCountryNameStyle={{color:color.palette.black,fontFamily:typography.demi}}
+                  modalCountryItemCountryNameStyle={{
+                    color: color.palette.black,
+                    fontFamily: typography.demi,
+                  }}
                 />
               </View>
               {/* <TextInput
@@ -1651,7 +2029,6 @@ export const Form = ({updating = false, appId}) => {
                           e.unmaskedPhoneNumber.toString(),
                       );
                       validateField('second_relative_cellNo');
-
                     } else {
                       setFieldValue('second_relative_cellNo', '');
                     }
@@ -1663,10 +2040,17 @@ export const Form = ({updating = false, appId}) => {
                     height: 55,
                     color: color.palette.black,
                   }}
-                  flagStyle={{bottom:6,right:3}}
-                  dialCodeTextStyle={{fontSize: 16, color: color.palette.black,bottom:2}}
+                  flagStyle={{bottom: 6, right: 3}}
+                  dialCodeTextStyle={{
+                    fontSize: 16,
+                    color: color.palette.black,
+                    bottom: 2,
+                  }}
                   defaultCountry={'PK'}
-                  modalCountryItemCountryNameStyle={{color:color.palette.black,fontFamily:typography.demi}}
+                  modalCountryItemCountryNameStyle={{
+                    color: color.palette.black,
+                    fontFamily: typography.demi,
+                  }}
                 />
               </View>
               {/* <TextInput
@@ -1845,7 +2229,6 @@ export const Form = ({updating = false, appId}) => {
                           e.unmaskedPhoneNumber.toString(),
                       );
                       validateField('first_relative_cellNo_native');
-
                     } else {
                       setFieldValue('first_relative_cellNo_native', '');
                     }
@@ -1857,10 +2240,17 @@ export const Form = ({updating = false, appId}) => {
                     height: 55,
                     color: color.palette.black,
                   }}
-                  flagStyle={{bottom:6,right:3}}
-                  dialCodeTextStyle={{fontSize: 16, color: color.palette.black,bottom:2}}
+                  flagStyle={{bottom: 6, right: 3}}
+                  dialCodeTextStyle={{
+                    fontSize: 16,
+                    color: color.palette.black,
+                    bottom: 2,
+                  }}
                   defaultCountry={'PK'}
-                  modalCountryItemCountryNameStyle={{color:color.palette.black,fontFamily:typography.demi}}
+                  modalCountryItemCountryNameStyle={{
+                    color: color.palette.black,
+                    fontFamily: typography.demi,
+                  }}
                 />
               </View>
               {/* <TextInput
@@ -1966,7 +2356,6 @@ export const Form = ({updating = false, appId}) => {
                           e.unmaskedPhoneNumber.toString(),
                       );
                       validateField('second_relative_cellNo_native');
-
                     } else {
                       setFieldValue('second_relative_cellNo_native', '');
                     }
@@ -1978,10 +2367,17 @@ export const Form = ({updating = false, appId}) => {
                     height: 55,
                     color: color.palette.black,
                   }}
-                  flagStyle={{bottom:6,right:3}}
-                  dialCodeTextStyle={{fontSize: 16, color: color.palette.black,bottom:2}}
+                  flagStyle={{bottom: 6, right: 3}}
+                  dialCodeTextStyle={{
+                    fontSize: 16,
+                    color: color.palette.black,
+                    bottom: 2,
+                  }}
                   defaultCountry={'PK'}
-                  modalCountryItemCountryNameStyle={{color:color.palette.black,fontFamily:typography.demi}}
+                  modalCountryItemCountryNameStyle={{
+                    color: color.palette.black,
+                    fontFamily: typography.demi,
+                  }}
                 />
               </View>
               {/* <TextInput
@@ -2146,50 +2542,56 @@ export const Form = ({updating = false, appId}) => {
                       />
                       <FormField english={'Cell No:'} urdu={'cell'} />
                       <View
-                style={
-                  errors.representive_cellNo == 'Required' &&
-                  touched.representive_cellNo && {
-                    borderWidth: 1,
-                    borderColor: 'red',
-                    borderRadius: 10,
-                    borderBottomWidth: 1.5,
-                  }
-                }>
-                <IntlPhoneInput
-                  placeholder={'000515552'}
-                  placeholderTextColor={color.palette.lightgray}
-                  phoneInputStyle={[
-                    style.input,
-                    {marginTop: 10, paddingLeft: 4},
-                  ]}
-                  onChangeText={e => {
-                    console.log('phone', e);
+                        style={
+                          errors.representive_cellNo == 'Required' &&
+                          touched.representive_cellNo && {
+                            borderWidth: 1,
+                            borderColor: 'red',
+                            borderRadius: 10,
+                            borderBottomWidth: 1.5,
+                          }
+                        }>
+                        <IntlPhoneInput
+                          placeholder={'000515552'}
+                          placeholderTextColor={color.palette.lightgray}
+                          phoneInputStyle={[
+                            style.input,
+                            {marginTop: 10, paddingLeft: 4},
+                          ]}
+                          onChangeText={e => {
+                            console.log('phone', e);
 
-                    if (e.isVerified == true) {
-                      setFieldValue(
-                        'representive_cellNo',
-                        e.dialCode.toString() +
-                          e.unmaskedPhoneNumber.toString(),
-                      );
-                      validateField('representive_cellNo');
-
-                    } else {
-                      setFieldValue('representive_cellNo', '');
-                    }
-                  }}
-                  containerStyle={{
-                    backgroundColor: color.palette.lightwhite,
-                    borderRadius: 10,
-                    fontSize: 16,
-                    height: 55,
-                    color: color.palette.black,
-                  }}
-                  flagStyle={{bottom:6,right:3}}
-                  dialCodeTextStyle={{fontSize: 16, color: color.palette.black,bottom:2}}
-                  defaultCountry={'PK'}
-                  modalCountryItemCountryNameStyle={{color:color.palette.black,fontFamily:typography.demi}}
-                />
-              </View>
+                            if (e.isVerified == true) {
+                              setFieldValue(
+                                'representive_cellNo',
+                                e.dialCode.toString() +
+                                  e.unmaskedPhoneNumber.toString(),
+                              );
+                              validateField('representive_cellNo');
+                            } else {
+                              setFieldValue('representive_cellNo', '');
+                            }
+                          }}
+                          containerStyle={{
+                            backgroundColor: color.palette.lightwhite,
+                            borderRadius: 10,
+                            fontSize: 16,
+                            height: 55,
+                            color: color.palette.black,
+                          }}
+                          flagStyle={{bottom: 6, right: 3}}
+                          dialCodeTextStyle={{
+                            fontSize: 16,
+                            color: color.palette.black,
+                            bottom: 2,
+                          }}
+                          defaultCountry={'PK'}
+                          modalCountryItemCountryNameStyle={{
+                            color: color.palette.black,
+                            fontFamily: typography.demi,
+                          }}
+                        />
+                      </View>
                       {/* <TextInput
                         keyboardType="numeric"
                         placeholder={'000515552'}
@@ -3330,6 +3732,7 @@ const style = StyleSheet.create({
     alignSelf: 'center',
     width: '80%',
     top: '7%',
+    marginBottom: 20,
   },
   search_item_text: {
     fontSize: 20,
